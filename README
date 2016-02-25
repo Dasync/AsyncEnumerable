@@ -143,4 +143,4 @@ or a database client implementation where result of a query is a set or rows.
 REFERENCES
 
 GitHub: https://github.com/tyrotoxin/AsyncEnumerable
-NuGet.org: https://www.nuget.org/packages/AsyncEnumerable/
+NuGet.org: https://www.nuget.org/packages/AsyncEnumerator/
