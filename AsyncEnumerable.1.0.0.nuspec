@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>AsyncEnumerator</id>
+        <version>1.0.0</version>
+        <authors>Serge Semenov</authors>
+        <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Introduces IAsyncEnumerable, IAsyncEnumerator, and ForEachAsync()
+GitHub: https://github.com/tyrotoxin/AsyncEnumerable
+
+PROBLEM SPACE
+
+Helps to (a) create an element provider, where producing an element can take a lot of time
+due to dependency on other asynchronous events (e.g. wait handles, network streams), and
+(b) a consumer that processes those element as soon as they are ready without blocking
+the thread (the processing is scheduled on a worker thread instead).
+
+
+EXAMPLE
+
+using System.Collections.Async;
+
+static IAsyncEnumerable&lt;int&gt; ProduceAsyncNumbers(int start, int end)
+{
+  return new AsyncEnumerable&lt;int&gt;(async yield =&gt; {
+
+    // Just to show that ReturnAsync can be used multiple times
+    await yield.ReturnAsync(start);
+
+    for (int number = start + 1; number &lt;= end; number++)
+      await yield.ReturnAsync(number);
+
+    // You can break the enumeration loop with the following call:
+    yield.Break();
+
+    // This won't be executed due to the loop break above
+    await yield.ReturnAsync(12345);
+  });
+}
+
+// Just to compare with synchronous version of enumerator
+static IEnumerable&lt;int&gt; ProduceNumbers(int start, int end)
+{
+  yield return start;
+
+  for (int number = start + 1; number &lt;= end; number++)
+    yield return number;
+
+  yield break;
+
+  yield return 12345;
+}
+
+static async Task ConsumeNumbersAsync()
+{
+  var asyncEnumerableCollection = ProduceAsyncNumbers(start: 1, end: 10);
+  await asyncEnumerableCollection.ForEachAsync(async number =&gt; {
+    await Console.Out.WriteLineAsync($"{number}");
+  });
+}
+
+// Just to compare with synchronous version of enumeration
+static void ConsumeNumbers()
+{
+  // NOTE: IAsyncEnumerable is derived from IEnumerable, so you can use either
+  var enumerableCollection = ProduceAsyncNumbers(start: 1, end: 10);
+  //var enumerableCollection = ProduceNumbers(start: 1, end: 10);
+
+  foreach (var number in enumerableCollection) {
+    Console.Out.WriteLine($"{number}");
+  }
+}</description>
+        <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, and ForEachAsync()</summary>
+        <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync async await foreach</tags>
+    </metadata>
+    <files>
+        <file src="bin\Release\AsyncEnumerable.XML" target="lib\AsyncEnumerable.XML" />
+        <file src="bin\Release\AsyncEnumerable.dll" target="lib\AsyncEnumerable.dll" />
+    </files>
+</package>
