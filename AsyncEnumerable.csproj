@@ -51,6 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AsyncEnumerable.nuspec" />
     <None Include="AsyncEnumerable.pfx" />
     <None Include="LICENSE" />
     <None Include="README.md" />
