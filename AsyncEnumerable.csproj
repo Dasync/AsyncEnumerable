@@ -46,6 +46,7 @@
     <Compile Include="AsyncEnumeratorWrapper.cs" />
     <Compile Include="IAsyncEnumerable.cs" />
     <Compile Include="ForEachAsyncExtensions.cs" />
+    <Compile Include="IAsyncEnumerableExtensions.cs" />
     <Compile Include="IAsyncEnumerator.cs" />
     <Compile Include="IEnumerableExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
