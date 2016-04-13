@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
         <authors>Serge Semenov</authors>
         <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
@@ -73,10 +73,11 @@ static void ConsumeNumbers()
   }
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, and ForEachAsync()</summary>
+        <releaseNotes>Downgraded minimum .NET Framework version from 4.5.2 to 4.5</releaseNotes>
         <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync async await foreach</tags>
     </metadata>
     <files>
-        <file src="bin\Release\AsyncEnumerable.XML" target="lib\AsyncEnumerable.XML" />
         <file src="bin\Release\AsyncEnumerable.dll" target="lib\AsyncEnumerable.dll" />
+        <file src="bin\Release\AsyncEnumerable.XML" target="lib\AsyncEnumerable.XML" />
     </files>
 </package>
