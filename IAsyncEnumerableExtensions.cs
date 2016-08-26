@@ -7,6 +7,7 @@ namespace System.Collections.Async
     /// <summary>
     /// Extension methods for <see cref="IAsyncEnumerable"/> interface
     /// </summary>
+    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
     public static class IAsyncEnumerableExtensions
     {
         /// <summary>

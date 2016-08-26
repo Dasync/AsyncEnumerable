@@ -6,6 +6,7 @@ namespace System.Collections
     /// <summary>
     /// Converts generic IEnumerable to IAsyncEnumerable
     /// </summary>
+    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
     public static class IEnumerableExtensions
     {
         /// <summary>
@@ -28,6 +29,7 @@ namespace System.Collections.Generic
     /// <summary>
     /// Converts generic IEnumerable to IAsyncEnumerable
     /// </summary>
+    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
     public static class IEnumerableExtensions
     {
         /// <summary>

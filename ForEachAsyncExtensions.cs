@@ -6,6 +6,7 @@ namespace System.Collections.Async
     /// <summary>
     /// Enables asynchronous 'foreach' enumeration over an IAsyncEnumerable
     /// </summary>
+    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
     public static class ForEachAsyncExtensions
     {
         /// <summary>

@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>1.0.3</version>
+        <version>1.1.0</version>
         <authors>Serge Semenov</authors>
         <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Introduces IAsyncEnumerable, IAsyncEnumerator, and ForEachAsync()
+        <description>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()
 GitHub: https://github.com/tyrotoxin/AsyncEnumerable
 
 PROBLEM SPACE
@@ -78,6 +78,6 @@ static void ConsumeNumbers()
     </metadata>
     <files>
         <file src="bin\Release\AsyncEnumerable.dll" target="lib\AsyncEnumerable.dll" />
-        <file src="bin\Release\AsyncEnumerable.XML" target="lib\AsyncEnumerable.XML" />
+        <file src="bin\Release\AsyncEnumerable.xml" target="lib\AsyncEnumerable.xml" />
     </files>
 </package>
