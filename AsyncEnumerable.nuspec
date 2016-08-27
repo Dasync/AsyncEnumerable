@@ -73,8 +73,8 @@ static void ConsumeNumbers()
   }
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, and ForEachAsync()</summary>
-        <releaseNotes>Add ForEachAsync overloaded method with item index as the second argument of a callback action</releaseNotes>
-        <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync async await foreach</tags>
+        <releaseNotes>Add ParallelForEachAsync extension methods for IEnumerable&lt;T&gt; and IAsyncEnumerable&lt;T&gt; in System.Collections.Async namespace.</releaseNotes>
+        <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync async await foreach parallel</tags>
     </metadata>
     <files>
         <file src="bin\Release\AsyncEnumerable.dll" target="lib\AsyncEnumerable.dll" />
