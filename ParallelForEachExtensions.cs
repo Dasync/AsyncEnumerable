@@ -86,7 +86,7 @@ namespace System.Collections.Async
 
             public void CompleteLoopNow()
             {
-                if (_exceptionList.Count > 0)
+                if (_exceptionList?.Count > 0)
                 {
                     bool lockTaken = false;
                     while (!lockTaken)
