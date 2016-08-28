@@ -141,6 +141,25 @@ the thread (the processing is scheduled on a worker thread instead).
         });
     }
 
+
+## EXAMPLE 4 (async parallel for-each)
+
+    async Task<IReadOnlyCollection<string>> GetStringsAsync(IEnumerable<T> uris, HttpClient httpClient, CancellationToken cancellationToken)
+    {
+        var result = new ConcurrentBag<string>();
+        
+        await uris.ParallelForEachAsync(
+            async uri =>
+            {
+                var str = await httpClient.GetStringAsync(uri, cancellationToken);
+                result.Add(str);
+            },
+            maxDegreeOfParallelism: 5,
+            cancellationToken);
+        
+        return result;
+    }
+
 ## WILL THIS MAKE MY APP FASTER?
 
 No and Yes. Just making everything `async` makes your app tiny little bit slower because it
