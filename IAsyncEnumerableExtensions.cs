@@ -19,8 +19,8 @@ namespace System.Collections.Async
         public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             var resultList = new List<T>();
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken)) {
-                while (await enumerator.MoveNextAsync(cancellationToken)) {
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false)) {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false)) {
                     resultList.Add(enumerator.Current);
                 }
             }
@@ -35,7 +35,7 @@ namespace System.Collections.Async
         /// <param name="cancellationToken">A cancellation token to cancel the async operation</param>
         public static async Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var list = await source.ToListAsync(cancellationToken);
+            var list = await source.ToListAsync(cancellationToken).ConfigureAwait(false);
             return list.ToArray();
         }
     }

@@ -20,11 +20,11 @@ namespace System.Collections.Async
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken))
+            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                while (await enumerator.MoveNextAsync(cancellationToken))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -46,13 +46,13 @@ namespace System.Collections.Async
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken))
+            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 long index = 0;
 
-                while (await enumerator.MoveNextAsync(cancellationToken))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -76,15 +76,15 @@ namespace System.Collections.Async
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken))
+            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                while (await enumerator.MoveNextAsync(cancellationToken))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await action(enumerator.Current);
+                    await action(enumerator.Current).ConfigureAwait(false);
 
                     cancellationToken.ThrowIfCancellationRequested();
                 }
@@ -102,17 +102,17 @@ namespace System.Collections.Async
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken))
+            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 long index = 0;
 
-                while (await enumerator.MoveNextAsync(cancellationToken))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await action(enumerator.Current, index);
+                    await action(enumerator.Current, index).ConfigureAwait(false);
 
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -133,11 +133,11 @@ namespace System.Collections.Async
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken))
+            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                while (await enumerator.MoveNextAsync(cancellationToken))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -160,13 +160,13 @@ namespace System.Collections.Async
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken))
+            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 long index = 0;
 
-                while (await enumerator.MoveNextAsync(cancellationToken))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -191,17 +191,17 @@ namespace System.Collections.Async
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken))
+            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                while (await enumerator.MoveNextAsync(cancellationToken))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
 
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await action(enumerator.Current);
+                    await action(enumerator.Current).ConfigureAwait(false);
 
                     cancellationToken.ThrowIfCancellationRequested();
                 }
@@ -220,17 +220,17 @@ namespace System.Collections.Async
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken))
+            using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 long index = 0;
 
-                while (await enumerator.MoveNextAsync(cancellationToken))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await action(enumerator.Current, index);
+                    await action(enumerator.Current, index).ConfigureAwait(false);
 
                     cancellationToken.ThrowIfCancellationRequested();
 

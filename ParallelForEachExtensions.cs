@@ -144,16 +144,16 @@ namespace System.Collections.Async
                 {
                     try
                     {
-                        using (var enumerator = await collection.GetAsyncEnumeratorAsync(cancellationToken))
+                        using (var enumerator = await collection.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
                         {
                             var itemIndex = 0L;
 
-                            while (await enumerator.MoveNextAsync(cancellationToken))
+                            while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                             {
                                 if (context.IsLoopBreakRequested)
                                     break;
 
-                                await context.OnStartOperationAsync(cancellationToken);
+                                await context.OnStartOperationAsync(cancellationToken).ConfigureAwait(false);
 
                                 Task itemActionTask = null;
                                 try
