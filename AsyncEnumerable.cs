@@ -35,10 +35,15 @@ namespace System.Collections.Async
     /// }
     /// </code>
     /// </example>
-    public sealed class AsyncEnumerable<T> : IAsyncEnumerable<T>
+    public sealed class AsyncEnumerable<T> : AsyncEnumerable, IAsyncEnumerable<T>
     {
         private Func<AsyncEnumerator<T>.Yield, Task> _enumerationFunction;
         private bool _oneTimeUse;
+
+        /// <summary>
+        /// A pre-cached empty collection
+        /// </summary>
+        public readonly static IAsyncEnumerable<T> Empty = new AsyncEnumerable<T>(yield => CompletedTask);
 
         /// <summary>
         /// Constructor
@@ -89,5 +94,29 @@ namespace System.Collections.Async
         /// </summary>
         /// <returns>An instance of enumerator</returns>
         IEnumerator IEnumerable.GetEnumerator() => GetAsyncEnumeratorAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Base abstract class that implements <see cref="IAsyncEnumerable"/>.
+    /// Use concrete implementation <see cref="AsyncEnumerable{T}"/>.
+    /// </summary>
+    public abstract class AsyncEnumerable : IAsyncEnumerable
+    {
+        /// <summary>
+        /// Returns pre-cached empty collection
+        /// </summary>
+        public static IAsyncEnumerable<T> Empty<T>() => AsyncEnumerable<T>.Empty;
+
+        internal static readonly Task CompletedTask = Task.FromResult(0);
+
+        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
