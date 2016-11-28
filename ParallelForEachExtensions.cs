@@ -18,11 +18,14 @@ namespace System.Collections.Async
             private SpinLock _exceptionListLock;
             private int _maxDegreeOfParalellism;
             private bool _breakLoopOnException;
+            private bool _gracefulBreak;
+            private CancellationToken _cancellationToken;
+            private CancellationTokenRegistration _cancellationTokenRegistration;
 
-            public ParallelForEachContext(int maxDegreeOfParalellism, bool breakLoopOnException)
+            public ParallelForEachContext(int maxDegreeOfParalellism, bool breakLoopOnException, bool gracefulBreak, CancellationToken cancellationToken)
             {
                 if (maxDegreeOfParalellism < 0)
-                    throw new ArgumentException($"The maximum degree of paralellism must be a non-negative number, but got {maxDegreeOfParalellism}", nameof(maxDegreeOfParalellism));
+                    throw new ArgumentException($"The maximum degree of parallelism must be a non-negative number, but got {maxDegreeOfParalellism}", nameof(maxDegreeOfParalellism));
                 if (maxDegreeOfParalellism == 0)
                     maxDegreeOfParalellism = Environment.ProcessorCount - 1;
                 if (maxDegreeOfParalellism <= 0)
@@ -33,14 +36,22 @@ namespace System.Collections.Async
                 _exceptionListLock = new SpinLock(enableThreadOwnerTracking: false);
                 _maxDegreeOfParalellism = maxDegreeOfParalellism;
                 _breakLoopOnException = breakLoopOnException;
+                _gracefulBreak = gracefulBreak;
+
+                _cancellationToken = cancellationToken;
+                if (_cancellationToken.CanBeCanceled)
+                    _cancellationTokenRegistration = _cancellationToken.Register(OnCancelRequested, useSynchronizationContext: false);
             }
 
             public Task CompletionTask => _completionTcs.Task;
 
-            public bool IsLoopBreakRequested;
+            public volatile bool IsLoopBreakRequested;
 
             public void AddException(Exception ex)
             {
+                if (_cancellationToken.IsCancellationRequested && ex is OperationCanceledException)
+                    return;
+
                 bool lockTaken = false;
                 while (!lockTaken)
                     _exceptionListLock.Enter(ref lockTaken);
@@ -49,12 +60,25 @@ namespace System.Collections.Async
                     if (_exceptionList == null)
                         _exceptionList = new List<Exception>();
                     _exceptionList.Add(ex);
-
-                    if (_breakLoopOnException)
-                        IsLoopBreakRequested = true;
                 }
                 finally
                 {
+                    _exceptionListLock.Exit(useMemoryBarrier: false);
+                }
+            }
+
+            public List<Exception> ReadExceptions()
+            {
+                bool lockTaken = false;
+                while (!lockTaken)
+                    _exceptionListLock.Enter(ref lockTaken);
+                try
+                {
+                    return _exceptionList;
+                }
+                finally
+                {
+                    _exceptionList = null;
                     _exceptionListLock.Exit(useMemoryBarrier: false);
                 }
             }
@@ -66,6 +90,14 @@ namespace System.Collections.Async
 
             public void OnOperationComplete(Exception exceptionIfFailed = null)
             {
+                if (exceptionIfFailed != null)
+                {
+                    AddException(exceptionIfFailed);
+
+                    if (_breakLoopOnException)
+                        IsLoopBreakRequested = true;
+                }
+
                 try
                 {
                     _semaphore.Release();
@@ -77,33 +109,13 @@ namespace System.Collections.Async
                     return;
                 }
 
-                if (exceptionIfFailed != null)
-                    AddException(exceptionIfFailed);
-
-                if (_semaphore.CurrentCount == _maxDegreeOfParalellism + 1)
+                if ((_semaphore.CurrentCount == _maxDegreeOfParalellism + 1) || (IsLoopBreakRequested && !_gracefulBreak))
                     CompleteLoopNow();
             }
 
             public void CompleteLoopNow()
             {
-                if (_exceptionList?.Count > 0)
-                {
-                    bool lockTaken = false;
-                    while (!lockTaken)
-                        _exceptionListLock.Enter(ref lockTaken);
-                    try
-                    {
-                        _completionTcs.SetException(_exceptionList);
-                    }
-                    finally
-                    {
-                        _exceptionListLock.Exit(useMemoryBarrier: false);
-                    }
-                }
-                else
-                {
-                    _completionTcs.SetResult(null);
-                }
+                _cancellationTokenRegistration.Dispose();
 
                 try
                 {
@@ -113,6 +125,34 @@ namespace System.Collections.Async
                 catch
                 {
                 }
+
+                var exceptions = ReadExceptions();
+                var aggregatedException = exceptions == null ? null : exceptions.Count > 1 ? new AggregateException(exceptions) : exceptions[0];
+
+                if (_cancellationToken.IsCancellationRequested)
+                {
+                    _completionTcs.TrySetException(
+                        new OperationCanceledException(
+                            new OperationCanceledException().Message,
+                            aggregatedException,
+                            _cancellationToken));
+                }
+                else if (exceptions?.Count > 0)
+                {
+                    _completionTcs.TrySetException(aggregatedException);
+                }
+                else
+                {
+                    _completionTcs.TrySetResult(null);
+                }
+            }
+
+            private void OnCancelRequested()
+            {
+                IsLoopBreakRequested = true;
+
+                if (!_gracefulBreak)
+                    CompleteLoopNow();
             }
         }
 
@@ -124,12 +164,14 @@ namespace System.Collections.Async
         /// <param name="asyncItemAction">An asynchronous action to perform on the item, where first argument is the item and second argument is item's index in the collection</param>
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
+        /// <param name="gracefulBreak">If True (the default behavior), waits on completion for all started tasks when the loop breaks due to cancellation or an exception</param>
         /// <param name="cancellationToken">Cancellation token</param>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
+            bool gracefulBreak,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             if (collection == null)
@@ -137,7 +179,7 @@ namespace System.Collections.Async
             if (asyncItemAction == null)
                 throw new ArgumentNullException(nameof(asyncItemAction));
 
-            var context = new ParallelForEachContext(maxDegreeOfParalellism, breakLoopOnException);
+            var context = new ParallelForEachContext(maxDegreeOfParalellism, breakLoopOnException, gracefulBreak, cancellationToken);
 
             Task.Run(
                 async () =>
@@ -155,12 +197,18 @@ namespace System.Collections.Async
 
                                 await context.OnStartOperationAsync(cancellationToken).ConfigureAwait(false);
 
+                                if (context.IsLoopBreakRequested)
+                                {
+                                    context.OnOperationComplete();
+                                    break;
+                                }
+
                                 Task itemActionTask = null;
                                 try
                                 {
                                     itemActionTask = asyncItemAction(enumerator.Current, itemIndex);
                                 }
-                                // there is no guarantee that task is executed asynchronoyusly, so it can throw right away
+                                // there is no guarantee that task is executed asynchronously, so it can throw right away
                                 catch (Exception ex)
                                 {
                                     ex.Data["ForEach.Index"] = itemIndex;
@@ -201,10 +249,7 @@ namespace System.Collections.Async
                     }
                     finally
                     {
-                        if (context.IsLoopBreakRequested)
-                            context.CompleteLoopNow();
-                        else
-                            context.OnOperationComplete();
+                        context.OnOperationComplete();
                     }
                 });
 
@@ -218,6 +263,28 @@ namespace System.Collections.Async
         /// <param name="collection">The collection of items to perform actions on</param>
         /// <param name="asyncItemAction">An asynchronous action to perform on the item, where first argument is the item and second argument is item's index in the collection</param>
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
+        /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        public static Task ParallelForEachAsync<T>(
+            this IAsyncEnumerable<T> collection,
+            Func<T, long, Task> asyncItemAction,
+            int maxDegreeOfParalellism,
+            bool breakLoopOnException,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => collection.ParallelForEachAsync(
+                asyncItemAction,
+                maxDegreeOfParalellism,
+                breakLoopOnException,
+                /*gracefulBreak:*/true,
+                cancellationToken);
+
+        /// <summary>
+        /// Invokes an asynchronous action on each item in the collection in parallel
+        /// </summary>
+        /// <typeparam name="T">The type of an item</typeparam>
+        /// <param name="collection">The collection of items to perform actions on</param>
+        /// <param name="asyncItemAction">An asynchronous action to perform on the item, where first argument is the item and second argument is item's index in the collection</param>
+        /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
@@ -228,6 +295,7 @@ namespace System.Collections.Async
                 asyncItemAction,
                 maxDegreeOfParalellism,
                 /*breakLoopOnException:*/false,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -245,6 +313,7 @@ namespace System.Collections.Async
                 asyncItemAction,
                 /*maxDegreeOfParalellism:*/0,
                 /*breakLoopOnException:*/false,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -266,6 +335,31 @@ namespace System.Collections.Async
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
                 breakLoopOnException,
+                /*gracefulBreak:*/true,
+                cancellationToken);
+
+        /// <summary>
+        /// Invokes an asynchronous action on each item in the collection in parallel
+        /// </summary>
+        /// <typeparam name="T">The type of an item</typeparam>
+        /// <param name="collection">The collection of items to perform actions on</param>
+        /// <param name="asyncItemAction">An asynchronous action to perform on the item</param>
+        /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
+        /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
+        /// <param name="gracefulBreak">If True (the default behavior), waits on completion for all started tasks when the loop breaks due to cancellation or an exception</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        public static Task ParallelForEachAsync<T>(
+            this IAsyncEnumerable<T> collection,
+            Func<T, Task> asyncItemAction,
+            int maxDegreeOfParalellism,
+            bool breakLoopOnException,
+            bool gracefulBreak,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => collection.ParallelForEachAsync(
+                (item, index) => asyncItemAction(item),
+                maxDegreeOfParalellism,
+                breakLoopOnException,
+                gracefulBreak,
                 cancellationToken);
 
         /// <summary>
@@ -285,6 +379,7 @@ namespace System.Collections.Async
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
                 /*breakLoopOnException:*/false,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -302,6 +397,7 @@ namespace System.Collections.Async
                 (item, index) => asyncItemAction(item),
                 /*maxDegreeOfParalellism:*/0,
                 /*breakLoopOnException:*/false,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -323,6 +419,7 @@ namespace System.Collections.Async
                 asyncItemAction,
                 maxDegreeOfParalellism,
                 breakLoopOnException,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -342,6 +439,7 @@ namespace System.Collections.Async
                 asyncItemAction,
                 maxDegreeOfParalellism,
                 /*breakLoopOnException:*/false,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -359,6 +457,7 @@ namespace System.Collections.Async
                 asyncItemAction,
                 /*maxDegreeOfParalellism:*/0,
                 /*breakLoopOnException:*/false,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -380,6 +479,7 @@ namespace System.Collections.Async
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
                 breakLoopOnException,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -399,6 +499,7 @@ namespace System.Collections.Async
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
                 /*breakLoopOnException:*/false,
+                /*gracefulBreak:*/true,
                 cancellationToken);
 
         /// <summary>
@@ -416,6 +517,7 @@ namespace System.Collections.Async
                 (item, index) => asyncItemAction(item),
                 /*maxDegreeOfParalellism:*/0,
                 /*breakLoopOnException:*/false,
+                /*gracefulBreak:*/true,
                 cancellationToken);
     }
 }

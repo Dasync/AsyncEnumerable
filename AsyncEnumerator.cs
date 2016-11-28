@@ -31,7 +31,9 @@ namespace System.Collections.Async
             /// </summary>
             /// <param name="item">The item of the collection to yield</param>
             /// <returns>Returns a Task which tells if when you can continue to yield the next item</returns>
+#pragma warning disable AsyncMethodMustTakeCancellationToken // Does not take a CancellationToken by design
             public Task ReturnAsync(T item)
+#pragma warning restore AsyncMethodMustTakeCancellationToken
             {
                 _resumeTCS = new TaskCompletionSource<bool>();
                 _yieldTCS.TrySetResult(item);
