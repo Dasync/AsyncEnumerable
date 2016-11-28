@@ -2,8 +2,8 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyVersion("1.1.2")]
-[assembly: AssemblyFileVersion("1.1.2")]
+[assembly: AssemblyVersion("1.1.3")]
+[assembly: AssemblyFileVersion("1.1.3")]
 [assembly: AssemblyTitle("AsyncEnumerable")]
 [assembly: AssemblyProduct("AsyncEnumerable")]
 [assembly: AssemblyDescription("Asynchronous enumeration with IAsyncEnumerator and ForEachAsync()")]

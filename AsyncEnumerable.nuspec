@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>1.1.2</version>
+        <version>1.1.3</version>
         <authors>Serge Semenov</authors>
         <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
@@ -73,8 +73,8 @@ static void ConsumeNumbers()
   }
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, and ForEachAsync()</summary>
-        <releaseNotes>Add ParallelForEachAsync extension methods for IEnumerable&lt;T&gt; and IAsyncEnumerable&lt;T&gt; in System.Collections.Async namespace.</releaseNotes>
-        <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync async await foreach parallel</tags>
+        <releaseNotes>Add AsyncEnumerable.Empty and improve exception and cancellation handling in ParallelForEachAsync.</releaseNotes>
+        <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync ParallelForEachAsync async await foreach parallel</tags>
     </metadata>
     <files>
         <file src="bin\Release\AsyncEnumerable.dll" target="lib\AsyncEnumerable.dll" />
