@@ -51,6 +51,7 @@
     <Compile Include="IAsyncEnumerableExtensions.cs" />
     <Compile Include="IAsyncEnumerator.cs" />
     <Compile Include="IEnumerableExtensions.cs" />
+    <Compile Include="ParallelForEachException.cs" />
     <Compile Include="ParallelForEachExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

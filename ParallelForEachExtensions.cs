@@ -127,7 +127,7 @@ namespace System.Collections.Async
                 }
 
                 var exceptions = ReadExceptions();
-                var aggregatedException = exceptions == null ? null : exceptions.Count > 1 ? new AggregateException(exceptions) : exceptions[0];
+                var aggregatedException = exceptions?.Count > 0 ? new ParallelForEachException(exceptions) : null;
 
                 if (_cancellationToken.IsCancellationRequested)
                 {
@@ -166,6 +166,8 @@ namespace System.Collections.Async
         /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
         /// <param name="gracefulBreak">If True (the default behavior), waits on completion for all started tasks when the loop breaks due to cancellation or an exception</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
@@ -265,6 +267,8 @@ namespace System.Collections.Async
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
@@ -286,6 +290,8 @@ namespace System.Collections.Async
         /// <param name="asyncItemAction">An asynchronous action to perform on the item, where first argument is the item and second argument is item's index in the collection</param>
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
@@ -305,6 +311,8 @@ namespace System.Collections.Async
         /// <param name="collection">The collection of items to perform actions on</param>
         /// <param name="asyncItemAction">An asynchronous action to perform on the item, where first argument is the item and second argument is item's index in the collection</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
@@ -325,6 +333,8 @@ namespace System.Collections.Async
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
@@ -348,6 +358,8 @@ namespace System.Collections.Async
         /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
         /// <param name="gracefulBreak">If True (the default behavior), waits on completion for all started tasks when the loop breaks due to cancellation or an exception</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
@@ -370,6 +382,8 @@ namespace System.Collections.Async
         /// <param name="asyncItemAction">An asynchronous action to perform on the item</param>
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
@@ -389,6 +403,8 @@ namespace System.Collections.Async
         /// <param name="collection">The collection of items to perform actions on</param>
         /// <param name="asyncItemAction">An asynchronous action to perform on the item</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
@@ -409,6 +425,8 @@ namespace System.Collections.Async
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
@@ -430,6 +448,8 @@ namespace System.Collections.Async
         /// <param name="asyncItemAction">An asynchronous action to perform on the item, where first argument is the item and second argument is item's index in the collection</param>
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
@@ -449,6 +469,8 @@ namespace System.Collections.Async
         /// <param name="collection">The collection of items to perform actions on</param>
         /// <param name="asyncItemAction">An asynchronous action to perform on the item, where first argument is the item and second argument is item's index in the collection</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
@@ -469,6 +491,8 @@ namespace System.Collections.Async
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="breakLoopOnException">Set to True to stop processing items when first exception occurs. The result <see cref="AggregateException"/> might contain several exceptions though when faulty tasks finish at the same time.</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
@@ -490,6 +514,8 @@ namespace System.Collections.Async
         /// <param name="asyncItemAction">An asynchronous action to perform on the item</param>
         /// <param name="maxDegreeOfParalellism">Maximum items to schedule processing in parallel. The actual concurrency level depends on TPL settings. Set to 0 to choose a default value based on processor count.</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
@@ -509,6 +535,8 @@ namespace System.Collections.Async
         /// <param name="collection">The collection of items to perform actions on</param>
         /// <param name="asyncItemAction">An asynchronous action to perform on the item</param>
         /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="ParallelForEachException">Wraps any exception(s) that occurred inside <paramref name="asyncItemAction"/></exception>
+        /// <exception cref="OperationCanceledException">Thrown when the loop is canceled with <paramref name="cancellationToken"/></exception>
         public static Task ParallelForEachAsync<T>(
             this IEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
