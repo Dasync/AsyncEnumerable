@@ -72,8 +72,8 @@ static void ConsumeNumbers()
     Console.Out.WriteLine($"{number}");
   }
 }</description>
-        <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, and ForEachAsync()</summary>
-        <releaseNotes>Contract breaking changes in ParallelForEachAsync: introduce ParallelForEachException to unify error outcome of the loop.</releaseNotes>
+        <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
+        <releaseNotes>New Linq-style extension methods in System.Collections.Async namespace</releaseNotes>
         <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync ParallelForEachAsync async await foreach parallel</tags>
     </metadata>
     <files>

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +17,7 @@ namespace System.Collections.Async
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return an element from.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             CancellationToken token = default(CancellationToken))
@@ -32,7 +31,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return an element from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static async Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
@@ -56,7 +55,7 @@ namespace System.Collections.Async
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return an element from.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             CancellationToken token = default(CancellationToken))
@@ -70,7 +69,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return an element from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static async Task<TSource> FirstOrDefaultAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
@@ -101,7 +100,7 @@ namespace System.Collections.Async
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, TResult> selector,
@@ -129,7 +128,7 @@ namespace System.Collections.Async
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, long, TResult> selector,
@@ -160,7 +159,7 @@ namespace System.Collections.Async
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="count">The number of elements to return.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> TakeAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             int count,
@@ -195,7 +194,7 @@ namespace System.Collections.Async
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> TakeWhileAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
@@ -266,7 +265,7 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return elements from.</param>
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> SkipAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             int count,
@@ -294,7 +293,7 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> SkipWhileAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
@@ -335,7 +334,7 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> WhereAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
@@ -367,7 +366,7 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition; the second parameter of the function represents the index of the source element.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can hault enumeration of <paramref name="source"/></param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> WhereAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, long, bool> predicate,

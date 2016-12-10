@@ -129,16 +129,13 @@ the thread (the processing is scheduled on a worker thread instead).
     }
 
 
-## EXAMPLE 3 (async convert)
+## EXAMPLE 3 (async Linq)
 
-    IAsyncEnumerable<Bar> ConvertFoosToBars(IAsyncEnumerable<Foo> items)
+    IAsyncEnumerable<Bar> ConvertGoodFoosToBars(IAsyncEnumerable<Foo> items)
     {
-        return new AsyncEnumerable<Bar>(async yield => {
-            await items.ForEachAsync(async foo => {
-                var bar = foo.ToBar();
-                await yield.ReturnAsync(bar);
-            });
-        });
+        return items
+          .WhereAsync(foo => foo.IsGood)
+          .SelectAsync(foo => Bar.FromFoo(foo));
     }
 
 
