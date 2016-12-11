@@ -199,15 +199,18 @@ namespace System.Collections.Async
 
         private bool OnMoveNextComplete(Task<T> task, object state)
         {
+            if (task.IsFaulted)
+            {
+                _enumerationException = task.Exception.GetBaseException();
+                throw _enumerationException;
+            }
+
             var yield = (Yield)state;
             if (yield.IsComplete) {
                 return false;
             }
 
-            if (task.IsFaulted) {
-                _enumerationException = task.Exception;
-                throw _enumerationException;
-            } else if (task.IsCanceled) {
+            if (task.IsCanceled) {
                 return false;
             } else {
                 Current = task.Result;
