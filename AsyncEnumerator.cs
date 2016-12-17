@@ -20,6 +20,9 @@ namespace System.Collections.Async
         {
             private TaskCompletionSource<bool> _resumeTCS;
             private TaskCompletionSource<T> _yieldTCS;
+            private Exception _enumerationException;
+            private bool _isCanceled;
+            private int _completionLock;
 
             /// <summary>
             /// Gets the cancellation token that was passed to the <see cref="MoveNextAsync"/> method
@@ -52,30 +55,61 @@ namespace System.Collections.Async
 
             internal void SetComplete()
             {
-                _yieldTCS.TrySetCanceled();
+                while (Interlocked.CompareExchange(ref _completionLock, 1, 0) != 0) ;
                 IsComplete = true;
+                _isCanceled = false;
+                _enumerationException = null;
+                Interlocked.Exchange(ref _completionLock, 0);
+
+                _yieldTCS.TrySetResult(default(T));
             }
 
             internal void SetCanceled()
             {
-                SetComplete();
+                while (Interlocked.CompareExchange(ref _completionLock, 1, 0) != 0) ;
+                IsComplete = true;
+                _isCanceled = true;
+                _enumerationException = null;
+                Interlocked.Exchange(ref _completionLock, 0);
+
+                _yieldTCS.TrySetCanceled();
             }
 
             internal void SetFailed(Exception ex)
             {
-                _yieldTCS.TrySetException(ex);
+                while (Interlocked.CompareExchange(ref _completionLock, 1, 0) != 0) ;
                 IsComplete = true;
+                _isCanceled = true;
+                _enumerationException = ex;
+                Interlocked.Exchange(ref _completionLock, 0);
+
+                _yieldTCS.TrySetException(ex);
             }
 
             internal Task<T> OnMoveNext(CancellationToken cancellationToken)
             {
-                if (!IsComplete) {
-                    _yieldTCS = new TaskCompletionSource<T>();
-                    CancellationToken = cancellationToken;
-                    if (_resumeTCS != null)
-                        _resumeTCS.SetResult(true);
+                Task<T> resultTask;
+                TaskCompletionSource<bool> resumeTcs;
+
+                while (Interlocked.CompareExchange(ref _completionLock, 1, 0) != 0) ;
+                if (IsComplete)
+                {
+                    resultTask = _yieldTCS.Task;
+                    resumeTcs = null;
                 }
-                return _yieldTCS.Task;
+                else
+                {
+                    _yieldTCS = new TaskCompletionSource<T>();
+                    resultTask = _yieldTCS.Task;
+                    CancellationToken = cancellationToken;
+                    resumeTcs = _resumeTCS;
+                }
+                Interlocked.Exchange(ref _completionLock, 0);
+
+                if (resumeTcs != null)
+                    resumeTcs.SetResult(true);
+
+                return resultTask;
             }
 
             internal void Finilize()
@@ -84,14 +118,24 @@ namespace System.Collections.Async
             }
 
             internal bool IsComplete { get; set; }
+
+            internal void ThrowIfFailedOrCanceled()
+            {
+                if (_isCanceled)
+                    throw new OperationCanceledException();
+                if (_enumerationException != null)
+                    throw _enumerationException;
+            }
         }
+
+        private static readonly Action<Task, object> OnEnumerationCompleteAction = OnEnumerationComplete;
 
         private Func<Yield, Task> _enumerationFunction;
         private bool _oneTimeUse;
         private Yield _yield;
         private T _current;
         private Task _enumerationTask;
-        private Exception _enumerationException;
+        private readonly Func<Task<T>, object, bool> OnMoveNextCompleteFunc;
 
         /// <summary>
         /// Constructor
@@ -109,6 +153,7 @@ namespace System.Collections.Async
         /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
         public AsyncEnumerator(Func<Yield, Task> enumerationFunction, bool oneTimeUse)
         {
+            OnMoveNextCompleteFunc = OnMoveNextComplete;
             _enumerationFunction = enumerationFunction;
             _oneTimeUse = oneTimeUse;
             ClearState();
@@ -140,14 +185,10 @@ namespace System.Collections.Async
         /// <returns>Returns a Task that does transition to the next element. The result of the task is True if the enumerator was successfully advanced to the next element, or False if the enumerator has passed the end of the collection.</returns>
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (_enumerationException != null) {
-                var tcs = new TaskCompletionSource<bool>();
-                tcs.SetException(_enumerationException);
-                return tcs.Task;
-            }
-            var moveNextTask = _yield.OnMoveNext(cancellationToken).ContinueWith(OnMoveNextComplete, _yield);
+            _yield.ThrowIfFailedOrCanceled();
+            var moveNextTask = _yield.OnMoveNext(cancellationToken).ContinueWith(OnMoveNextCompleteFunc, _yield);
             if (_enumerationTask == null)
-                _enumerationTask = _enumerationFunction(_yield).ContinueWith(OnEnumerationComplete, _yield);
+                _enumerationTask = _enumerationFunction(_yield).ContinueWith(OnEnumerationCompleteAction, _yield);
             return moveNextTask;
         }
 
@@ -194,25 +235,29 @@ namespace System.Collections.Async
 
             _yield = new Yield();
             _enumerationTask = null;
-            _enumerationException = null;
         }
 
         private bool OnMoveNextComplete(Task<T> task, object state)
         {
+            var yield = (Yield)state;
+
             if (task.IsFaulted)
             {
-                _enumerationException = task.Exception.GetBaseException();
-                throw _enumerationException;
+                var exception = task.Exception.GetBaseException();
+                yield.SetFailed(exception);
+                throw exception;
             }
-
-            var yield = (Yield)state;
-            if (yield.IsComplete) {
+            else if (task.IsCanceled)
+            {
+                yield.SetCanceled();
+                throw new OperationCanceledException();
+            }
+            else if (yield.IsComplete)
+            {
                 return false;
             }
-
-            if (task.IsCanceled) {
-                return false;
-            } else {
+            else
+            {
                 Current = task.Result;
                 return true;
             }
@@ -221,15 +266,23 @@ namespace System.Collections.Async
         private static void OnEnumerationComplete(Task task, object state)
         {
             var yield = (Yield)state;
-            if (task.IsFaulted) {
-                if (task.Exception is AsyncEnumerationCanceledException) {
+            if (task.IsFaulted)
+            {
+                if (task.Exception is AsyncEnumerationCanceledException)
+                {
                     yield.SetCanceled();
-                } else {
+                }
+                else
+                {
                     yield.SetFailed(task.Exception);
                 }
-            } else if (task.IsCanceled) {
+            }
+            else if (task.IsCanceled)
+            {
                 yield.SetCanceled();
-            } else {
+            }
+            else
+            {
                 yield.SetComplete();
             }
         }
