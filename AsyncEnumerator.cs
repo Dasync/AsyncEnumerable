@@ -71,6 +71,7 @@ namespace System.Collections.Async
                 _isCanceled = true;
                 _enumerationException = null;
                 Interlocked.Exchange(ref _completionLock, 0);
+                _resumeTCS?.TrySetException(new AsyncEnumerationCanceledException());
 
                 _yieldTCS.TrySetCanceled();
             }
@@ -110,11 +111,6 @@ namespace System.Collections.Async
                     resumeTcs.SetResult(true);
 
                 return resultTask;
-            }
-
-            internal void Finilize()
-            {
-                SetCanceled();
             }
 
             internal bool IsComplete { get; set; }
@@ -231,7 +227,9 @@ namespace System.Collections.Async
         private void ClearState()
         {
             if (_yield != null)
-                _yield.Finilize();
+            {
+                _yield.SetCanceled();
+            }
 
             _yield = new Yield();
             _enumerationTask = null;

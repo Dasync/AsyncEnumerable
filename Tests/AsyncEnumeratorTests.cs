@@ -45,5 +45,35 @@ namespace Tests
 
             Assert.ThrowsAsync<OperationCanceledException>(() => enumerator.MoveNextAsync(cts.Token));
         }
+
+        [Test]
+        public async Task DisposeAfterPartialEnumeration()
+        {
+            var testDisposable = new TestDisposable();
+            var enumerator = new AsyncEnumerator<int>(async yield =>
+                {
+                    using (testDisposable)
+                    {
+                        await yield.ReturnAsync(1);
+                        await yield.ReturnAsync(2);
+                        await yield.ReturnAsync(3);
+                    }
+                },
+            oneTimeUse: false);
+
+            await enumerator.MoveNextAsync();
+            enumerator.Dispose();
+
+            Assert.IsTrue(testDisposable.HasDisposed);
+        }
+
+        private class TestDisposable : IDisposable
+        {
+            public bool HasDisposed { get; private set; }
+            public void Dispose()
+            {
+                HasDisposed = true;
+            }
+        }
     }
 }
