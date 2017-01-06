@@ -12,6 +12,7 @@ namespace System.Collections.Async
         /// This exception is thrown when you call <see cref="Yield.Break"/>
         /// </summary>
         public sealed class AsyncEnumerationCanceledException : OperationCanceledException { }
+        public sealed class AsyncEnumerationDisposedException : OperationCanceledException { }
 
         /// <summary>
         /// The asynchronous version of the 'yield' construction
@@ -71,6 +72,8 @@ namespace System.Collections.Async
                 _isCanceled = true;
                 _enumerationException = null;
                 Interlocked.Exchange(ref _completionLock, 0);
+                if (_resumeTCS != null && !_resumeTCS.Task.IsCompleted)
+                    _resumeTCS.SetException(new AsyncEnumerationDisposedException());
 
                 _yieldTCS.TrySetCanceled();
             }
@@ -231,7 +234,10 @@ namespace System.Collections.Async
         private void ClearState()
         {
             if (_yield != null)
+            {
+                //AsyncEnumerationCanceledException
                 _yield.Finilize();
+            }
 
             _yield = new Yield();
             _enumerationTask = null;
@@ -266,7 +272,7 @@ namespace System.Collections.Async
         private static void OnEnumerationComplete(Task task, object state)
         {
             var yield = (Yield)state;
-            if (task.IsFaulted)
+            if (task.IsFaulted && !(task.Exception is AsyncEnumerationDisposedException))
             {
                 if (task.Exception is AsyncEnumerationCanceledException)
                 {
