@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>1.2.2</version>
+        <version>1.2.3</version>
         <authors>Serge Semenov</authors>
         <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
@@ -74,6 +74,8 @@ static void ConsumeNumbers()
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
         <releaseNotes>
+1.2.3: AsyncEnumerationCanceledException is thrown to the async enumeration function when the AsyncEnumerator is disposed before reaching the end of enumeration, what allows to do the clean-up.
+       Fixed MoveNextAsync() that threw an exception sometimes only when you passed the end of enumeration.
 1.2.2: Fix exception propagation in AsyncEnumerator. 
 1.2.1: New Linq-style extension methods in System.Collections.Async namespace.
 1.2.0: Contract breaking changes in ParallelForEachAsync: introduce ParallelForEachException to unify error outcome of the loop.

@@ -2,14 +2,14 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyVersion("1.2.2")]
-[assembly: AssemblyFileVersion("1.2.2")]
+[assembly: AssemblyVersion("1.2.3")]
+[assembly: AssemblyFileVersion("1.2.3")]
 [assembly: AssemblyTitle("AsyncEnumerable")]
 [assembly: AssemblyProduct("AsyncEnumerable")]
 [assembly: AssemblyDescription("Asynchronous enumeration with IAsyncEnumerator and ForEachAsync()")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Serge Semenov")]
-[assembly: AssemblyCopyright("Copyright © 2016")]
+[assembly: AssemblyCopyright("Copyright © 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: CLSCompliant(true)]
