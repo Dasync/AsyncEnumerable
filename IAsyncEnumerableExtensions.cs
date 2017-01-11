@@ -100,12 +100,10 @@ namespace System.Collections.Async
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, TResult> selector,
-            bool oneTimeUse = false,
-            CancellationToken token = default(CancellationToken))
+            bool oneTimeUse = false)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -116,7 +114,7 @@ namespace System.Collections.Async
                 yield =>
                     source.ForEachAsync(
                         item => yield.ReturnAsync(selector(item)),
-                        token),
+                        yield.CancellationToken),
                 oneTimeUse);
         }
 
@@ -128,12 +126,10 @@ namespace System.Collections.Async
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, long, TResult> selector,
-            bool oneTimeUse = false,
-            CancellationToken token = default(CancellationToken))
+            bool oneTimeUse = false)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -144,7 +140,7 @@ namespace System.Collections.Async
                 yield =>
                     source.ForEachAsync(
                         (item, index) => yield.ReturnAsync(selector(item, index)),
-                        token),
+                        yield.CancellationToken),
                 oneTimeUse);
         }
 
@@ -159,12 +155,10 @@ namespace System.Collections.Async
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="count">The number of elements to return.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> TakeAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             int count,
-            bool oneTimeUse = false,
-            CancellationToken token = default(CancellationToken))
+            bool oneTimeUse = false)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -175,10 +169,10 @@ namespace System.Collections.Async
             return new AsyncEnumerable<TSource>(
                 async yield =>
                 {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
+                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
                         while (count > 0)
                         {
-                            if (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
+                            if (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
                                 await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
 
                             count--;
@@ -194,12 +188,10 @@ namespace System.Collections.Async
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> TakeWhileAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
-            bool oneTimeUse = false,
-            CancellationToken token = default(CancellationToken))
+            bool oneTimeUse = false)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -209,8 +201,8 @@ namespace System.Collections.Async
             return new AsyncEnumerable<TSource>(
                 async yield =>
                 {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-                        while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
+                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                        while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
                             if (predicate(enumerator.Current))
                                 await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
                             else
@@ -265,12 +257,10 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return elements from.</param>
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> SkipAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             int count,
-            bool oneTimeUse = false,
-            CancellationToken token = default(CancellationToken))
+            bool oneTimeUse = false)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -278,8 +268,8 @@ namespace System.Collections.Async
             return new AsyncEnumerable<TSource>(
                 async yield =>
                 {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-                        while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
+                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                        while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
                             if (count-- <= 0)
                                 await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
                 },
@@ -293,12 +283,10 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> SkipWhileAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
-            bool oneTimeUse = false,
-            CancellationToken token = default(CancellationToken))
+            bool oneTimeUse = false)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -310,8 +298,8 @@ namespace System.Collections.Async
                 {
                     var yielding = false;
 
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-                    while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
+                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
                     {
                         if (!yielding && !predicate(enumerator.Current))
                             yielding = true;
@@ -334,12 +322,10 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> WhereAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
-            bool oneTimeUse = false,
-            CancellationToken token = default(CancellationToken))
+            bool oneTimeUse = false)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -349,8 +335,8 @@ namespace System.Collections.Async
             return new AsyncEnumerable<TSource>(
                 async yield =>
                 {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-                    while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
+                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
                     {
                         if (predicate(enumerator.Current))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
@@ -366,12 +352,10 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition; the second parameter of the function represents the index of the source element.</param>
         /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="AsyncEnumerator{T}.Reset"/> method is not allowed</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static IAsyncEnumerable<TSource> WhereAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, long, bool> predicate,
-            bool oneTimeUse = false,
-            CancellationToken token = default(CancellationToken))
+            bool oneTimeUse = false)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -383,8 +367,8 @@ namespace System.Collections.Async
             return new AsyncEnumerable<TSource>(
                 async yield =>
                 {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-                    while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
+                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
                     {
                         if (predicate(enumerator.Current, index))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
