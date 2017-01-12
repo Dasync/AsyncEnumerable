@@ -50,7 +50,7 @@ namespace System.Collections.Async
         {
             if (_runSynchronously) {
                 _enumerator.Reset();
-                return Task.FromResult(true);
+                return AsyncEnumerable.CompletedTask;
             } else {
                 return Task.Run(() => _enumerator.Reset());
             }
