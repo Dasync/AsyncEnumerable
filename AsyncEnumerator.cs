@@ -9,12 +9,6 @@ namespace System.Collections.Async
     public sealed class AsyncEnumerator<T> : IAsyncEnumerator<T>
     {
         /// <summary>
-        /// This exception is thrown when you call <see cref="Yield.Break"/>
-        /// or when the enumerator is disposed before reaching the end of enumeration.
-        /// </summary>
-        public sealed class AsyncEnumerationCanceledException : OperationCanceledException { }
-
-        /// <summary>
         /// The asynchronous version of the 'yield' construction
         /// </summary>
         public sealed class Yield
