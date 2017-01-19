@@ -194,7 +194,7 @@ namespace System.Collections.Async
             var yield = (Yield)state;
             if (task.IsFaulted)
             {
-                if (task.Exception is AsyncEnumerationCanceledException)
+                if (task.Exception.GetBaseException() is AsyncEnumerationCanceledException)
                 {
                     yield.SetCanceled();
                 }
