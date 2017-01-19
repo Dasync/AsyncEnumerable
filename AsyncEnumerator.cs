@@ -86,8 +86,10 @@ namespace System.Collections.Async
         }
 
         private static readonly Action<Task, object> OnEnumerationCompleteAction = OnEnumerationComplete;
+        private static readonly Func<Yield, object, Task> EnumerationWithNoStateAdatapter = EnumerateWithNoState;
 
-        private Func<Yield, Task> _enumerationFunction;
+        private Func<Yield, object, Task> _enumerationFunction;
+        private object _userState;
         private bool _oneTimeUse;
         private Yield _yield;
         private T _current;
@@ -97,8 +99,9 @@ namespace System.Collections.Async
         /// Constructor
         /// </summary>
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
-        public AsyncEnumerator(Func<Yield, Task> enumerationFunction)
-            : this(enumerationFunction, oneTimeUse: false)
+        /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
+        public AsyncEnumerator(Func<Yield, Task> enumerationFunction, bool oneTimeUse = false)
+            : this(EnumerationWithNoStateAdatapter, state: enumerationFunction, oneTimeUse: oneTimeUse)
         {
         }
 
@@ -106,10 +109,12 @@ namespace System.Collections.Async
         /// Constructor
         /// </summary>
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
+        /// <param name="state">Any state object that is passed to the <paramref name="enumerationFunction"/></param>
         /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
-        public AsyncEnumerator(Func<Yield, Task> enumerationFunction, bool oneTimeUse)
+        public AsyncEnumerator(Func<Yield, object, Task> enumerationFunction, object state, bool oneTimeUse = false)
         {
             _enumerationFunction = enumerationFunction;
+            _userState = state;
             _oneTimeUse = oneTimeUse;
             ClearState();
         }
@@ -142,7 +147,7 @@ namespace System.Collections.Async
         {
             var moveNextCompleteTask = _yield.OnMoveNext(cancellationToken);
             if (_enumerationTask == null)
-                _enumerationTask = _enumerationFunction(_yield).ContinueWith(OnEnumerationCompleteAction, _yield, TaskContinuationOptions.ExecuteSynchronously);
+                _enumerationTask = _enumerationFunction(_yield, _userState).ContinueWith(OnEnumerationCompleteAction, _yield, TaskContinuationOptions.ExecuteSynchronously);
             return moveNextCompleteTask;
         }
 
@@ -211,6 +216,12 @@ namespace System.Collections.Async
             {
                 yield.SetComplete();
             }
+        }
+
+        private static Task EnumerateWithNoState(Yield yield, object state)
+        {
+            var funcNoState = (Func<Yield, Task>)state;
+            return funcNoState(yield);
         }
     }
 }
