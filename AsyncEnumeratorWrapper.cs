@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Async.Internals;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,9 +32,10 @@ namespace System.Collections.Async
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_runSynchronously) {
-                return Task.FromResult(_enumerator.MoveNext());
+                var result = _enumerator.MoveNext();
+                return result ? TaskEx.True : TaskEx.False;
             } else {
-                return Task.Run(() => _enumerator.MoveNext());
+                return Task.Run(() => _enumerator.MoveNext(), cancellationToken);
             }
         }
 
@@ -50,9 +52,9 @@ namespace System.Collections.Async
         {
             if (_runSynchronously) {
                 _enumerator.Reset();
-                return AsyncEnumerable.CompletedTask;
+                return TaskEx.Completed;
             } else {
-                return Task.Run(() => _enumerator.Reset());
+                return Task.Run(() => _enumerator.Reset(), cancellationToken);
             }
         }
 

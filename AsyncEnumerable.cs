@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Async.Internals;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,8 +15,6 @@ namespace System.Collections.Async
         /// Returns pre-cached empty collection
         /// </summary>
         public static IAsyncEnumerable<T> Empty<T>() => AsyncEnumerable<T>.Empty;
-
-        internal static readonly Task CompletedTask = Task.FromResult(0);
 
         Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
         {
@@ -67,7 +66,7 @@ namespace System.Collections.Async
         /// <summary>
         /// A pre-cached empty collection
         /// </summary>
-        public readonly static IAsyncEnumerable<T> Empty = new AsyncEnumerable<T>(yield => CompletedTask);
+        public readonly static IAsyncEnumerable<T> Empty = new AsyncEnumerable<T>(yield => TaskEx.Completed);
 
         /// <summary>
         /// Constructor

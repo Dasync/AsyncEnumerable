@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Async.Internals;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Collections.Async
@@ -37,7 +38,7 @@ namespace System.Collections.Async
             public Task ReturnAsync(T item)
 #pragma warning restore AsyncMethodMustTakeCancellationToken
             {
-                _resumeEnumerationTcs = new TaskCompletionSource<bool>();
+                TaskCompletionSource.Reset(ref _resumeEnumerationTcs);
                 _enumerator.Current = item;
                 _moveNextCompleteTcs.TrySetResult(true);
                 return _resumeEnumerationTcs.Task;
@@ -77,7 +78,7 @@ namespace System.Collections.Async
                 if (!_isComplete)
                 {
                     CancellationToken = cancellationToken;
-                    _moveNextCompleteTcs = new TaskCompletionSource<bool>();
+                    TaskCompletionSource.Reset(ref _moveNextCompleteTcs);
                     _resumeEnumerationTcs?.SetResult(true);
                 }
 
@@ -166,7 +167,7 @@ namespace System.Collections.Async
         public Task ResetAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             Reset();
-            return AsyncEnumerable.CompletedTask;
+            return TaskEx.Completed;
         }
 
         /// <summary>
