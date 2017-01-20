@@ -15,7 +15,7 @@ namespace System.Collections
         /// <param name="enumerable">The instance of IEnumerable to convert</param>
         /// <param name="runSynchronously">If True the enumeration will be performed on the same thread, otherwise the MoveNext will be executed on a separate thread with Task.Run method</param>
         /// <returns>Returns an instance of IAsyncEnumerable implementation</returns>
-        public static IAsyncEnumerable ToAsyncEnumerable(this IEnumerable enumerable, bool runSynchronously = false)
+        public static IAsyncEnumerable ToAsyncEnumerable(this IEnumerable enumerable, bool runSynchronously = true)
         {
             if (enumerable == null)
                 throw new ArgumentNullException(nameof(enumerable));
@@ -39,7 +39,7 @@ namespace System.Collections.Generic
         /// <param name="enumerable">The instance of IEnumerable to convert</param>
         /// <param name="runSynchronously">If True the enumeration will be performed on the same thread, otherwise the MoveNext will be executed on a separate thread with Task.Run method</param>
         /// <returns>Returns an instance of IAsyncEnumerable implementation</returns>
-        public static IAsyncEnumerable<T> ToAsyncEnumerable<T>(this IEnumerable<T> enumerable, bool runSynchronously = false)
+        public static IAsyncEnumerable<T> ToAsyncEnumerable<T>(this IEnumerable<T> enumerable, bool runSynchronously = true)
         {
             if (enumerable == null)
                 throw new ArgumentNullException(nameof(enumerable));
