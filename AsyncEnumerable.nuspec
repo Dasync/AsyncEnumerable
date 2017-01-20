@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>1.2.3</version>
+        <version>1.3.0</version>
         <authors>Serge Semenov</authors>
         <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
@@ -74,6 +74,11 @@ static void ConsumeNumbers()
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
         <releaseNotes>
+1.3.0: Significantly improve performance of AsyncEnumerator by reducing thread switching and re-using instances of TaskCompletionSource.
+       Add support for a state object that can be passed into AsyncEnumerable and AsyncEnumerator for performance optimization.
+       Remove CancellationToken from Select/Take/Skip/Where extension methods - fix improper impelementation.
+       Move AsyncEnumerationCanceledException out of the generic AsyncEnumerator type.
+       Change default behavior of the ToAsyncEnumerable extension method - now MoveNextAsync will run synchronously by default.
 1.2.3: AsyncEnumerationCanceledException is thrown to the async enumeration function when the AsyncEnumerator is disposed before reaching the end of enumeration, what allows to do the clean-up.
        Fixed MoveNextAsync() that threw an exception sometimes only when you passed the end of enumeration.
 1.2.2: Fix exception propagation in AsyncEnumerator. 

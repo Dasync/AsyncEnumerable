@@ -1,6 +1,6 @@
 ## SUMMARY
 
-Introduces `IAsyncEnumerable`, `IAsyncEnumerator`, and `ForEachAsync()`
+Introduces `IAsyncEnumerable`, `IAsyncEnumerator`, `ForEachAsync()`, and `ParallelForEachAsync()`
 
 
 ## PROBLEM SPACE
@@ -13,6 +13,7 @@ the thread (the processing is scheduled on a worker thread instead).
 
 ## EXAMPLE 1 (demonstrates usage only)
 
+```csharp
     using System.Collections.Async;
 
     static IAsyncEnumerable<int> ProduceAsyncNumbers(int start, int end)
@@ -65,10 +66,12 @@ the thread (the processing is scheduled on a worker thread instead).
         Console.Out.WriteLine($"{number}");
       }
     }
+```
 
 
 ## EXAMPLE 2 (real scenario, pseudo code)
 
+```csharp
     using System.Collections.Async;
 
     static IAsyncEnumerable<KeyValuePair<string, string>> ReadRemoteSettings(Uri resourceUri)
@@ -127,20 +130,24 @@ the thread (the processing is scheduled on a worker thread instead).
       },
       cancellationToken: cts.Token);
     }
+```
 
 
 ## EXAMPLE 3 (async Linq)
 
+```csharp
     IAsyncEnumerable<Bar> ConvertGoodFoosToBars(IAsyncEnumerable<Foo> items)
     {
         return items
           .WhereAsync(foo => foo.IsGood)
           .SelectAsync(foo => Bar.FromFoo(foo));
     }
+```
 
 
 ## EXAMPLE 4 (async parallel for-each)
 
+```csharp
     async Task<IReadOnlyCollection<string>> GetStringsAsync(IEnumerable<T> uris, HttpClient httpClient, CancellationToken cancellationToken)
     {
         var result = new ConcurrentBag<string>();
@@ -156,6 +163,8 @@ the thread (the processing is scheduled on a worker thread instead).
         
         return result;
     }
+```
+
 
 ## WILL THIS MAKE MY APP FASTER?
 
@@ -173,3 +182,75 @@ or a database client implementation where result of a query is a set or rows.
 GitHub: https://github.com/tyrotoxin/AsyncEnumerable
 NuGet.org: https://www.nuget.org/packages/AsyncEnumerator/
 License: https://opensource.org/licenses/MIT
+
+
+## IMPLEMENTATION DETAILS
+
+__1: Using CancellationToken__
+   * Do not pass a CancellationToken to a method that returns IAsyncEnumerable, because it is not async, but just a factory
+   * Use `yield.CancellationToken` in your enumeration lambda function, which is the same token which gets passed to `IAsyncEnumerator.MoveNextAsync()`
+
+```csharp
+    IAsyncEnumerable<int> ProduceNumbers()
+    {
+      return new AsyncEnumerable<int>(async yield => {
+
+        // This cancellation token is the same token which
+        // is passed to very first call of MoveNextAsync().
+        var cancellationToken1 = yield.CancellationToken;
+        await yield.ReturnAsync(start);
+
+        // This cancellation token can be different, because
+        // we are inside second MoveNextAsync() call.
+        var cancellationToken2 = yield.CancellationToken;
+        await yield.ReturnAsync(start);
+
+        // As a rule of thumb, always use yield.CancellationToken
+        // whan calling underlying async methods to be able to
+        // cancel the MoveNextAsync() method.
+        await FooAsync(yield.CancellationToken);
+      });
+    }
+```
+
+__2: Clean-up on incomplete enumeration__
+
+Imagine such situation:
+
+```csharp
+    IAsyncEnumerable<int> ReadValuesFromQueue()
+    {
+      return new AsyncEnumerable<int>(async yield => {
+
+        using (var queueClient = CreateQueueClient())
+        {
+          while (true)
+          {
+            var message = queueClient.DequeueMessageAsync();
+            if (message == null)
+              break;
+            
+            await yield.ReturnAsync(message.Value);
+          }
+        }
+      });
+    }
+
+    Task<int> ReadFirstValueOrDefaultAsync()
+    {
+      return ReadValuesFromQueue().FirstOrDefaultAsync();
+    }
+```
+
+The `FirstOrDefaultAsync` method will try to read first value from the `IAsyncEnumerator`, 
+and then will just dispose it. However, disposing `AsyncEnumerator` does not mean that the 
+`queueClient` in the lambda function will be disposed automatically as well, because async 
+methods are just state machines which need somehow to go particular state to do the clean-up. 
+To provide such behavior, when you dispose an `AsyncEnumerator` before you reach the end of 
+enumeration, it will tell to resume your async lambda function (at `await yield.ReturnAsync()`) 
+with the `AsyncEnumerationCanceledException` (derives from `OperationCanceledException`). 
+Having such exception in your lambda method will break normal flow of enumeration and will go 
+to terminal state of the underlying state machine, what will do the clean-up, i.e. dispose 
+the `queueClient` in this case. You don't need (and shouldn't) catch that exception type, 
+because it's handled internally by `AsyncEnumerator`. The same exception is thrown when 
+you call `yield.Break()`.
