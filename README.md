@@ -245,7 +245,7 @@ Imagine such situation:
 The `FirstOrDefaultAsync` method will try to read first value from the `IAsyncEnumerator`, 
 and then will just dispose it. However, disposing `AsyncEnumerator` does not mean that the 
 `queueClient` in the lambda function will be disposed automatically as well, because async 
-methods are just state machines which need somehow to go particular state to do the clean-up. 
+methods are just state machines which need somehow to go to a particular state to do the clean-up. 
 To provide such behavior, when you dispose an `AsyncEnumerator` before you reach the end of 
 enumeration, it will tell to resume your async lambda function (at `await yield.ReturnAsync()`) 
 with the `AsyncEnumerationCanceledException` (derives from `OperationCanceledException`). 
@@ -254,3 +254,12 @@ to terminal state of the underlying state machine, what will do the clean-up, i.
 the `queueClient` in this case. You don't need (and shouldn't) catch that exception type, 
 because it's handled internally by `AsyncEnumerator`. The same exception is thrown when 
 you call `yield.Break()`.
+
+__3: Why is GetAsyncEnumeratorAsync async?__
+
+The `IAsyncEnumerable.GetAsyncEnumeratorAsync()` method is async and returns a `Task<IAsyncEnumerator>`,
+where the current implementation of `AsyncEnumerable` always runs that method synchronously and just
+returns an instance of `AsyncEnumerator`. Having interfaces allows you to do your own implementation,
+where classes mentioned above are just helpers. The initial idea was to be able to support database-like
+scenarios, where `GetAsyncEnumeratorAsync()` executes a query first (what internally returns a pointer),
+and the `MoveNextAsync()` enumerates through rows (by using that pointer).
