@@ -118,8 +118,6 @@ namespace System.Collections.Async
     /// <typeparam name="TState">Type of the state object</typeparam>
     public sealed class AsyncEnumerableWithState<TItem, TState> : AsyncEnumerable, IAsyncEnumerable<TItem>
     {
-        private static readonly Func<AsyncEnumerator<TItem>.Yield, object, Task> EnumerationWithStateCastFunc = EnumerationWithStateCast;
-
         private Func<AsyncEnumerator<TItem>.Yield, TState, Task> _enumerationFunction;
         private TState _userState;
         private bool _oneTimeUse;
@@ -144,7 +142,7 @@ namespace System.Collections.Async
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
         public Task<IAsyncEnumerator<TItem>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var enumerator = new AsyncEnumerator<TItem>(EnumerationWithStateCastFunc, state: this, oneTimeUse: _oneTimeUse);
+            var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, _userState, _oneTimeUse);
             return Task.FromResult<IAsyncEnumerator<TItem>>(enumerator);
         }
 
@@ -153,7 +151,8 @@ namespace System.Collections.Async
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken) => GetAsyncEnumeratorAsync(cancellationToken).ContinueWith<IAsyncEnumerator>(task => task.Result);
+        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
+            => GetAsyncEnumeratorAsync(cancellationToken).ContinueWith<IAsyncEnumerator>(task => task.Result);
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection
@@ -166,11 +165,5 @@ namespace System.Collections.Async
         /// </summary>
         /// <returns>An instance of enumerator</returns>
         IEnumerator IEnumerable.GetEnumerator() => GetAsyncEnumeratorAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-        private static Task EnumerationWithStateCast(AsyncEnumerator<TItem>.Yield yield, object state)
-        {
-            var enumerable = (AsyncEnumerableWithState<TItem, TState>)state;
-            return enumerable._enumerationFunction(yield, enumerable._userState);
-        }
     }
 }

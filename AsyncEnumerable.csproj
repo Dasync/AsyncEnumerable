@@ -52,6 +52,7 @@
     <Compile Include="IAsyncEnumerableExtensions.cs" />
     <Compile Include="IAsyncEnumerator.cs" />
     <Compile Include="IEnumerableExtensions.cs" />
+    <Compile Include="Internals\CurrentValueContainer.cs" />
     <Compile Include="Internals\TaskCompletionSource.cs" />
     <Compile Include="ParallelForEachException.cs" />
     <Compile Include="ParallelForEachExtensions.cs" />
