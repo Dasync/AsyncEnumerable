@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="AsyncEnumeratorTests.cs" />
     <Compile Include="ForEachAsyncTests.cs" />
+    <Compile Include="LinqStyleExtensionsTests.cs" />
     <Compile Include="PerformanceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
