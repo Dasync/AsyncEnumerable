@@ -28,7 +28,7 @@ namespace System.Collections.Async
     /// Supports a simple asynchronous iteration over a collection of typed items
     /// </summary>
     /// <typeparam name="T">The type of items in the collection</typeparam>
-    public interface IAsyncEnumerator<T> : IEnumerator<T>, IAsyncEnumerator
+    public interface IAsyncEnumerator<out T> : IEnumerator<T>, IAsyncEnumerator
     {
     }
 }
