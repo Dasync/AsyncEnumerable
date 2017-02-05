@@ -1,4 +1,5 @@
 ﻿using System.Collections.Async;
+using System.Collections.Async.Internals;
 using System.Linq;
 
 namespace System.Collections

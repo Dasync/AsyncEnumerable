@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace System.Collections.Async
+namespace System.Collections.Async.Internals
 {
     internal sealed class AsyncEnumerableWrapper<T> : IAsyncEnumerable<T>
     {
