@@ -5,6 +5,17 @@ using System.Threading.Tasks;
 namespace System.Collections.Async
 {
     /// <summary>
+    /// Base type for <see cref="AsyncEnumerator{T}"/> and <see cref="AsyncEnumeratorWithState{TItem, TState}"/>
+    /// </summary>
+    public abstract class AsyncEnumerator
+    {
+        /// <summary>
+        /// Returns an empty <see cref="IAsyncEnumerator{T}"/>. Safe to use by multiple threads.
+        /// </summary>
+        public static IAsyncEnumerator<T> Empty<T>() => AsyncEnumerator<T>.Empty;
+    }
+
+    /// <summary>
     /// Helps to enumerate items in a collection asynchronously.
     /// Provides exactly the same functionality as <see cref="AsyncEnumerator{T}"/>,
     /// but allows to pass a user state object in the enumeration function,
@@ -135,6 +146,11 @@ namespace System.Collections.Async
     /// </summary>
     public sealed class AsyncEnumerator<T> : AsyncEnumeratorWithState<T, Func<AsyncEnumerator<T>.Yield, Task>>
     {
+        /// <summary>
+        /// An empty <see cref="IAsyncEnumerator{T}"/>. Safe to use by multiple threads.
+        /// </summary>
+        public static readonly IAsyncEnumerator<T> Empty = new EmptyAsyncEnumerator<T>();
+
         /// <summary>
         /// The asynchronous version of the 'yield' construction
         /// </summary>

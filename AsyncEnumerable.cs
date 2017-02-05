@@ -66,7 +66,7 @@ namespace System.Collections.Async
         /// <summary>
         /// A pre-cached empty collection
         /// </summary>
-        public readonly static IAsyncEnumerable<T> Empty = new AsyncEnumerable<T>(yield => TaskEx.Completed);
+        public readonly static IAsyncEnumerable<T> Empty = new EmptyAsyncEnumerable<T>();
 
         /// <summary>
         /// Constructor

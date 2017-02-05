@@ -47,6 +47,8 @@
     <Compile Include="AsyncEnumerationCanceledException.cs" />
     <Compile Include="AsyncEnumerator.cs" />
     <Compile Include="AsyncEnumeratorWrapper.cs" />
+    <Compile Include="Internals\EmptyAsyncEnumerable.cs" />
+    <Compile Include="Internals\EmptyAsyncEnumerator.cs" />
     <Compile Include="IAsyncEnumerable.cs" />
     <Compile Include="ForEachAsyncExtensions.cs" />
     <Compile Include="IAsyncEnumerableExtensions.cs" />
