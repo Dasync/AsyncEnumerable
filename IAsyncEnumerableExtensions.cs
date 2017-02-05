@@ -12,6 +12,12 @@ namespace System.Collections.Async
     {
         #region First / FirstOrDefault
 
+        private static class PredicateCache<T>
+        {
+            private static bool _true(T item) => true;
+            public static readonly Func<T, bool> True = _true;
+        }
+
         /// <summary>
         /// Returns the first element in the <see cref="IAsyncEnumerable{T}"/>.
         /// </summary>
@@ -22,7 +28,7 @@ namespace System.Collections.Async
             this IAsyncEnumerable<TSource> source,
             CancellationToken token = default(CancellationToken))
         {
-            return FirstAsync(source, _ => true, token);
+            return FirstAsync(source, PredicateCache<TSource>.True, token);
         }
 
         /// <summary>
@@ -60,7 +66,7 @@ namespace System.Collections.Async
             this IAsyncEnumerable<TSource> source,
             CancellationToken token = default(CancellationToken))
         {
-            return FirstOrDefaultAsync(source, _ => true, token);
+            return FirstOrDefaultAsync(source, PredicateCache<TSource>.True, token);
         }
 
         /// <summary>
@@ -110,12 +116,29 @@ namespace System.Collections.Async
             if (null == selector)
                 throw new ArgumentNullException(nameof(selector));
 
-            return new AsyncEnumerable<TResult>(
-                yield =>
-                    source.ForEachAsync(
-                        item => yield.ReturnAsync(selector(item)),
-                        yield.CancellationToken),
+            return new AsyncEnumerableWithState<TResult, SelectContext<TSource, TResult>>(
+                SelectContext<TSource, TResult>.Enumerate,
+                new SelectContext<TSource, TResult> { Source = source, Selector = selector },
                 oneTimeUse);
+        }
+
+        private struct SelectContext<TSource, TResult>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public Func<TSource, TResult> Selector;
+
+            private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, SelectContext<TSource, TResult> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        await yield.ReturnAsync(context.Selector(enumerator.Current)).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TResult>.Yield, SelectContext<TSource, TResult>, Task> Enumerate = _enumerate;
         }
 
         /// <summary>
@@ -136,12 +159,31 @@ namespace System.Collections.Async
             if (null == selector)
                 throw new ArgumentNullException(nameof(selector));
 
-            return new AsyncEnumerable<TResult>(
-                yield =>
-                    source.ForEachAsync(
-                        (item, index) => yield.ReturnAsync(selector(item, index)),
-                        yield.CancellationToken),
+            return new AsyncEnumerableWithState<TResult, SelectWithIndexContext<TSource, TResult>>(
+                SelectWithIndexContext<TSource, TResult>.Enumerate,
+                new SelectWithIndexContext<TSource, TResult> { Source = source, Selector = selector },
                 oneTimeUse);
+        }
+
+        private struct SelectWithIndexContext<TSource, TResult>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public Func<TSource, long, TResult> Selector;
+
+            private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, SelectWithIndexContext<TSource, TResult> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    long index = 0;
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        await yield.ReturnAsync(context.Selector(enumerator.Current, index)).ConfigureAwait(false);
+                        index++;
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TResult>.Yield, SelectWithIndexContext<TSource, TResult>, Task> Enumerate = _enumerate;
         }
 
         #endregion
@@ -166,19 +208,30 @@ namespace System.Collections.Async
             if (count <= 0)
                 return AsyncEnumerable<TSource>.Empty;
 
-            return new AsyncEnumerable<TSource>(
-                async yield =>
-                {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                        while (count > 0)
-                        {
-                            if (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                                await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-
-                            count--;
-                        }
-                },
+            return new AsyncEnumerableWithState<TSource, TakeContext<TSource>>(
+                TakeContext<TSource>.Enumerate,
+                new TakeContext<TSource> { Source = source, Count = count },
                 oneTimeUse);
+        }
+
+        private struct TakeContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public int Count;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, TakeContext<TSource> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    for (var i = context.Count; i > 0; i--)
+                    {
+                        if (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, TakeContext<TSource>, Task> Enumerate = _enumerate;
         }
 
         /// <summary>
@@ -198,22 +251,38 @@ namespace System.Collections.Async
             if (null == predicate)
                 throw new ArgumentNullException(nameof(predicate));
 
-            return new AsyncEnumerable<TSource>(
-                async yield =>
-                {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                        while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                            if (predicate(enumerator.Current))
-                                await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                            else
-                                break;
-                },
+            return new AsyncEnumerableWithState<TSource, TakeWhileContext<TSource>>(
+                TakeWhileContext<TSource>.Enumerate,
+                new TakeWhileContext<TSource> { Source = source, Predicate = predicate },
                 oneTimeUse);
+        }
+
+        private struct TakeWhileContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public Func<TSource, bool> Predicate;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, TakeWhileContext<TSource> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        if (context.Predicate(enumerator.Current))
+                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                        else
+                            break;
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, TakeWhileContext<TSource>, Task> Enumerate = _enumerate;
         }
 
         #endregion
 
         #region ToList
+
         /// <summary>
         /// Creates a list of elements asynchronously from the enumerable source
         /// </summary>
@@ -232,9 +301,11 @@ namespace System.Collections.Async
             }
             return resultList;
         }
+        
         #endregion
 
         #region ToArray
+
         /// <summary>
         /// Creates an array of elements asynchronously from the enumerable source
         /// </summary>
@@ -243,9 +314,17 @@ namespace System.Collections.Async
         /// <param name="cancellationToken">A cancellation token to cancel the async operation</param>
         public static async Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var list = await source.ToListAsync(cancellationToken).ConfigureAwait(false);
-            return list.ToArray();
+            var resultList = new List<T>();
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    resultList.Add(enumerator.Current);
+                }
+            }
+            return resultList.ToArray();
         }
+
         #endregion
 
         #region Skip / SkipWhile
@@ -265,15 +344,33 @@ namespace System.Collections.Async
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
 
-            return new AsyncEnumerable<TSource>(
-                async yield =>
-                {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                        while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                            if (count-- <= 0)
-                                await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                },
+            return new AsyncEnumerableWithState<TSource, SkipContext<TSource>>(
+                SkipContext<TSource>.Enumerate,
+                new SkipContext<TSource> { Source = source, Count = count },
                 oneTimeUse);
+        }
+
+        private struct SkipContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public int Count;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, SkipContext<TSource> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    var itemsToSkip = context.Count;
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        if (itemsToSkip > 0)
+                            itemsToSkip--;
+                        else
+                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, SkipContext<TSource>, Task> Enumerate = _enumerate;
         }
 
         /// <summary>
@@ -293,22 +390,34 @@ namespace System.Collections.Async
             if (null == predicate)
                 throw new ArgumentNullException(nameof(predicate));
 
-            return new AsyncEnumerable<TSource>(
-                async yield =>
+            return new AsyncEnumerableWithState<TSource, SkipWhileContext<TSource>>(
+                SkipWhileContext<TSource>.Enumerate,
+                new SkipWhileContext<TSource> { Source = source, Predicate = predicate },
+                oneTimeUse);
+        }
+
+        private struct SkipWhileContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public Func<TSource, bool> Predicate;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, SkipWhileContext<TSource> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
                 {
                     var yielding = false;
-
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
                     while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
                     {
-                        if (!yielding && !predicate(enumerator.Current))
+                        if (!yielding && !context.Predicate(enumerator.Current))
                             yielding = true;
 
                         if (yielding)
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
                     }
-                },
-                oneTimeUse);
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, SkipWhileContext<TSource>, Task> Enumerate = _enumerate;
         }
 
         #endregion
@@ -332,17 +441,30 @@ namespace System.Collections.Async
             if (null == predicate)
                 throw new ArgumentNullException(nameof(predicate));
 
-            return new AsyncEnumerable<TSource>(
-                async yield =>
+            return new AsyncEnumerableWithState<TSource, WhereContext<TSource>>(
+                WhereContext<TSource>.Enumerate,
+                new WhereContext<TSource> { Source = source, Predicate = predicate },
+                oneTimeUse);
+        }
+
+        private struct WhereContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public Func<TSource, bool> Predicate;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, WhereContext<TSource> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
                 {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
                     while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
                     {
-                        if (predicate(enumerator.Current))
+                        if (context.Predicate(enumerator.Current))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }                            
-                },                
-                oneTimeUse);
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, WhereContext<TSource>, Task> Enumerate = _enumerate;
         }
 
         /// <summary>
@@ -362,22 +484,34 @@ namespace System.Collections.Async
             if (null == predicate)
                 throw new ArgumentNullException(nameof(predicate));
 
-            long index = 0;
-
-            return new AsyncEnumerable<TSource>(
-                async yield =>
-                {
-                    using (var enumerator = await source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        if (predicate(enumerator.Current, index))
-                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-
-                        index++;
-                    }
-                },
+            return new AsyncEnumerableWithState<TSource, WhereWithIndexContext<TSource>>(
+                WhereWithIndexContext<TSource>.Enumerate,
+                new WhereWithIndexContext<TSource> { Source = source, Predicate = predicate },
                 oneTimeUse);
         }
+
+        private struct WhereWithIndexContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public Func<TSource, long, bool> Predicate;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, WhereWithIndexContext<TSource> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    long index = 0;
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        if (context.Predicate(enumerator.Current, index))
+                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                        index++;
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, WhereWithIndexContext<TSource>, Task> Enumerate = _enumerate;
+        }
+
         #endregion
     }
 }
