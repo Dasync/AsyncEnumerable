@@ -350,6 +350,7 @@ namespace System.Collections.Async
                     }
                     finally
                     {
+                        enumerator.Dispose();
                         context.OnOperationComplete();
                     }
                 });

@@ -46,6 +46,14 @@ namespace System.Collections.Async
         }
 
         /// <summary>
+        /// Finalizer
+        /// </summary>
+        ~AsyncEnumeratorWithState()
+        {
+            Dispose(manualDispose: false);
+        }
+
+        /// <summary>
         /// Gets the element in the collection at the current position of the enumerator
         /// </summary>
         public TItem Current
@@ -106,14 +114,31 @@ namespace System.Collections.Async
         /// </summary>
         public void Dispose()
         {
-            ClearState();
+            Dispose(manualDispose: true);
+            GC.SuppressFinalize(this);
         }
 
-        private void ClearState()
+        private void Dispose(bool manualDispose)
         {
-            _yield?.SetCanceled();
-            _yield = new AsyncEnumerator<TItem>.Yield(this);
-            _enumerationTask = null;
+            ClearState(isFinalizing: !manualDispose);
+        }
+
+        private void ClearState(bool isFinalizing = false)
+        {
+            if (isFinalizing)
+            {
+                if (_yield != null && !_yield.IsComplete)
+                {
+                    var yield = _yield;
+                    Task.Run(() => yield.SetCanceled());
+                }
+            }
+            else
+            {
+                _yield?.SetCanceled();
+                _yield = new AsyncEnumerator<TItem>.Yield(this);
+                _enumerationTask = null;
+            }
         }
 
         private static void OnEnumerationComplete(Task task, object state)
@@ -170,6 +195,8 @@ namespace System.Collections.Async
             /// Gets the cancellation token that was passed to the <see cref="IAsyncEnumerator.MoveNextAsync(CancellationToken)"/> method
             /// </summary>
             public CancellationToken CancellationToken { get; private set; }
+
+            internal bool IsComplete => _isComplete;
 
             /// <summary>
             /// Yields an item asynchronously (similar to 'yield return' statement)
