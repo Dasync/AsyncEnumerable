@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>1.4.0</version>
+        <version>1.4.2</version>
         <authors>Serge Semenov</authors>
         <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
@@ -74,6 +74,7 @@ static void ConsumeNumbers()
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
         <releaseNotes>
+1.4.2: Add finalizer to AsyncEnumerator and call Dispose in ForEachAsync and ParallelForEachAsync extension methods.
 1.4.0: Add new generic type AsyncEnumeratorWithState for performance optimization.
        Now IAsyncEnumerator&lt;T&gt; is covariant.
        Add ForEachAsync, ParallelForeachAsync, and LINQ-style extension methods for IAsyncEnumerator.
