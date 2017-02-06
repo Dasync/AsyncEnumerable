@@ -12,7 +12,7 @@ namespace System.Collections.Async
     {
         #region First / FirstOrDefault
 
-        private static class PredicateCache<T>
+        internal static class PredicateCache<T>
         {
             private static bool _true(T item) => true;
             public static readonly Func<T, bool> True = _true;

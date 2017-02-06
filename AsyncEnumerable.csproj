@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncEnumerable.cs" />
+    <Compile Include="IAsyncEnumeratorExtensions.cs" />
     <Compile Include="Internals\AsyncEnumerableWrapper.cs" />
     <Compile Include="AsyncEnumerationCanceledException.cs" />
     <Compile Include="AsyncEnumerator.cs" />
