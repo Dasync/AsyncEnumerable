@@ -180,7 +180,9 @@ or a database client implementation where result of a query is a set or rows.
 ## REFERENCES
 
 GitHub: https://github.com/tyrotoxin/AsyncEnumerable
+
 NuGet.org: https://www.nuget.org/packages/AsyncEnumerator/
+
 License: https://opensource.org/licenses/MIT
 
 
@@ -263,3 +265,35 @@ returns an instance of `AsyncEnumerator`. Having interfaces allows you to do you
 where classes mentioned above are just helpers. The initial idea was to be able to support database-like
 scenarios, where `GetAsyncEnumeratorAsync()` executes a query first (what internally returns a pointer),
 and the `MoveNextAsync()` enumerates through rows (by using that pointer).
+
+__4: Returning IAsyncEnumerable vs IAsyncEnumerator__
+
+When you implemented a method that returns an async-enumerable collection you have a choice to
+return either `IAsyncEnumerable` or `IAsyncEnumerator` - the constructors of the helper classes
+`AsyncEnumerable` and `AsyncEnumerator` are absolutely identical. Both interfaces have same set
+of useful extension methods, like `ForEachAsync`. In some cases you can have only one immediate
+reader of elements, so `IAsyncEnumerator` can be preferable. It's up to your design.
+
+Here are two possibilities:
+
+```csharp
+    // A provider/factory of enumerators
+    IAsyncEnumerable<int> GetNumberCollectionProvider()
+    {
+      return new AsyncEnumerable<int>(async yield =>
+	  {
+	    for (int i = 0;i < 10; i++)
+          await yield.ReturnAsync(message.Value);
+      });
+    }
+
+	// An enumerator
+    IAsyncEnumerator<int> GetNumberCollection()
+    {
+      return new AsyncEnumerator<int>(async yield =>
+	  {
+	    for (int i = 0;i < 10; i++)
+          await yield.ReturnAsync(message.Value);
+      });
+    }
+```
