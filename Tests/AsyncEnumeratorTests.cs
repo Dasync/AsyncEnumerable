@@ -67,6 +67,41 @@ namespace Tests
             Assert.IsTrue(testDisposable.HasDisposed);
         }
 
+        [Test]
+        public async Task DisposeByGCAfterPartialEnumeration()
+        {
+            // ARRANGE
+
+            var testDisposable = new TestDisposable();
+            var enumerator = new AsyncEnumerator<int>(async yield =>
+            {
+                using (testDisposable)
+                {
+                    await yield.ReturnAsync(1);
+                    await yield.ReturnAsync(2);
+                    await yield.ReturnAsync(3);
+                }
+            },
+            oneTimeUse: false);
+
+            // ACT
+
+            // Do partial enumeration.
+            await enumerator.MoveNextAsync();
+
+            // Instead of calling enumerator.Dispose(), do garbage collection.
+            enumerator = null;
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+
+            // Give some time to other thread that does the disposal of the enumerator.
+            // (see finalizer of the AsyncEnumerator for details)
+            Thread.Sleep(16);
+
+            // ASSERT
+
+            Assert.IsTrue(testDisposable.HasDisposed);
+        }
+
         private class TestDisposable : IDisposable
         {
             public bool HasDisposed { get; private set; }

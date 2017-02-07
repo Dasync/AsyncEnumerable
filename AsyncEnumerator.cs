@@ -77,7 +77,15 @@ namespace System.Collections.Async
         {
             var moveNextCompleteTask = _yield.OnMoveNext(cancellationToken);
             if (_enumerationTask == null)
-                _enumerationTask = _enumerationFunction(_yield, _userState).ContinueWith(OnEnumerationCompleteAction, _yield, TaskContinuationOptions.ExecuteSynchronously);
+            {
+                // Register for finalization, which might be needed if caller
+                // doesn't not finish the enumeration and does not call Dispose().
+                GC.ReRegisterForFinalize(this);
+
+                _enumerationTask =
+                    _enumerationFunction(_yield, _userState)
+                    .ContinueWith(OnEnumerationCompleteAction, this, TaskContinuationOptions.ExecuteSynchronously);
+            }
             return moveNextCompleteTask;
         }
 
@@ -129,8 +137,8 @@ namespace System.Collections.Async
             {
                 if (_yield != null && !_yield.IsComplete)
                 {
-                    var yield = _yield;
-                    Task.Run(() => yield.SetCanceled());
+                    var yield = _yield; // capture variable instead of instance of 'this'
+                    Task.Run(() => yield.SetCanceled()); // don't block the GC thread
                 }
             }
             else
@@ -138,30 +146,37 @@ namespace System.Collections.Async
                 _yield?.SetCanceled();
                 _yield = new AsyncEnumerator<TItem>.Yield(this);
                 _enumerationTask = null;
+
+                // No need for finalization until we actually start enumeration.
+                GC.SuppressFinalize(this);
             }
         }
 
         private static void OnEnumerationComplete(Task task, object state)
         {
-            var yield = (AsyncEnumerator<TItem>.Yield)state;
+            var enumerator = (AsyncEnumeratorWithState<TItem, TState>)state;
+
+            // When en enumeration is complete, there is nothing to dispose.
+            GC.SuppressFinalize(enumerator);
+
             if (task.IsFaulted)
             {
                 if (task.Exception.GetBaseException() is AsyncEnumerationCanceledException)
                 {
-                    yield.SetCanceled();
+                    enumerator._yield.SetCanceled();
                 }
                 else
                 {
-                    yield.SetFailed(task.Exception);
+                    enumerator._yield.SetFailed(task.Exception);
                 }
             }
             else if (task.IsCanceled)
             {
-                yield.SetCanceled();
+                enumerator._yield.SetCanceled();
             }
             else
             {
-                yield.SetComplete();
+                enumerator._yield.SetComplete();
             }
         }
     }
