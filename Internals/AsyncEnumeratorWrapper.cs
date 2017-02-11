@@ -1,5 +1,4 @@
-﻿using System.Collections.Async.Internals;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,7 +24,7 @@ namespace System.Collections.Async.Internals
             if (_runSynchronously) {
                 return _enumerator.MoveNext();
             } else {
-                return MoveNextAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                return MoveNextAsync().Result;
             }
         }
 
@@ -44,7 +43,7 @@ namespace System.Collections.Async.Internals
             if (_runSynchronously) {
                 _enumerator.Reset();
             } else {
-                ResetAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                ResetAsync().Wait();
             }
         }
 

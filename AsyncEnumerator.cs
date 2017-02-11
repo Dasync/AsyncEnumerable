@@ -104,7 +104,7 @@ namespace System.Collections.Async
         /// <returns></returns>
         bool IEnumerator.MoveNext()
         {
-            return MoveNextAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            return MoveNextAsync().Result;
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace System.Collections.Async
             }
         }
 
-        private static readonly Func<Yield, Func<Yield, Task>, Task> EnumerationWithNoStateAdatapter = EnumerateWithNoState;
+        private static readonly Func<Yield, Func<Yield, Task>, Task> EnumerationWithNoStateAdapterFunc = EnumerateWithNoStateAdapter;
 
         /// <summary>
         /// Constructor
@@ -291,10 +291,10 @@ namespace System.Collections.Async
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
         /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
         public AsyncEnumerator(Func<Yield, Task> enumerationFunction, bool oneTimeUse = false)
-            : base(EnumerationWithNoStateAdatapter, state: enumerationFunction, oneTimeUse: oneTimeUse)
+            : base(EnumerationWithNoStateAdapterFunc, state: enumerationFunction, oneTimeUse: oneTimeUse)
         {
         }
 
-        private static Task EnumerateWithNoState(Yield yield, Func<Yield, Task> state) => state(yield);
+        private static Task EnumerateWithNoStateAdapter(Yield yield, Func<Yield, Task> enumerationFunction) => enumerationFunction(yield);
     }
 }

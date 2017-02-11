@@ -208,7 +208,7 @@ __1: Using CancellationToken__
         await yield.ReturnAsync(start);
 
         // As a rule of thumb, always use yield.CancellationToken
-        // whan calling underlying async methods to be able to
+        // when calling underlying async methods to be able to
         // cancel the MoveNextAsync() method.
         await FooAsync(yield.CancellationToken);
       });

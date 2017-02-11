@@ -62,11 +62,7 @@ namespace System.Collections.Generic
 
             var asyncEnumerable = enumerable as IAsyncEnumerable<T>;
             if (asyncEnumerable != null)
-                return asyncEnumerable
-                    .GetAsyncEnumeratorAsync(CancellationToken.None)
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                return asyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken.None).Result;
 
             var enumerator = enumerable.GetEnumerator();
             return new AsyncEnumeratorWrapper<T>(enumerator, runSynchronously);

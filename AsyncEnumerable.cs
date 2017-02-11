@@ -102,13 +102,13 @@ namespace System.Collections.Async
         /// Returns an enumerator that iterates through the collection
         /// </summary>
         /// <returns>An instance of enumerator</returns>
-        public IEnumerator<T> GetEnumerator() => GetAsyncEnumeratorAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+        public IEnumerator<T> GetEnumerator() => GetAsyncEnumeratorAsync().Result;
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection
         /// </summary>
         /// <returns>An instance of enumerator</returns>
-        IEnumerator IEnumerable.GetEnumerator() => GetAsyncEnumeratorAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+        IEnumerator IEnumerable.GetEnumerator() => GetAsyncEnumeratorAsync().Result;
     }
 
     /// <summary>
@@ -163,12 +163,12 @@ namespace System.Collections.Async
         /// Returns an enumerator that iterates through the collection
         /// </summary>
         /// <returns>An instance of enumerator</returns>
-        public IEnumerator<TItem> GetEnumerator() => GetAsyncEnumeratorAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+        public IEnumerator<TItem> GetEnumerator() => GetAsyncEnumeratorAsync().Result;
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection
         /// </summary>
         /// <returns>An instance of enumerator</returns>
-        IEnumerator IEnumerable.GetEnumerator() => GetAsyncEnumeratorAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+        IEnumerator IEnumerable.GetEnumerator() => GetAsyncEnumeratorAsync().Result;
     }
 }
