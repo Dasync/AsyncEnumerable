@@ -70,6 +70,11 @@ namespace System.Collections.Async
             }
         }
 
+        /// <summary>
+        /// Tells if enumeration is complete. Returns True only after MoveNextAsync returns False.
+        /// </summary>
+        public bool IsEnumerationComplete => _yield != null && _yield.IsComplete;
+
         object IEnumerator.Current => Current;
 
         /// <summary>
