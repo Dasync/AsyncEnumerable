@@ -26,7 +26,6 @@ namespace System.Collections.Async
         private static readonly Action<Task, object> OnEnumerationCompleteAction = OnEnumerationComplete;
 
         private Func<AsyncEnumerator<TItem>.Yield, TState, Task> _enumerationFunction;
-        private TState _userState;
         private bool _oneTimeUse;
         private AsyncEnumerator<TItem>.Yield _yield;
         private Task _enumerationTask;
@@ -40,7 +39,7 @@ namespace System.Collections.Async
         public AsyncEnumeratorWithState(Func<AsyncEnumerator<TItem>.Yield, TState, Task> enumerationFunction, TState state, bool oneTimeUse = false)
         {
             _enumerationFunction = enumerationFunction;
-            _userState = state;
+            State = state;
             _oneTimeUse = oneTimeUse;
             ClearState();
         }
@@ -54,9 +53,14 @@ namespace System.Collections.Async
         }
 
         /// <summary>
+        /// A user state that gets passed into the enumeration function.
+        /// </summary>
+        protected TState State { get; }
+
+        /// <summary>
         /// Gets the element in the collection at the current position of the enumerator
         /// </summary>
-        public TItem Current
+        public virtual TItem Current
         {
             get
             {
@@ -73,7 +77,7 @@ namespace System.Collections.Async
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel the enumeration</param>
         /// <returns>Returns a Task that does transition to the next element. The result of the task is True if the enumerator was successfully advanced to the next element, or False if the enumerator has passed the end of the collection.</returns>
-        public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var moveNextCompleteTask = _yield.OnMoveNext(cancellationToken);
             if (_enumerationTask == null)
@@ -83,7 +87,7 @@ namespace System.Collections.Async
                 GC.ReRegisterForFinalize(this);
 
                 _enumerationTask =
-                    _enumerationFunction(_yield, _userState)
+                    _enumerationFunction(_yield, State)
                     .ContinueWith(OnEnumerationCompleteAction, this, TaskContinuationOptions.ExecuteSynchronously);
             }
             return moveNextCompleteTask;
@@ -101,7 +105,7 @@ namespace System.Collections.Async
         /// <summary>
         /// Sets the enumerator to its initial position asynchronously, which is before the first element in the collection
         /// </summary>
-        public Task ResetAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task ResetAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             Reset();
             return TaskEx.Completed;
@@ -126,7 +130,11 @@ namespace System.Collections.Async
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool manualDispose)
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources
+        /// </summary>
+        /// <param name="manualDispose">True if called from Dispose() method, otherwise False - called by GC</param>
+        protected virtual void Dispose(bool manualDispose)
         {
             ClearState(isFinalizing: !manualDispose);
         }
@@ -184,7 +192,7 @@ namespace System.Collections.Async
     /// <summary>
     /// Helps to enumerate items in a collection asynchronously
     /// </summary>
-    public sealed class AsyncEnumerator<T> : AsyncEnumeratorWithState<T, Func<AsyncEnumerator<T>.Yield, Task>>
+    public class AsyncEnumerator<T> : AsyncEnumeratorWithState<T, Func<AsyncEnumerator<T>.Yield, Task>>
     {
         /// <summary>
         /// An empty <see cref="IAsyncEnumerator{T}"/>. Safe to use by multiple threads.

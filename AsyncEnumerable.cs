@@ -84,7 +84,7 @@ namespace System.Collections.Async
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        public Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var enumerator = new AsyncEnumerator<T>(_enumerationFunction, _oneTimeUse);
             return Task.FromResult<IAsyncEnumerator<T>>(enumerator);
@@ -95,7 +95,8 @@ namespace System.Collections.Async
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken) => GetAsyncEnumeratorAsync(cancellationToken).ContinueWith<IAsyncEnumerator>(task => task.Result);
+        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
+            => GetAsyncEnumeratorAsync(cancellationToken).ContinueWith<IAsyncEnumerator>(task => task.Result);
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection
@@ -116,10 +117,9 @@ namespace System.Collections.Async
     /// </summary>
     /// <typeparam name="TItem">Type of items returned by </typeparam>
     /// <typeparam name="TState">Type of the state object</typeparam>
-    public sealed class AsyncEnumerableWithState<TItem, TState> : AsyncEnumerable, IAsyncEnumerable<TItem>
+    public class AsyncEnumerableWithState<TItem, TState> : AsyncEnumerable, IAsyncEnumerable<TItem>
     {
         private Func<AsyncEnumerator<TItem>.Yield, TState, Task> _enumerationFunction;
-        private TState _userState;
         private bool _oneTimeUse;
 
         /// <summary>
@@ -131,18 +131,23 @@ namespace System.Collections.Async
         public AsyncEnumerableWithState(Func<AsyncEnumerator<TItem>.Yield, TState, Task> enumerationFunction, TState state, bool oneTimeUse = false)
         {
             _enumerationFunction = enumerationFunction;
-            _userState = state;
+            State = state;
             _oneTimeUse = oneTimeUse;
         }
+
+        /// <summary>
+        /// A user state that gets passed into the enumeration function.
+        /// </summary>
+        protected TState State { get; }
 
         /// <summary>
         /// Creates an enumerator that iterates through a collection asynchronously
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        public Task<IAsyncEnumerator<TItem>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<IAsyncEnumerator<TItem>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, _userState, _oneTimeUse);
+            var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State, _oneTimeUse);
             return Task.FromResult<IAsyncEnumerator<TItem>>(enumerator);
         }
 
