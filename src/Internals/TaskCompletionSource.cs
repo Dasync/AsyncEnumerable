@@ -15,10 +15,17 @@ namespace System.Collections.Async.Internals
         static TaskCompletionSource()
         {
             // Collect all necessary fields of a Task that needs to be reset.
+#if NETSTANDARD
+            var m_stateFlags = typeof(Task).GetTypeInfo().GetDeclaredField("m_stateFlags");
+            var m_continuationObject = typeof(Task).GetTypeInfo().GetDeclaredField("m_continuationObject");
+            var m_taskId = typeof(Task).GetTypeInfo().GetDeclaredField("m_taskId");
+            var m_stateObject = typeof(Task).GetTypeInfo().GetDeclaredField("m_stateObject");
+#else
             var m_stateFlags = typeof(Task).GetField("m_stateFlags", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var m_continuationObject = typeof(Task).GetField("m_continuationObject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var m_taskId = typeof(Task).GetField("m_taskId", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var m_stateObject = typeof(Task).GetField("m_stateObject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+#endif
 
             // Make sure that all of them available (has been checked with .NET Framework 4.5 only).
             if (m_stateFlags != null && m_continuationObject != null && m_taskId != null && m_stateObject != null)

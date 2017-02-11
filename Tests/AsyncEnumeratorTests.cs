@@ -95,7 +95,7 @@ namespace Tests
 
             // Give some time to other thread that does the disposal of the enumerator.
             // (see finalizer of the AsyncEnumerator for details)
-            Thread.Sleep(16);
+            await Task.Delay(100);
 
             // ASSERT
 

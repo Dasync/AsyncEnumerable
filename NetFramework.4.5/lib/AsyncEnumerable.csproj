@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{111536C3-DABF-48CF-B993-E504C0BC5CE7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>System.Collections.Async</RootNamespace>
+    <AssemblyName>AsyncEnumerable</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\AsyncEnumerable.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\AsyncEnumerable.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\AsyncEnumerable.pfx</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\AsyncEnumerable.cs">
+      <Link>AsyncEnumerable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\AsyncEnumerationCanceledException.cs">
+      <Link>AsyncEnumerationCanceledException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\AsyncEnumerator.cs">
+      <Link>AsyncEnumerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\ForEachAsyncExtensions.cs">
+      <Link>ForEachAsyncExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\IAsyncEnumerable.cs">
+      <Link>IAsyncEnumerable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\IAsyncEnumerableExtensions.cs">
+      <Link>IAsyncEnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\IAsyncEnumerator.cs">
+      <Link>IAsyncEnumerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\IAsyncEnumeratorExtensions.cs">
+      <Link>IAsyncEnumeratorExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\IEnumerableExtensions.cs">
+      <Link>IEnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Internals\AsyncEnumerableWrapper.cs">
+      <Link>Internals\AsyncEnumerableWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Internals\AsyncEnumeratorWrapper.cs">
+      <Link>Internals\AsyncEnumeratorWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Internals\CurrentValueContainer.cs">
+      <Link>Internals\CurrentValueContainer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Internals\EmptyAsyncEnumerable.cs">
+      <Link>Internals\EmptyAsyncEnumerable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Internals\EmptyAsyncEnumerator.cs">
+      <Link>Internals\EmptyAsyncEnumerator.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Internals\TaskCompletionSource.cs">
+      <Link>Internals\TaskCompletionSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Internals\TaskEx.cs">
+      <Link>Internals\TaskEx.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\ParallelForEachException.cs">
+      <Link>ParallelForEachException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\ParallelForEachExtensions.cs">
+      <Link>ParallelForEachExtensions.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -93,7 +93,9 @@ static void ConsumeNumbers()
         <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync ParallelForEachAsync async await foreach parallel</tags>
     </metadata>
     <files>
-        <file src="bin\Release\AsyncEnumerable.dll" target="lib\AsyncEnumerable.dll" />
-        <file src="bin\Release\AsyncEnumerable.xml" target="lib\AsyncEnumerable.xml" />
+        <file src="NetFramework.4.5\lib\bin\Release\AsyncEnumerable.dll" target="lib\net45\AsyncEnumerable.dll" />
+        <file src="NetFramework.4.5\lib\bin\Release\AsyncEnumerable.xml" target="lib\net45\AsyncEnumerable.xml" />
+        <file src="NetStandard.1.4\lib\bin\Release\netstandard1.4\AsyncEnumerable.dll" target="lib\netstandard1.4\AsyncEnumerable.dll" />
+        <file src="NetStandard.1.4\lib\bin\Release\netstandard1.4\AsyncEnumerable.xml" target="lib\netstandard1.4\AsyncEnumerable.xml" />
     </files>
 </package>

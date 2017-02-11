@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{111536C3-DABF-48CF-B993-E504C0BC5CE7}</ProjectGuid>
+    <ProjectGuid>{9557379C-26E0-448F-AB22-B197885B05E2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AsyncEnumerable</RootNamespace>
-    <AssemblyName>AsyncEnumerable</AssemblyName>
+    <RootNamespace>Tests</RootNamespace>
+    <AssemblyName>Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\AsyncEnumerable.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,43 +28,39 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\AsyncEnumerable.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>AsyncEnumerable.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework, Version=3.6.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.3.6.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncEnumerable.cs" />
-    <Compile Include="IAsyncEnumeratorExtensions.cs" />
-    <Compile Include="Internals\AsyncEnumerableWrapper.cs" />
-    <Compile Include="AsyncEnumerationCanceledException.cs" />
-    <Compile Include="AsyncEnumerator.cs" />
-    <Compile Include="Internals\AsyncEnumeratorWrapper.cs" />
-    <Compile Include="Internals\EmptyAsyncEnumerable.cs" />
-    <Compile Include="Internals\EmptyAsyncEnumerator.cs" />
-    <Compile Include="IAsyncEnumerable.cs" />
-    <Compile Include="ForEachAsyncExtensions.cs" />
-    <Compile Include="IAsyncEnumerableExtensions.cs" />
-    <Compile Include="IAsyncEnumerator.cs" />
-    <Compile Include="IEnumerableExtensions.cs" />
-    <Compile Include="Internals\CurrentValueContainer.cs" />
-    <Compile Include="Internals\TaskCompletionSource.cs" />
-    <Compile Include="ParallelForEachException.cs" />
-    <Compile Include="ParallelForEachExtensions.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Internals\TaskEx.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="..\..\Tests\AsyncEnumeratorTests.cs">
+      <Link>AsyncEnumeratorTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tests\ForEachAsyncTests.cs">
+      <Link>ForEachAsyncTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tests\LinqStyleExtensionsTests.cs">
+      <Link>LinqStyleExtensionsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tests\PerformanceTests.cs">
+      <Link>PerformanceTests.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AsyncEnumerable.nuspec" />
-    <None Include="AsyncEnumerable.pfx" />
-    <None Include="LICENSE" />
-    <None Include="README.md" />
+    <ProjectReference Include="..\lib\AsyncEnumerable.csproj">
+      <Project>{111536c3-dabf-48cf-b993-e504c0bc5ce7}</Project>
+      <Name>AsyncEnumerable</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
