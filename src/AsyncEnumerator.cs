@@ -260,6 +260,8 @@ namespace System.Collections.Async
             internal void SetCanceled()
             {
                 _isComplete = true;
+                if (!CancellationToken.IsCancellationRequested)
+                    CancellationToken = CancellationTokenEx.Canceled;
                 _resumeEnumerationTcs?.TrySetException(new AsyncEnumerationCanceledException());
                 _moveNextCompleteTcs.TrySetCanceled();
             }

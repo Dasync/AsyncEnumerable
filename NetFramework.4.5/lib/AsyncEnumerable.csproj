@@ -84,6 +84,9 @@
     <Compile Include="..\..\src\Internals\AsyncEnumeratorWrapper.cs">
       <Link>Internals\AsyncEnumeratorWrapper.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\Internals\CancellationTokenEx.cs">
+      <Link>Internals\CancellationTokenEx.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\Internals\CurrentValueContainer.cs">
       <Link>Internals\CurrentValueContainer.cs</Link>
     </Compile>

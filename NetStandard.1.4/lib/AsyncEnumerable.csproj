@@ -38,16 +38,12 @@
     <Compile Include="..\..\src\IAsyncEnumerator.cs" Link="IAsyncEnumerator.cs" />
     <Compile Include="..\..\src\Internals\AsyncEnumerableWrapper.cs" Link="Internals\AsyncEnumerableWrapper.cs" />
     <Compile Include="..\..\src\Internals\AsyncEnumeratorWrapper.cs" Link="Internals\AsyncEnumeratorWrapper.cs" />
+    <Compile Include="..\..\src\Internals\CancellationTokenEx.cs" Link="Internals\CancellationTokenEx.cs" />
     <Compile Include="..\..\src\Internals\CurrentValueContainer.cs" Link="Internals\CurrentValueContainer.cs" />
     <Compile Include="..\..\src\Internals\EmptyAsyncEnumerable.cs" Link="Internals\EmptyAsyncEnumerable.cs" />
     <Compile Include="..\..\src\Internals\EmptyAsyncEnumerator.cs" Link="Internals\EmptyAsyncEnumerator.cs" />
     <Compile Include="..\..\src\Internals\TaskCompletionSource.cs" Link="Internals\TaskCompletionSource.cs" />
     <Compile Include="..\..\src\Internals\TaskEx.cs" Link="Internals\TaskEx.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Internals\" />
-    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>
