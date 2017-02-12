@@ -28,12 +28,14 @@
     <Compile Include="..\..\src\AsyncEnumerable.cs" Link="AsyncEnumerable.cs" />
     <Compile Include="..\..\src\AsyncEnumerationCanceledException.cs" Link="AsyncEnumerationCanceledException.cs" />
     <Compile Include="..\..\src\AsyncEnumerator.cs" Link="AsyncEnumerator.cs" />
-    <Compile Include="..\..\src\ForEachAsyncExtensions.cs" Link="ForEachAsyncExtensions.cs" />
+    <Compile Include="..\..\src\Extensions\AdapterExtensions.cs" Link="Extensions\AdapterExtensions.cs" />
+    <Compile Include="..\..\src\Extensions\ForEachAsyncExtensions.cs" Link="Extensions\ForEachAsyncExtensions.cs" />
+    <Compile Include="..\..\src\Extensions\IAsyncEnumerableExtensions.cs" Link="Extensions\IAsyncEnumerableExtensions.cs" />
+    <Compile Include="..\..\src\Extensions\IAsyncEnumeratorExtensions.cs" Link="Extensions\IAsyncEnumeratorExtensions.cs" />
+    <Compile Include="..\..\src\Extensions\ParallelForEachException.cs" Link="Extensions\ParallelForEachException.cs" />
+    <Compile Include="..\..\src\Extensions\ParallelForEachExtensions.cs" Link="Extensions\ParallelForEachExtensions.cs" />
     <Compile Include="..\..\src\IAsyncEnumerable.cs" Link="IAsyncEnumerable.cs" />
-    <Compile Include="..\..\src\IAsyncEnumerableExtensions.cs" Link="IAsyncEnumerableExtensions.cs" />
     <Compile Include="..\..\src\IAsyncEnumerator.cs" Link="IAsyncEnumerator.cs" />
-    <Compile Include="..\..\src\IAsyncEnumeratorExtensions.cs" Link="IAsyncEnumeratorExtensions.cs" />
-    <Compile Include="..\..\src\IEnumerableExtensions.cs" Link="IEnumerableExtensions.cs" />
     <Compile Include="..\..\src\Internals\AsyncEnumerableWrapper.cs" Link="Internals\AsyncEnumerableWrapper.cs" />
     <Compile Include="..\..\src\Internals\AsyncEnumeratorWrapper.cs" Link="Internals\AsyncEnumeratorWrapper.cs" />
     <Compile Include="..\..\src\Internals\CurrentValueContainer.cs" Link="Internals\CurrentValueContainer.cs" />
@@ -41,12 +43,11 @@
     <Compile Include="..\..\src\Internals\EmptyAsyncEnumerator.cs" Link="Internals\EmptyAsyncEnumerator.cs" />
     <Compile Include="..\..\src\Internals\TaskCompletionSource.cs" Link="Internals\TaskCompletionSource.cs" />
     <Compile Include="..\..\src\Internals\TaskEx.cs" Link="Internals\TaskEx.cs" />
-    <Compile Include="..\..\src\ParallelForEachException.cs" Link="ParallelForEachException.cs" />
-    <Compile Include="..\..\src\ParallelForEachExtensions.cs" Link="ParallelForEachExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Internals\" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

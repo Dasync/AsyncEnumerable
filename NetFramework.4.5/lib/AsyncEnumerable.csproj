@@ -54,23 +54,29 @@
     <Compile Include="..\..\src\AsyncEnumerator.cs">
       <Link>AsyncEnumerator.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\ForEachAsyncExtensions.cs">
-      <Link>ForEachAsyncExtensions.cs</Link>
+    <Compile Include="..\..\src\Extensions\AdapterExtensions.cs">
+      <Link>Extensions\AdapterExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Extensions\ForEachAsyncExtensions.cs">
+      <Link>Extensions\ForEachAsyncExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Extensions\IAsyncEnumerableExtensions.cs">
+      <Link>Extensions\IAsyncEnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Extensions\IAsyncEnumeratorExtensions.cs">
+      <Link>Extensions\IAsyncEnumeratorExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Extensions\ParallelForEachException.cs">
+      <Link>Extensions\ParallelForEachException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Extensions\ParallelForEachExtensions.cs">
+      <Link>Extensions\ParallelForEachExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\src\IAsyncEnumerable.cs">
       <Link>IAsyncEnumerable.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\IAsyncEnumerableExtensions.cs">
-      <Link>IAsyncEnumerableExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\..\src\IAsyncEnumerator.cs">
       <Link>IAsyncEnumerator.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\IAsyncEnumeratorExtensions.cs">
-      <Link>IAsyncEnumeratorExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\IEnumerableExtensions.cs">
-      <Link>IEnumerableExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\src\Internals\AsyncEnumerableWrapper.cs">
       <Link>Internals\AsyncEnumerableWrapper.cs</Link>
@@ -92,12 +98,6 @@
     </Compile>
     <Compile Include="..\..\src\Internals\TaskEx.cs">
       <Link>Internals\TaskEx.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\ParallelForEachException.cs">
-      <Link>ParallelForEachException.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\ParallelForEachExtensions.cs">
-      <Link>ParallelForEachExtensions.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
