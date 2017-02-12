@@ -58,11 +58,71 @@ namespace System.Collections.Async.Internals
 
                     var lambda = Expression.Lambda(body, targetArg, stateObjectArg);
                     _resetTaskFunc = (Func<Task, object, int>)lambda.Compile();
+
+                    // Do initial testing of the reset function
+                    TestResetFunction();
                 }
                 catch
                 {
                     // If something goes wrong, the feature just won't be enabled.
+                    _resetTaskFunc = null;
                 }
+        }
+
+        private static void TestResetFunction()
+        {
+            var stateObject1 = new object();
+            var stateObject2 = new object();
+            var tcs = new TaskCompletionSource<int>();
+
+            // Test reset before SetResult
+            _resetTaskFunc(tcs.Task, stateObject1);
+            if (tcs.Task.IsCanceled || tcs.Task.IsCompleted || tcs.Task.IsFaulted || tcs.Task.AsyncState != stateObject1)
+            {
+                _resetTaskFunc = null;
+                return;
+            }
+
+            // Test SetResult
+            tcs.SetResult(123);
+            if (tcs.Task.IsCanceled || !tcs.Task.IsCompleted || tcs.Task.IsFaulted)
+            {
+                _resetTaskFunc = null;
+                return;
+            }
+
+            // Test reset before SetCanceled
+            _resetTaskFunc(tcs.Task, stateObject2);
+            if (tcs.Task.IsCanceled || tcs.Task.IsCompleted || tcs.Task.IsFaulted || tcs.Task.AsyncState != stateObject2)
+            {
+                _resetTaskFunc = null;
+                return;
+            }
+
+            // Test SetCanceled
+            tcs.SetCanceled();
+            if (!tcs.Task.IsCanceled || !tcs.Task.IsCompleted || tcs.Task.IsFaulted)
+            {
+                _resetTaskFunc = null;
+                return;
+            }
+
+            // Test reset before SetException
+            _resetTaskFunc(tcs.Task, stateObject1);
+            if (tcs.Task.IsCanceled || tcs.Task.IsCompleted || tcs.Task.IsFaulted || tcs.Task.AsyncState != stateObject1)
+            {
+                _resetTaskFunc = null;
+                return;
+            }
+
+            // Test SetException
+            var ex = new Exception();
+            tcs.SetException(ex);
+            if (tcs.Task.IsCanceled || !tcs.Task.IsCompleted || !tcs.Task.IsFaulted || tcs.Task.Exception.InnerException != ex)
+            {
+                _resetTaskFunc = null;
+                return;
+            }
         }
 
         /// <summary>
