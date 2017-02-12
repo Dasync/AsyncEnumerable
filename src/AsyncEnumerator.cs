@@ -26,6 +26,7 @@ namespace System.Collections.Async
         private static readonly Action<Task, object> OnEnumerationCompleteAction = OnEnumerationComplete;
 
         private Func<AsyncEnumerator<TItem>.Yield, TState, Task> _enumerationFunction;
+        private Action<TState> _onDisposeAction;
         private bool _oneTimeUse;
         private AsyncEnumerator<TItem>.Yield _yield;
         private Task _enumerationTask;
@@ -36,11 +37,17 @@ namespace System.Collections.Async
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
         /// <param name="state">Any state object that is passed to the <paramref name="enumerationFunction"/></param>
         /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
-        public AsyncEnumeratorWithState(Func<AsyncEnumerator<TItem>.Yield, TState, Task> enumerationFunction, TState state, bool oneTimeUse = false)
+        /// <param name="onDispose">Optional action that gets invoked on Dispose()</param>
+        public AsyncEnumeratorWithState(
+            Func<AsyncEnumerator<TItem>.Yield, TState, Task> enumerationFunction,
+            TState state,
+            bool oneTimeUse = false,
+            Action<TState> onDispose = null)
         {
             _enumerationFunction = enumerationFunction;
             State = state;
             _oneTimeUse = oneTimeUse;
+            _onDisposeAction = onDispose;
             ClearState();
         }
 
@@ -142,6 +149,7 @@ namespace System.Collections.Async
         protected virtual void Dispose(bool manualDispose)
         {
             ClearState(isFinalizing: !manualDispose);
+            _onDisposeAction?.Invoke(State);
         }
 
         private void ClearState(bool isFinalizing = false)
@@ -197,7 +205,7 @@ namespace System.Collections.Async
     /// <summary>
     /// Helps to enumerate items in a collection asynchronously
     /// </summary>
-    public class AsyncEnumerator<T> : AsyncEnumeratorWithState<T, Func<AsyncEnumerator<T>.Yield, Task>>
+    public class AsyncEnumerator<T> : AsyncEnumeratorWithState<T, AsyncEnumerator<T>.NoStateAdapter>
     {
         /// <summary>
         /// An empty <see cref="IAsyncEnumerator{T}"/>. Safe to use by multiple threads.
@@ -263,13 +271,13 @@ namespace System.Collections.Async
                 if (!CancellationToken.IsCancellationRequested)
                     CancellationToken = CancellationTokenEx.Canceled;
                 _resumeEnumerationTcs?.TrySetException(new AsyncEnumerationCanceledException());
-                _moveNextCompleteTcs.TrySetCanceled();
+                _moveNextCompleteTcs?.TrySetCanceled();
             }
 
             internal void SetFailed(Exception ex)
             {
                 _isComplete = true;
-                _moveNextCompleteTcs.TrySetException(ex.GetBaseException());
+                _moveNextCompleteTcs?.TrySetException(ex.GetBaseException());
             }
 
             internal Task<bool> OnMoveNext(CancellationToken cancellationToken)
@@ -285,18 +293,40 @@ namespace System.Collections.Async
             }
         }
 
-        private static readonly Func<Yield, Func<Yield, Task>, Task> EnumerationWithNoStateAdapterFunc = EnumerateWithNoStateAdapter;
-
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
         /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
-        public AsyncEnumerator(Func<Yield, Task> enumerationFunction, bool oneTimeUse = false)
-            : base(EnumerationWithNoStateAdapterFunc, state: enumerationFunction, oneTimeUse: oneTimeUse)
+        /// <param name="onDispose">Optional action that gets invoked on Dispose()</param>
+        public AsyncEnumerator(Func<Yield, Task> enumerationFunction, bool oneTimeUse = false, Action onDispose = null)
+            : base(
+                  NoStateAdapter.Enumerate,
+                  state: new NoStateAdapter
+                  {
+                      EnumerationFunction = enumerationFunction,
+                      DisposeAction = onDispose
+                  },
+                  oneTimeUse: oneTimeUse,
+                  onDispose: NoStateAdapter.OnDispose)
         {
         }
 
-        private static Task EnumerateWithNoStateAdapter(Yield yield, Func<Yield, Task> enumerationFunction) => enumerationFunction(yield);
+        /// <summary>
+        /// Internal implementation details
+        /// </summary>
+        [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
+        public struct NoStateAdapter
+        {
+            internal Func<Yield, Task> EnumerationFunction;
+            internal Action DisposeAction;
+
+            internal static readonly Func<Yield, NoStateAdapter, Task> Enumerate = EnumerateWithNoStateAdapter;
+            internal static readonly Action<NoStateAdapter> OnDispose = OnDisposeAdapter;
+
+            private static Task EnumerateWithNoStateAdapter(Yield yield, NoStateAdapter state) => state.EnumerationFunction(yield);
+
+            private static void OnDisposeAdapter(NoStateAdapter state) => state.DisposeAction?.Invoke();
+        }
     }
 }

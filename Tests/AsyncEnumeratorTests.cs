@@ -49,6 +49,8 @@ namespace Tests
         [Test]
         public async Task DisposeAfterPartialEnumeration()
         {
+            // ARRANGE
+
             var testDisposable = new TestDisposable();
             var enumerator = new AsyncEnumerator<int>(async yield =>
                 {
@@ -61,8 +63,12 @@ namespace Tests
                 },
             oneTimeUse: false);
 
+            // ACT
+
             await enumerator.MoveNextAsync();
             enumerator.Dispose();
+
+            // ASSERT
 
             Assert.IsTrue(testDisposable.HasDisposed);
         }
@@ -100,6 +106,28 @@ namespace Tests
             // Give some time to other thread that does the disposal of the enumerator.
             // (see finalizer of the AsyncEnumerator for details)
             await Task.Delay(100);
+
+            // ASSERT
+
+            Assert.IsTrue(testDisposable.HasDisposed);
+        }
+
+        [Test]
+        public void OnDisposeActionIsCalled()
+        {
+            // ARRANGE
+
+            var testDisposable = new TestDisposable();
+
+            var enumerator = new AsyncEnumerator<int>(async yield =>
+            {
+                await yield.ReturnAsync(1);
+            },
+            onDispose: () => testDisposable.Dispose());
+
+            // ACT
+
+            enumerator.Dispose();
 
             // ASSERT
 
