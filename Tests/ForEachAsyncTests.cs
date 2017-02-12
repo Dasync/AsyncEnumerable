@@ -20,12 +20,14 @@ namespace Tests
                         await yield.ReturnAsync(i);
                 });
 
+#pragma warning disable CS0612 // Type or member is obsolete
             int counter = 0;
-            foreach (var number in enumerable)
+            foreach (var number in enumerable.ToEnumerable())
             {
                 Assert.AreEqual(counter, number);
                 counter++;
             }
+#pragma warning restore CS0612 // Type or member is obsolete
         }
 
         [Test]

@@ -82,7 +82,7 @@ namespace System.Collections.Async
         /// </summary>
         public bool IsEnumerationComplete => _yield != null && _yield.IsComplete;
 
-        object IEnumerator.Current => Current;
+        object IAsyncEnumerator.Current => Current;
 
         /// <summary>
         /// Advances the enumerator to the next element of the collection asynchronously
@@ -103,15 +103,6 @@ namespace System.Collections.Async
                     .ContinueWith(OnEnumerationCompleteAction, this, TaskContinuationOptions.ExecuteSynchronously);
             }
             return moveNextCompleteTask;
-        }
-
-        /// <summary>
-        /// Advances the enumerator to the next element of the collection
-        /// </summary>
-        /// <returns></returns>
-        bool IEnumerator.MoveNext()
-        {
-            return MoveNextAsync().Result;
         }
 
         /// <summary>

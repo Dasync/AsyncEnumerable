@@ -96,6 +96,12 @@
     <Compile Include="..\..\src\Internals\EmptyAsyncEnumerator.cs">
       <Link>Internals\EmptyAsyncEnumerator.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\Internals\EnumerableAdapter.cs">
+      <Link>Internals\EnumerableAdapter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Internals\EnumeratorAdapter.cs">
+      <Link>Internals\EnumeratorAdapter.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\Internals\TaskCompletionSource.cs">
       <Link>Internals\TaskCompletionSource.cs</Link>
     </Compile>

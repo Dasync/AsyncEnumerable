@@ -7,7 +7,7 @@ namespace System.Collections.Async
     /// <summary>
     /// Exposes an asynchronous enumerator, which supports a simple iteration over a non-generic collection
     /// </summary>
-    public interface IAsyncEnumerable : IEnumerable
+    public interface IAsyncEnumerable
     {
         /// <summary>
         /// Creates an enumerator that iterates through a collection asynchronously
@@ -21,7 +21,7 @@ namespace System.Collections.Async
     /// Exposes the asynchronous enumerator, which supports a simple iteration over a collection of typed items
     /// </summary>
     /// <typeparam name="T">The type of items in the collection</typeparam>
-    public interface IAsyncEnumerable<T> : IEnumerable<T>, IAsyncEnumerable
+    public interface IAsyncEnumerable<T> : IAsyncEnumerable
     {
         /// <summary>
         /// Creates an enumerator that iterates through a collection asynchronously

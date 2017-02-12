@@ -1,5 +1,4 @@
-﻿using System.Collections.Async.Internals;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Collections.Async.Internals
@@ -14,9 +13,7 @@ namespace System.Collections.Async.Internals
             }
         }
 
-        object IEnumerator.Current => Current;
-
-        public bool MoveNext() => false;
+        object IAsyncEnumerator.Current => Current;
 
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken) => TaskEx.False;
 

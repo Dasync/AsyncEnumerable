@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Collections.Async
@@ -7,8 +6,13 @@ namespace System.Collections.Async
     /// <summary>
     /// Supports a simple asynchronous iteration over a non-generic collection
     /// </summary>
-    public interface IAsyncEnumerator : IEnumerator, IDisposable
+    public interface IAsyncEnumerator : IDisposable
     {
+        /// <summary>
+        /// Gets the current element in the collection.
+        /// </summary>
+        object Current { get; }
+
         /// <summary>
         /// Advances the enumerator to the next element of the collection asynchronously
         /// </summary>
@@ -28,7 +32,11 @@ namespace System.Collections.Async
     /// Supports a simple asynchronous iteration over a collection of typed items
     /// </summary>
     /// <typeparam name="T">The type of items in the collection</typeparam>
-    public interface IAsyncEnumerator<out T> : IEnumerator<T>, IAsyncEnumerator
+    public interface IAsyncEnumerator<out T> : IAsyncEnumerator
     {
+        /// <summary>
+        /// Gets the element in the collection at the current position of the enumerator.
+        /// </summary>
+        new T Current { get; }
     }
 }

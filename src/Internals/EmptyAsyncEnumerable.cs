@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Collections.Async.Internals
@@ -17,9 +16,5 @@ namespace System.Collections.Async.Internals
 
         Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
             => CompletedGetAsyncEnumeratorAsyncNonGenericTask;
-
-        public IEnumerator<T> GetEnumerator() => AsyncEnumerator<T>.Empty;
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

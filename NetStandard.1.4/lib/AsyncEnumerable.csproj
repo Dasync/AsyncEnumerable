@@ -42,6 +42,8 @@
     <Compile Include="..\..\src\Internals\CurrentValueContainer.cs" Link="Internals\CurrentValueContainer.cs" />
     <Compile Include="..\..\src\Internals\EmptyAsyncEnumerable.cs" Link="Internals\EmptyAsyncEnumerable.cs" />
     <Compile Include="..\..\src\Internals\EmptyAsyncEnumerator.cs" Link="Internals\EmptyAsyncEnumerator.cs" />
+    <Compile Include="..\..\src\Internals\EnumerableAdapter.cs" Link="Internals\EnumerableAdapter.cs" />
+    <Compile Include="..\..\src\Internals\EnumeratorAdapter.cs" Link="Internals\EnumeratorAdapter.cs" />
     <Compile Include="..\..\src\Internals\TaskCompletionSource.cs" Link="Internals\TaskCompletionSource.cs" />
     <Compile Include="..\..\src\Internals\TaskEx.cs" Link="Internals\TaskEx.cs" />
   </ItemGroup>

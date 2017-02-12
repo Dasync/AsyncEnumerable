@@ -17,16 +17,7 @@ namespace System.Collections.Async.Internals
 
         public T Current => _enumerator.Current;
 
-        object IEnumerator.Current => Current;
-
-        public bool MoveNext()
-        {
-            if (_runSynchronously) {
-                return _enumerator.MoveNext();
-            } else {
-                return MoveNextAsync().Result;
-            }
-        }
+        object IAsyncEnumerator.Current => Current;
 
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {

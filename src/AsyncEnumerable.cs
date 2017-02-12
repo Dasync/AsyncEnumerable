@@ -1,5 +1,4 @@
 ﻿using System.Collections.Async.Internals;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,11 +16,6 @@ namespace System.Collections.Async
         public static IAsyncEnumerable<T> Empty<T>() => AsyncEnumerable<T>.Empty;
 
         Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
         {
             throw new NotImplementedException();
         }
@@ -44,17 +38,8 @@ namespace System.Collections.Async
     /// {
     ///   var asyncEnumerableCollection = ProduceNumbers(start: 1, end: 10);
     ///   await asyncEnumerableCollection.ForEachAsync(async number => {
-    ///     await Console.Out.WriteLineAsync(number)
+    ///     await Console.Out.WriteLineAsync(number);
     ///   });
-    /// }
-    /// 
-    /// // It's backward compatible with synchronous enumeration, but gives no benefits
-    /// void ConsumeSync()
-    /// {
-    ///   var enumerableCollection = ProduceNumbers(start: 1, end: 10);
-    ///   foreach (var number in enumerableCollection) {
-    ///     Console.Out.WriteLine(number)
-    ///   };
     /// }
     /// </code>
     /// </example>
@@ -97,18 +82,6 @@ namespace System.Collections.Async
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
         Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
             => GetAsyncEnumeratorAsync(cancellationToken).ContinueWith<IAsyncEnumerator>(task => task.Result);
-
-        /// <summary>
-        /// Returns an enumerator that iterates through the collection
-        /// </summary>
-        /// <returns>An instance of enumerator</returns>
-        public IEnumerator<T> GetEnumerator() => GetAsyncEnumeratorAsync().Result;
-
-        /// <summary>
-        /// Returns an enumerator that iterates through the collection
-        /// </summary>
-        /// <returns>An instance of enumerator</returns>
-        IEnumerator IEnumerable.GetEnumerator() => GetAsyncEnumeratorAsync().Result;
     }
 
     /// <summary>
@@ -158,17 +131,5 @@ namespace System.Collections.Async
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
         Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
             => GetAsyncEnumeratorAsync(cancellationToken).ContinueWith<IAsyncEnumerator>(task => task.Result);
-
-        /// <summary>
-        /// Returns an enumerator that iterates through the collection
-        /// </summary>
-        /// <returns>An instance of enumerator</returns>
-        public IEnumerator<TItem> GetEnumerator() => GetAsyncEnumeratorAsync().Result;
-
-        /// <summary>
-        /// Returns an enumerator that iterates through the collection
-        /// </summary>
-        /// <returns>An instance of enumerator</returns>
-        IEnumerator IEnumerable.GetEnumerator() => GetAsyncEnumeratorAsync().Result;
     }
 }
