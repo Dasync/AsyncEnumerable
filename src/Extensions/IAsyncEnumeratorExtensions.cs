@@ -135,8 +135,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumeratorWithState<TResult, SelectContext<TSource, TResult>>(
                 SelectContext<TSource, TResult>.Enumerate,
-                new SelectContext<TSource, TResult> { Source = source, Selector = selector, DisposeSource = disposeSource },
-                oneTimeUse: true);
+                new SelectContext<TSource, TResult> { Source = source, Selector = selector, DisposeSource = disposeSource });
         }
 
         private struct SelectContext<TSource, TResult>
@@ -184,8 +183,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumeratorWithState<TResult, SelectWithIndexContext<TSource, TResult>>(
                 SelectWithIndexContext<TSource, TResult>.Enumerate,
-                new SelectWithIndexContext<TSource, TResult> { Source = source, Selector = selector, DisposeSource = disposeSource },
-                oneTimeUse: true);
+                new SelectWithIndexContext<TSource, TResult> { Source = source, Selector = selector, DisposeSource = disposeSource });
         }
 
         private struct SelectWithIndexContext<TSource, TResult>
@@ -239,8 +237,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumeratorWithState<TSource, TakeContext<TSource>>(
                 TakeContext<TSource>.Enumerate,
-                new TakeContext<TSource> { Source = source, Count = count, DisposeSource = disposeSource },
-                oneTimeUse: true);
+                new TakeContext<TSource> { Source = source, Count = count, DisposeSource = disposeSource });
         }
 
         private struct TakeContext<TSource>
@@ -288,8 +285,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumeratorWithState<TSource, TakeWhileContext<TSource>>(
                 TakeWhileContext<TSource>.Enumerate,
-                new TakeWhileContext<TSource> { Source = source, Predicate = predicate, DisposeSource = disposeSource },
-                oneTimeUse: true);
+                new TakeWhileContext<TSource> { Source = source, Predicate = predicate, DisposeSource = disposeSource });
         }
 
         private struct TakeWhileContext<TSource>
@@ -401,8 +397,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumeratorWithState<TSource, SkipContext<TSource>>(
                 SkipContext<TSource>.Enumerate,
-                new SkipContext<TSource> { Source = source, Count = count, DisposeSource = disposeSource },
-                oneTimeUse: true);
+                new SkipContext<TSource> { Source = source, Count = count, DisposeSource = disposeSource });
         }
 
         private struct SkipContext<TSource>
@@ -453,8 +448,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumeratorWithState<TSource, SkipWhileContext<TSource>>(
                 SkipWhileContext<TSource>.Enumerate,
-                new SkipWhileContext<TSource> { Source = source, Predicate = predicate, DisposeSource = disposeSource },
-                oneTimeUse: true);
+                new SkipWhileContext<TSource> { Source = source, Predicate = predicate, DisposeSource = disposeSource });
         }
 
         private struct SkipWhileContext<TSource>
@@ -510,8 +504,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumeratorWithState<TSource, WhereContext<TSource>>(
                 WhereContext<TSource>.Enumerate,
-                new WhereContext<TSource> { Source = source, Predicate = predicate, DisposeSource = disposeSource },
-                oneTimeUse: true);
+                new WhereContext<TSource> { Source = source, Predicate = predicate, DisposeSource = disposeSource });
         }
 
         private struct WhereContext<TSource>
@@ -559,8 +552,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumeratorWithState<TSource, WhereWithIndexContext<TSource>>(
                 WhereWithIndexContext<TSource>.Enumerate,
-                new WhereWithIndexContext<TSource> { Source = source, Predicate = predicate, DisposeSource = disposeSource },
-                oneTimeUse: true);
+                new WhereWithIndexContext<TSource> { Source = source, Predicate = predicate, DisposeSource = disposeSource });
         }
 
         private struct WhereWithIndexContext<TSource>

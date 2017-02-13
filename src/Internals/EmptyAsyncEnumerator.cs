@@ -17,10 +17,6 @@ namespace System.Collections.Async.Internals
 
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken) => TaskEx.False;
 
-        public void Reset() { }
-
-        public Task ResetAsync(CancellationToken cancellationToken) => TaskEx.Completed;
-
         public void Dispose() { }
     }
 }

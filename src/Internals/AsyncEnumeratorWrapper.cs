@@ -29,25 +29,6 @@ namespace System.Collections.Async.Internals
             }
         }
 
-        public void Reset()
-        {
-            if (_runSynchronously) {
-                _enumerator.Reset();
-            } else {
-                ResetAsync().Wait();
-            }
-        }
-
-        public Task ResetAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (_runSynchronously) {
-                _enumerator.Reset();
-                return TaskEx.Completed;
-            } else {
-                return Task.Run(() => _enumerator.Reset(), cancellationToken);
-            }
-        }
-
         public void Dispose()
         {
             _enumerator.Dispose();

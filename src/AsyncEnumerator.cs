@@ -27,7 +27,6 @@ namespace System.Collections.Async
 
         private Func<AsyncEnumerator<TItem>.Yield, TState, Task> _enumerationFunction;
         private Action<TState> _onDisposeAction;
-        private bool _oneTimeUse;
         private AsyncEnumerator<TItem>.Yield _yield;
         private Task _enumerationTask;
 
@@ -36,18 +35,15 @@ namespace System.Collections.Async
         /// </summary>
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
         /// <param name="state">Any state object that is passed to the <paramref name="enumerationFunction"/></param>
-        /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
         /// <param name="onDispose">Optional action that gets invoked on Dispose()</param>
         public AsyncEnumeratorWithState(
             Func<AsyncEnumerator<TItem>.Yield, TState, Task> enumerationFunction,
             TState state,
-            bool oneTimeUse = false,
             Action<TState> onDispose = null)
         {
             _enumerationFunction = enumerationFunction;
-            State = state;
-            _oneTimeUse = oneTimeUse;
             _onDisposeAction = onDispose;
+            State = state;
             ClearState();
         }
 
@@ -103,25 +99,6 @@ namespace System.Collections.Async
                     .ContinueWith(OnEnumerationCompleteAction, this, TaskContinuationOptions.ExecuteSynchronously);
             }
             return moveNextCompleteTask;
-        }
-
-        /// <summary>
-        /// Sets the enumerator to its initial position asynchronously, which is before the first element in the collection
-        /// </summary>
-        public virtual Task ResetAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Reset();
-            return TaskEx.Completed;
-        }
-
-        /// <summary>
-        /// Sets the enumerator to its initial position, which is before the first element in the collection
-        /// </summary>
-        public void Reset()
-        {
-            if (_oneTimeUse)
-                throw new InvalidOperationException("The enumeration can be performed once only");
-            ClearState();
         }
 
         /// <summary>
@@ -288,18 +265,16 @@ namespace System.Collections.Async
         /// Constructor
         /// </summary>
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
-        /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
         /// <param name="onDispose">Optional action that gets invoked on Dispose()</param>
-        public AsyncEnumerator(Func<Yield, Task> enumerationFunction, bool oneTimeUse = false, Action onDispose = null)
+        public AsyncEnumerator(Func<Yield, Task> enumerationFunction, Action onDispose = null)
             : base(
-                  NoStateAdapter.Enumerate,
+                  enumerationFunction: NoStateAdapter.Enumerate,
+                  onDispose: NoStateAdapter.OnDispose,
                   state: new NoStateAdapter
                   {
                       EnumerationFunction = enumerationFunction,
                       DisposeAction = onDispose
-                  },
-                  oneTimeUse: oneTimeUse,
-                  onDispose: NoStateAdapter.OnDispose)
+                  })
         {
         }
 

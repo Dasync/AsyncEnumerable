@@ -105,11 +105,9 @@ namespace System.Collections.Async
         /// <typeparam name="TResult">The type of the value returned by <paramref name="source"/>.</typeparam>
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
-        /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="IAsyncEnumerator.ResetAsync(CancellationToken)"/> method is not allowed</param>
         public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, TResult> selector,
-            bool oneTimeUse = false)
+            Func<TSource, TResult> selector)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -118,8 +116,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumerableWithState<TResult, SelectContext<TSource, TResult>>(
                 SelectContext<TSource, TResult>.Enumerate,
-                new SelectContext<TSource, TResult> { Source = source, Selector = selector },
-                oneTimeUse);
+                new SelectContext<TSource, TResult> { Source = source, Selector = selector });
         }
 
         private struct SelectContext<TSource, TResult>
@@ -148,11 +145,9 @@ namespace System.Collections.Async
         /// <typeparam name="TResult">The type of the value returned by <paramref name="source"/>.</typeparam>
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
-        /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="IAsyncEnumerator.ResetAsync(CancellationToken)"/> method is not allowed</param>
         public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, long, TResult> selector,
-            bool oneTimeUse = false)
+            Func<TSource, long, TResult> selector)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -161,8 +156,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumerableWithState<TResult, SelectWithIndexContext<TSource, TResult>>(
                 SelectWithIndexContext<TSource, TResult>.Enumerate,
-                new SelectWithIndexContext<TSource, TResult> { Source = source, Selector = selector },
-                oneTimeUse);
+                new SelectWithIndexContext<TSource, TResult> { Source = source, Selector = selector });
         }
 
         private struct SelectWithIndexContext<TSource, TResult>
@@ -196,11 +190,9 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="count">The number of elements to return.</param>
-        /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="IAsyncEnumerator.ResetAsync(CancellationToken)"/> method is not allowed</param>
         public static IAsyncEnumerable<TSource> TakeAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            int count,
-            bool oneTimeUse = false)
+            int count)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -210,8 +202,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumerableWithState<TSource, TakeContext<TSource>>(
                 TakeContext<TSource>.Enumerate,
-                new TakeContext<TSource> { Source = source, Count = count },
-                oneTimeUse);
+                new TakeContext<TSource> { Source = source, Count = count });
         }
 
         private struct TakeContext<TSource>
@@ -240,11 +231,9 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="IAsyncEnumerator.ResetAsync(CancellationToken)"/> method is not allowed</param>
         public static IAsyncEnumerable<TSource> TakeWhileAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, bool> predicate,
-            bool oneTimeUse = false)
+            Func<TSource, bool> predicate)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -253,8 +242,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumerableWithState<TSource, TakeWhileContext<TSource>>(
                 TakeWhileContext<TSource>.Enumerate,
-                new TakeWhileContext<TSource> { Source = source, Predicate = predicate },
-                oneTimeUse);
+                new TakeWhileContext<TSource> { Source = source, Predicate = predicate });
         }
 
         private struct TakeWhileContext<TSource>
@@ -301,7 +289,7 @@ namespace System.Collections.Async
             }
             return resultList;
         }
-        
+
         #endregion
 
         #region ToArray
@@ -335,19 +323,16 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return elements from.</param>
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
-        /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="IAsyncEnumerator.ResetAsync(CancellationToken)"/> method is not allowed</param>
         public static IAsyncEnumerable<TSource> SkipAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            int count,
-            bool oneTimeUse = false)
+            int count)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
 
             return new AsyncEnumerableWithState<TSource, SkipContext<TSource>>(
                 SkipContext<TSource>.Enumerate,
-                new SkipContext<TSource> { Source = source, Count = count },
-                oneTimeUse);
+                new SkipContext<TSource> { Source = source, Count = count });
         }
 
         private struct SkipContext<TSource>
@@ -379,11 +364,9 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="IAsyncEnumerator.ResetAsync(CancellationToken)"/> method is not allowed</param>
         public static IAsyncEnumerable<TSource> SkipWhileAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, bool> predicate,
-            bool oneTimeUse = false)
+            Func<TSource, bool> predicate)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -392,8 +375,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumerableWithState<TSource, SkipWhileContext<TSource>>(
                 SkipWhileContext<TSource>.Enumerate,
-                new SkipWhileContext<TSource> { Source = source, Predicate = predicate },
-                oneTimeUse);
+                new SkipWhileContext<TSource> { Source = source, Predicate = predicate });
         }
 
         private struct SkipWhileContext<TSource>
@@ -430,11 +412,9 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="IAsyncEnumerator.ResetAsync(CancellationToken)"/> method is not allowed</param>
         public static IAsyncEnumerable<TSource> WhereAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, bool> predicate,
-            bool oneTimeUse = false)
+            Func<TSource, bool> predicate)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -443,8 +423,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumerableWithState<TSource, WhereContext<TSource>>(
                 WhereContext<TSource>.Enumerate,
-                new WhereContext<TSource> { Source = source, Predicate = predicate },
-                oneTimeUse);
+                new WhereContext<TSource> { Source = source, Predicate = predicate });
         }
 
         private struct WhereContext<TSource>
@@ -473,11 +452,9 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition; the second parameter of the function represents the index of the source element.</param>
-        /// <param name="oneTimeUse">When <c>true</c> the enumeration can be performed once only and <see cref="IAsyncEnumerator.ResetAsync(CancellationToken)"/> method is not allowed</param>
         public static IAsyncEnumerable<TSource> WhereAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, long, bool> predicate,
-            bool oneTimeUse = false)
+            Func<TSource, long, bool> predicate)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -486,8 +463,7 @@ namespace System.Collections.Async
 
             return new AsyncEnumerableWithState<TSource, WhereWithIndexContext<TSource>>(
                 WhereWithIndexContext<TSource>.Enumerate,
-                new WhereWithIndexContext<TSource> { Source = source, Predicate = predicate },
-                oneTimeUse);
+                new WhereWithIndexContext<TSource> { Source = source, Predicate = predicate });
         }
 
         private struct WhereWithIndexContext<TSource>

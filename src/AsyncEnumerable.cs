@@ -46,7 +46,6 @@ namespace System.Collections.Async
     public class AsyncEnumerable<T> : AsyncEnumerable, IAsyncEnumerable<T>
     {
         private Func<AsyncEnumerator<T>.Yield, Task> _enumerationFunction;
-        private bool _oneTimeUse;
 
         /// <summary>
         /// A pre-cached empty collection
@@ -57,11 +56,9 @@ namespace System.Collections.Async
         /// Constructor
         /// </summary>
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
-        /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
-        public AsyncEnumerable(Func<AsyncEnumerator<T>.Yield, Task> enumerationFunction, bool oneTimeUse = false)
+        public AsyncEnumerable(Func<AsyncEnumerator<T>.Yield, Task> enumerationFunction)
         {
             _enumerationFunction = enumerationFunction;
-            _oneTimeUse = oneTimeUse;
         }
 
         /// <summary>
@@ -71,7 +68,7 @@ namespace System.Collections.Async
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
         public virtual Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var enumerator = new AsyncEnumerator<T>(_enumerationFunction, _oneTimeUse);
+            var enumerator = new AsyncEnumerator<T>(_enumerationFunction);
             return Task.FromResult<IAsyncEnumerator<T>>(enumerator);
         }
 
@@ -93,19 +90,16 @@ namespace System.Collections.Async
     public class AsyncEnumerableWithState<TItem, TState> : AsyncEnumerable, IAsyncEnumerable<TItem>
     {
         private Func<AsyncEnumerator<TItem>.Yield, TState, Task> _enumerationFunction;
-        private bool _oneTimeUse;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="enumerationFunction">A function that enumerates items in a collection asynchronously</param>
-        /// <param name="oneTimeUse">When True the enumeration can be performed once only and Reset method is not allowed</param>
         /// <param name="state">A state object that is passed to the <paramref name="enumerationFunction"/></param>
-        public AsyncEnumerableWithState(Func<AsyncEnumerator<TItem>.Yield, TState, Task> enumerationFunction, TState state, bool oneTimeUse = false)
+        public AsyncEnumerableWithState(Func<AsyncEnumerator<TItem>.Yield, TState, Task> enumerationFunction, TState state)
         {
             _enumerationFunction = enumerationFunction;
             State = state;
-            _oneTimeUse = oneTimeUse;
         }
 
         /// <summary>
@@ -120,7 +114,7 @@ namespace System.Collections.Async
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
         public virtual Task<IAsyncEnumerator<TItem>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State, _oneTimeUse);
+            var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State);
             return Task.FromResult<IAsyncEnumerator<TItem>>(enumerator);
         }
 

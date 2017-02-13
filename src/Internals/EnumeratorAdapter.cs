@@ -15,7 +15,7 @@ namespace System.Collections.Async.Internals
 
         public bool MoveNext() => _asyncEnumerator.MoveNextAsync().Result;
 
-        public void Reset() => _asyncEnumerator.ResetAsync().Wait();
+        public void Reset() => throw new NotSupportedException("The IEnumerator.Reset() method is obsolete. Create a new enumerator instead.");
 
         public void Dispose() => _asyncEnumerator.Dispose();
     }
@@ -35,7 +35,7 @@ namespace System.Collections.Async.Internals
 
         public bool MoveNext() => _asyncEnumerator.MoveNextAsync().Result;
 
-        public void Reset() => _asyncEnumerator.ResetAsync().Wait();
+        public void Reset() => throw new NotSupportedException("The IEnumerator.Reset() method is obsolete. Create a new enumerator instead.");
 
         public void Dispose() => _asyncEnumerator.Dispose();
     }

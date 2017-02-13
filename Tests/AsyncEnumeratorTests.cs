@@ -18,8 +18,7 @@ namespace Tests
                 {
                     await yield.ReturnAsync(1);
                 });
-            },
-            oneTimeUse: false);
+            });
 
             var moveResult1 = await enumerator.MoveNextAsync();
             var moveResult2 = await enumerator.MoveNextAsync();
@@ -40,8 +39,7 @@ namespace Tests
                 cts.Cancel();
                 yield.CancellationToken.ThrowIfCancellationRequested();
                 return Task.FromResult(0);
-            },
-            oneTimeUse: false);
+            });
 
             Assert.ThrowsAsync<OperationCanceledException>(() => enumerator.MoveNextAsync(cts.Token));
         }
@@ -53,15 +51,14 @@ namespace Tests
 
             var testDisposable = new TestDisposable();
             var enumerator = new AsyncEnumerator<int>(async yield =>
+            {
+                using (testDisposable)
                 {
-                    using (testDisposable)
-                    {
-                        await yield.ReturnAsync(1);
-                        await yield.ReturnAsync(2);
-                        await yield.ReturnAsync(3);
-                    }
-                },
-            oneTimeUse: false);
+                    await yield.ReturnAsync(1);
+                    await yield.ReturnAsync(2);
+                    await yield.ReturnAsync(3);
+                }
+            });
 
             // ACT
 
@@ -91,8 +88,7 @@ namespace Tests
                     await yield.ReturnAsync(2);
                     await yield.ReturnAsync(3);
                 }
-            },
-            oneTimeUse: false);
+            });
 
             // ACT
 
