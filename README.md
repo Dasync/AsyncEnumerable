@@ -58,10 +58,7 @@ the thread (the processing is scheduled on a worker thread instead).
     // Just to compare with synchronous version of enumeration
     static void ConsumeNumbers()
     {
-      // NOTE: IAsyncEnumerable is derived from IEnumerable, so you can use either
-      var enumerableCollection = ProduceAsyncNumbers(start: 1, end: 10);
-      //var enumerableCollection = ProduceNumbers(start: 1, end: 10);
-
+      var enumerableCollection = ProduceNumbers(start: 1, end: 10);
       foreach (var number in enumerableCollection) {
         Console.Out.WriteLine($"{number}");
       }
@@ -69,83 +66,19 @@ the thread (the processing is scheduled on a worker thread instead).
 ```
 
 
-## EXAMPLE 2 (real scenario, pseudo code)
-
-```csharp
-    using System.Collections.Async;
-
-    static IAsyncEnumerable<KeyValuePair<string, string>> ReadRemoteSettings(Uri resourceUri)
-    {
-      return new AsyncEnumerable<KeyValuePair<string, string>>(async yield => {
-        using (var client = new HttpClient()) {
-
-          client.BaseAddress = resourceUri;
-
-          using (var request = new HttpRequestMessage(HttpMethod.Get, resourceUri)) {
-
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, yield.CancellationToken)) {
-
-              if (response.StatusCode != HttpStatusCode.OK)
-                throw new Exception($"The server returned: {response.ReasonPhrase}");
-
-              using (var stream = await response.Content.ReadAsStreamAsync()) {
-
-                var xmlSettings = new XmlReaderSettings() { IgnoreComments = true, IgnoreWhitespace = true };
-
-                using (var xmlReader = XmlReader.Create(stream, xmlSettings)) {
-
-                  if (!await xmlReader.ReadAsync())
-                    yield.Break();
-
-                  if (xmlReader.NodeType == XmlNodeType.XmlDeclaration)
-                    await xmlReader.SkipAsync();
-
-                  if (xmlReader.NodeType != XmlNodeType.Element && xmlReader.LocalName != "Settings")
-                    yield.Break();
-
-                  while (await xmlReader.ReadAsync()) {
-                    if (xmlReader.NodeType == XmlNodeType.Element && !xmlReader.IsEmptyElement) {
-                      var settingName = xmlReader.LocalName;
-                      var settingValue = xmlReader.Value;
-                      await yield.ReturnAsync(new KeyValuePair<string, string>(settingName, settingValue));
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    static async Task FetchAndPrintSettingsAsync()
-    {
-      var resourceUri = new Uri("http://localhost:12345/Settings.XML");
-      var timeout = TimeSpan.FromSeconds(30);
-      var cts = new CancellationTokenSource(timeout);
-      var settingCollection = ReadRemoteSettings(resourceUri);
-
-      await settingCollection.ForEachAsync(async setting => {
-        await Console.Out.WriteLineAsync($"{setting.Key} = {setting.Value}");
-      },
-      cancellationToken: cts.Token);
-    }
-```
-
-
-## EXAMPLE 3 (async Linq)
+## EXAMPLE 1 (async Linq)
 
 ```csharp
     IAsyncEnumerable<Bar> ConvertGoodFoosToBars(IAsyncEnumerable<Foo> items)
     {
         return items
-          .WhereAsync(foo => foo.IsGood)
-          .SelectAsync(foo => Bar.FromFoo(foo));
+          .Where(foo => foo.IsGood)
+          .Select(foo => Bar.FromFoo(foo));
     }
 ```
 
 
-## EXAMPLE 4 (async parallel for-each)
+## EXAMPLE 3 (async parallel for-each)
 
 ```csharp
     async Task<IReadOnlyCollection<string>> GetStringsAsync(IEnumerable<T> uris, HttpClient httpClient, CancellationToken cancellationToken)
@@ -215,15 +148,33 @@ __1: Using CancellationToken__
     }
 ```
 
-__2: Clean-up on incomplete enumeration__
+__2: Always remember about ConfigureAwait(false)__
+
+To avoid performance degradation and possible dead-locks in ASP.NET or WPF applications (or any `SynchronizationContext`-dependent environment),
+you should always put `ConfigureAwait(false)` in your `await` statements:
+
+```csharp
+    IAsyncEnumerable<int> GetValues()
+    {
+      return new AsyncEnumerable<int>(async yield =>
+      {
+        await FooAsync().ConfigureAwait(false);
+
+        // Yes, it's even needed for 'yield.ReturnAsync'
+        await yield.ReturnAsync(123).ConfigureAwait(false);
+      });
+    }
+```
+
+__3: Clean-up on incomplete enumeration__
 
 Imagine such situation:
 
 ```csharp
     IAsyncEnumerable<int> ReadValuesFromQueue()
     {
-      return new AsyncEnumerable<int>(async yield => {
-
+      return new AsyncEnumerable<int>(async yield =>
+      {
         using (var queueClient = CreateQueueClient())
         {
           while (true)
@@ -257,7 +208,29 @@ the `queueClient` in this case. You don't need (and shouldn't) catch that except
 because it's handled internally by `AsyncEnumerator`. The same exception is thrown when 
 you call `yield.Break()`.
 
-__3: Why is GetAsyncEnumeratorAsync async?__
+There is another option to do the cleanup on `Dispose`:
+
+```csharp
+    IAsyncEnumerator<int> GetQueueEnumerator()
+    {
+      var queueClient = CreateQueueClient();
+
+      return new AsyncEnumerable<int>(async yield =>
+      {
+        while (true)
+        {
+          var message = queueClient.DequeueMessageAsync();
+          if (message == null)
+            break;
+            
+          await yield.ReturnAsync(message.Value);
+        }
+      },
+      onDispose: () => queueClient.Dispose());
+    }
+```
+
+__4: Why is GetAsyncEnumeratorAsync async?__
 
 The `IAsyncEnumerable.GetAsyncEnumeratorAsync()` method is async and returns a `Task<IAsyncEnumerator>`,
 where the current implementation of `AsyncEnumerable` always runs that method synchronously and just
@@ -266,34 +239,91 @@ where classes mentioned above are just helpers. The initial idea was to be able 
 scenarios, where `GetAsyncEnumeratorAsync()` executes a query first (what internally returns a pointer),
 and the `MoveNextAsync()` enumerates through rows (by using that pointer).
 
-__4: Returning IAsyncEnumerable vs IAsyncEnumerator__
+__5: Returning IAsyncEnumerable vs IAsyncEnumerator__
 
-When you implemented a method that returns an async-enumerable collection you have a choice to
+When you implement a method that returns an async-enumerable collection you have a choice to
 return either `IAsyncEnumerable` or `IAsyncEnumerator` - the constructors of the helper classes
 `AsyncEnumerable` and `AsyncEnumerator` are absolutely identical. Both interfaces have same set
-of useful extension methods, like `ForEachAsync`. In some cases you can have only one immediate
-reader of elements, so `IAsyncEnumerator` can be preferable. It's up to your design.
+of useful extension methods, like `ForEachAsync`.
 
-Here are two possibilities:
+When you create an 'enumerable', you create a factory that produces 'enumerators', i.e. you can
+enumerate though a collection many times. On the other hand, creating an 'enumerator' is needed
+when you can through a collection only once.
+
+Consider these 2 scenarios:
 
 ```csharp
-    // A provider/factory of enumerators
-    IAsyncEnumerable<int> GetNumberCollectionProvider()
+    // You want to execute the same query against a database many times - you need an 'enumerable'
+    IAsyncEnumerable<DbRow> GetItemsFromDatabase()
     {
       return new AsyncEnumerable<int>(async yield =>
 	  {
-	    for (int i = 0;i < 10; i++)
-          await yield.ReturnAsync(message.Value);
+        using (var dbReader = DbContext.ExecuteQuery(...))
+        {
+	      while (true)
+          {
+            DbRow row = dbReader.ReadAsync();
+            if (row == null)
+              break;
+            await yield.ReturnAsync(row);
+          }
+        }
       });
     }
 
-	// An enumerator
-    IAsyncEnumerator<int> GetNumberCollection()
+	// Assume that you cannot seek in the stream - you need an 'enumerator'
+    IAsyncEnumerator<byte> EnumerateBytesInStream(Stream stream)
     {
       return new AsyncEnumerator<int>(async yield =>
 	  {
-	    for (int i = 0;i < 10; i++)
-          await yield.ReturnAsync(message.Value);
+	    while (true)
+        {
+          int byte = await stream.ReadByteAsync();
+          if (byte < 0)
+            break;
+          await yield.ReturnAsync((byte)byte);
+        }
       });
     }
 ```
+
+__6: Where is Reset or ResetAsync?__
+
+The `Reset` method must not be on the `IEnumerator` interface, and should be considered as deprecated. Create a new enumerator instead.
+This is the reason why the 'oneTimeUse' flag was removed in version 2 of this library.
+
+__7: How can I do synchronous for-each enumeration though IAsyncEnumerable?__
+
+You can use extension methods like `IAsyncEnumerable.ToEnumerable()` to use built-in `foreach` enumeration, BUT you should never do that!
+The general idea of this library is to avoid thread-blocking calls on worker threads, where converting an `IAsyncEnumerable` to `IEnumerable`
+will just defeat the whole purpose of this library. This is the reason why such synchronous extension methods are marked with `[Obsolete]` attribute.
+
+
+## RELEASE NOTES
+
+2.0.0: Revise design of the library: same features, but slight paradigm shift and interface breaking changes.
+
+1.5.0: Add support for .NET Standard, minor improvements.
+
+1.4.2: Add finalizer to AsyncEnumerator and call Dispose in ForEachAsync and ParallelForEachAsync extension methods.
+
+1.4.0: Add new generic type AsyncEnumeratorWithState for performance optimization.
+       Now IAsyncEnumerator&lt;T&gt; is covariant.
+       Add ForEachAsync, ParallelForeachAsync, and LINQ-style extension methods for IAsyncEnumerator.
+
+1.3.0: Significantly improve performance of AsyncEnumerator by reducing thread switching and re-using instances of TaskCompletionSource.
+       Add support for a state object that can be passed into AsyncEnumerable and AsyncEnumerator for performance optimization.
+       Remove CancellationToken from Select/Take/Skip/Where extension methods - fix improper implementation.
+       Move AsyncEnumerationCanceledException out of the generic AsyncEnumerator type.
+       Change default behavior of the ToAsyncEnumerable extension method - now MoveNextAsync will run synchronously by default.
+
+1.2.3: AsyncEnumerationCanceledException is thrown to the async enumeration function when the AsyncEnumerator is disposed before reaching the end of enumeration, what allows to do the clean-up.
+       Fixed MoveNextAsync() that threw an exception sometimes only when you passed the end of enumeration.
+
+1.2.2: Fix exception propagation in AsyncEnumerator. 
+
+1.2.1: New Linq-style extension methods in System.Collections.Async namespace.
+
+1.2.0: Contract breaking changes in ParallelForEachAsync: introduce ParallelForEachException to unify error outcome of the loop.
+
+1.1.0: Add ParallelForEachAsync extension methods for IEnumerable&lt;T&gt; and IAsyncEnumerable&lt;T&gt; in System.Collections.Async namespace.
