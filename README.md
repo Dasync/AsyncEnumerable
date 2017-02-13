@@ -66,9 +66,11 @@ the thread (the processing is scheduled on a worker thread instead).
 ```
 
 
-## EXAMPLE 1 (async Linq)
+## EXAMPLE 2 (LINQ-style extension methods)
 
 ```csharp
+    using System.Collections.Async;
+    
     IAsyncEnumerable<Bar> ConvertGoodFoosToBars(IAsyncEnumerable<Foo> items)
     {
         return items
@@ -81,6 +83,8 @@ the thread (the processing is scheduled on a worker thread instead).
 ## EXAMPLE 3 (async parallel for-each)
 
 ```csharp
+    using System.Collections.Async;
+    
     async Task<IReadOnlyCollection<string>> GetStringsAsync(IEnumerable<T> uris, HttpClient httpClient, CancellationToken cancellationToken)
     {
         var result = new ConcurrentBag<string>();
@@ -121,7 +125,13 @@ License: https://opensource.org/licenses/MIT
 
 ## IMPLEMENTATION DETAILS
 
-__1: Using CancellationToken__
+__1: How to use this library?__
+
+See examples above. The core code is in `System.Collections.Async` namespace. You can also find useful extension methods in
+`System.Collections` and `System.Collections.Generic` namespaces for `IEnumerable` and `IEnumerator` interfaces.
+
+
+__2: Using CancellationToken__
    * Do not pass a CancellationToken to a method that returns IAsyncEnumerable, because it is not async, but just a factory
    * Use `yield.CancellationToken` in your enumeration lambda function, which is the same token which gets passed to `IAsyncEnumerator.MoveNextAsync()`
 
@@ -148,7 +158,7 @@ __1: Using CancellationToken__
     }
 ```
 
-__2: Always remember about ConfigureAwait(false)__
+__3: Always remember about ConfigureAwait(false)__
 
 To avoid performance degradation and possible dead-locks in ASP.NET or WPF applications (or any `SynchronizationContext`-dependent environment),
 you should always put `ConfigureAwait(false)` in your `await` statements:
@@ -166,7 +176,7 @@ you should always put `ConfigureAwait(false)` in your `await` statements:
     }
 ```
 
-__3: Clean-up on incomplete enumeration__
+__4: Clean-up on incomplete enumeration__
 
 Imagine such situation:
 
@@ -230,7 +240,7 @@ There is another option to do the cleanup on `Dispose`:
     }
 ```
 
-__4: Why is GetAsyncEnumeratorAsync async?__
+__5: Why is GetAsyncEnumeratorAsync async?__
 
 The `IAsyncEnumerable.GetAsyncEnumeratorAsync()` method is async and returns a `Task<IAsyncEnumerator>`,
 where the current implementation of `AsyncEnumerable` always runs that method synchronously and just
@@ -239,7 +249,7 @@ where classes mentioned above are just helpers. The initial idea was to be able 
 scenarios, where `GetAsyncEnumeratorAsync()` executes a query first (what internally returns a pointer),
 and the `MoveNextAsync()` enumerates through rows (by using that pointer).
 
-__5: Returning IAsyncEnumerable vs IAsyncEnumerator__
+__6: Returning IAsyncEnumerable vs IAsyncEnumerator__
 
 When you implement a method that returns an async-enumerable collection you have a choice to
 return either `IAsyncEnumerable` or `IAsyncEnumerator` - the constructors of the helper classes
@@ -287,12 +297,12 @@ Consider these 2 scenarios:
     }
 ```
 
-__6: Where is Reset or ResetAsync?__
+__7: Where is Reset or ResetAsync?__
 
 The `Reset` method must not be on the `IEnumerator` interface, and should be considered as deprecated. Create a new enumerator instead.
 This is the reason why the 'oneTimeUse' flag was removed in version 2 of this library.
 
-__7: How can I do synchronous for-each enumeration though IAsyncEnumerable?__
+__8: How can I do synchronous for-each enumeration though IAsyncEnumerable?__
 
 You can use extension methods like `IAsyncEnumerable.ToEnumerable()` to use built-in `foreach` enumeration, BUT you should never do that!
 The general idea of this library is to avoid thread-blocking calls on worker threads, where converting an `IAsyncEnumerable` to `IEnumerable`
