@@ -301,6 +301,9 @@ will just defeat the whole purpose of this library. This is the reason why such 
 
 ## RELEASE NOTES
 
+2.0.1: Bug-fix: call onDispose when AsyncEnumerator is GC'ed but enumeration hasn't been started.
+       Bug-fix: re-throw base exception instead of AggregateException in blocking synchronous methods.
+
 2.0.0: Revise design of the library: same features, but slight paradigm shift and interface breaking changes.
 
 1.5.0: Add support for .NET Standard, minor improvements.
