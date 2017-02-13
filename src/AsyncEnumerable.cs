@@ -77,8 +77,10 @@ namespace System.Collections.Async
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
-            => GetAsyncEnumeratorAsync(cancellationToken).ContinueWith<IAsyncEnumerator>(task => task.Result);
+        async Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
+        {
+            return await GetAsyncEnumeratorAsync(cancellationToken);
+        }
     }
 
     /// <summary>
@@ -124,6 +126,9 @@ namespace System.Collections.Async
         /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
         Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
-            => GetAsyncEnumeratorAsync(cancellationToken).ContinueWith<IAsyncEnumerator>(task => task.Result);
+        {
+            var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State);
+            return Task.FromResult<IAsyncEnumerator>(enumerator);
+        }
     }
 }

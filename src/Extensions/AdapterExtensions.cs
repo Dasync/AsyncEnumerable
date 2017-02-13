@@ -63,7 +63,7 @@ namespace System.Collections.Generic
 
             var asyncEnumerable = enumerable as IAsyncEnumerable<T>;
             if (asyncEnumerable != null)
-                return asyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken.None).Result;
+                return asyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             var enumerator = enumerable.GetEnumerator();
             return new AsyncEnumeratorWrapper<T>(enumerator, runSynchronously);
@@ -173,7 +173,7 @@ namespace System.Collections.Async
         {
             if (asyncEnumerable == null)
                 throw new ArgumentNullException(nameof(asyncEnumerable));
-            return asyncEnumerable.GetAsyncEnumeratorAsync().Result.ToEnumerator();
+            return asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult().ToEnumerator();
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace System.Collections.Async
         {
             if (asyncEnumerable == null)
                 throw new ArgumentNullException(nameof(asyncEnumerable));
-            return asyncEnumerable.GetAsyncEnumeratorAsync().Result.ToEnumerator();
+            return asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult().ToEnumerator();
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace System.Collections.Async
         {
             if (asyncEnumerator == null)
                 throw new ArgumentNullException(nameof(asyncEnumerator));
-            return asyncEnumerator.MoveNextAsync().Result;
+            return asyncEnumerator.MoveNextAsync().GetAwaiter().GetResult();
         }
     }
 }
