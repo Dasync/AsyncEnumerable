@@ -45,8 +45,9 @@ namespace System.Collections.Async
             _onDisposeAction = onDispose;
             State = state;
 
-            // No need for finalization until we actually start enumeration.
-            GC.SuppressFinalize(this);
+            // If dispose action has not been defined and enumeration has not been started, there is nothing to finilize.
+            if (onDispose == null)
+                GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -268,7 +269,7 @@ namespace System.Collections.Async
         public AsyncEnumerator(Func<Yield, Task> enumerationFunction, Action onDispose = null)
             : base(
                   enumerationFunction: NoStateAdapter.Enumerate,
-                  onDispose: NoStateAdapter.OnDispose,
+                  onDispose: onDispose == null ? null : NoStateAdapter.OnDispose,
                   state: new NoStateAdapter
                   {
                       EnumerationFunction = enumerationFunction,
