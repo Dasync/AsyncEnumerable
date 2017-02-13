@@ -36,15 +36,18 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Tests\EnumerableLinqStyleExtensionsTests.cs">
+      <Link>EnumerableLinqStyleExtensionsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Tests\EnumeratorLinqStyleExtensionsTests.cs">
+      <Link>EnumeratorLinqStyleExtensionsTests.cs</Link>
+    </Compile>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="..\..\Tests\AsyncEnumeratorTests.cs">
       <Link>AsyncEnumeratorTests.cs</Link>
     </Compile>
     <Compile Include="..\..\Tests\ForEachAsyncTests.cs">
       <Link>ForEachAsyncTests.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Tests\LinqStyleExtensionsTests.cs">
-      <Link>LinqStyleExtensionsTests.cs</Link>
     </Compile>
     <Compile Include="..\..\Tests\PerformanceTests.cs">
       <Link>PerformanceTests.cs</Link>

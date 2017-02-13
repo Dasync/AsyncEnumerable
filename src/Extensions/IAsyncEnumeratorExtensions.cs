@@ -123,7 +123,7 @@ namespace System.Collections.Async
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
-        public static IAsyncEnumerator<TResult> SelectAsync<TSource, TResult>(
+        public static IAsyncEnumerator<TResult> Select<TSource, TResult>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, TResult> selector,
             bool disposeSource = true)
@@ -171,7 +171,7 @@ namespace System.Collections.Async
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
-        public static IAsyncEnumerator<TResult> SelectAsync<TSource, TResult>(
+        public static IAsyncEnumerator<TResult> Select<TSource, TResult>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, long, TResult> selector,
             bool disposeSource = true)
@@ -224,7 +224,7 @@ namespace System.Collections.Async
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="count">The number of elements to return.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
-        public static IAsyncEnumerator<TSource> TakeAsync<TSource>(
+        public static IAsyncEnumerator<TSource> Take<TSource>(
             this IAsyncEnumerator<TSource> source,
             int count,
             bool disposeSource = true)
@@ -273,7 +273,7 @@ namespace System.Collections.Async
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
-        public static IAsyncEnumerator<TSource> TakeWhileAsync<TSource>(
+        public static IAsyncEnumerator<TSource> TakeWhile<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
             bool disposeSource = true)
@@ -387,7 +387,7 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return elements from.</param>
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
-        public static IAsyncEnumerator<TSource> SkipAsync<TSource>(
+        public static IAsyncEnumerator<TSource> Skip<TSource>(
             this IAsyncEnumerator<TSource> source,
             int count,
             bool disposeSource = true)
@@ -436,7 +436,7 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
-        public static IAsyncEnumerator<TSource> SkipWhileAsync<TSource>(
+        public static IAsyncEnumerator<TSource> SkipWhile<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
             bool disposeSource = true)
@@ -492,7 +492,7 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
-        public static IAsyncEnumerator<TSource> WhereAsync<TSource>(
+        public static IAsyncEnumerator<TSource> Where<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
             bool disposeSource = true)
@@ -540,7 +540,7 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition; the second parameter of the function represents the index of the source element.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
-        public static IAsyncEnumerator<TSource> WhereAsync<TSource>(
+        public static IAsyncEnumerator<TSource> Where<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, long, bool> predicate,
             bool disposeSource = true)

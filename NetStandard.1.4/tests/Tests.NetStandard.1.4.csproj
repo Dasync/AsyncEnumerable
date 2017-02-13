@@ -28,8 +28,9 @@
 
   <ItemGroup>
     <Compile Include="..\..\Tests\AsyncEnumeratorTests.cs" Link="AsyncEnumeratorTests.cs" />
+    <Compile Include="..\..\Tests\EnumerableLinqStyleExtensionsTests.cs" Link="EnumerableLinqStyleExtensionsTests.cs" />
+    <Compile Include="..\..\Tests\EnumeratorLinqStyleExtensionsTests.cs" Link="EnumeratorLinqStyleExtensionsTests.cs" />
     <Compile Include="..\..\Tests\ForEachAsyncTests.cs" Link="ForEachAsyncTests.cs" />
-    <Compile Include="..\..\Tests\LinqStyleExtensionsTests.cs" Link="LinqStyleExtensionsTests.cs" />
     <Compile Include="..\..\Tests\PerformanceTests.cs" Link="PerformanceTests.cs" />
   </ItemGroup>
 

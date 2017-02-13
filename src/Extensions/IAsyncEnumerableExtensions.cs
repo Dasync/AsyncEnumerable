@@ -105,7 +105,7 @@ namespace System.Collections.Async
         /// <typeparam name="TResult">The type of the value returned by <paramref name="source"/>.</typeparam>
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
-        public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
+        public static IAsyncEnumerable<TResult> Select<TSource, TResult>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, TResult> selector)
         {
@@ -145,7 +145,7 @@ namespace System.Collections.Async
         /// <typeparam name="TResult">The type of the value returned by <paramref name="source"/>.</typeparam>
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
-        public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
+        public static IAsyncEnumerable<TResult> Select<TSource, TResult>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, long, TResult> selector)
         {
@@ -190,7 +190,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="count">The number of elements to return.</param>
-        public static IAsyncEnumerable<TSource> TakeAsync<TSource>(
+        public static IAsyncEnumerable<TSource> Take<TSource>(
             this IAsyncEnumerable<TSource> source,
             int count)
         {
@@ -231,7 +231,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">A sequence to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        public static IAsyncEnumerable<TSource> TakeWhileAsync<TSource>(
+        public static IAsyncEnumerable<TSource> TakeWhile<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate)
         {
@@ -323,7 +323,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return elements from.</param>
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
-        public static IAsyncEnumerable<TSource> SkipAsync<TSource>(
+        public static IAsyncEnumerable<TSource> Skip<TSource>(
             this IAsyncEnumerable<TSource> source,
             int count)
         {
@@ -364,7 +364,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return elements from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        public static IAsyncEnumerable<TSource> SkipWhileAsync<TSource>(
+        public static IAsyncEnumerable<TSource> SkipWhile<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate)
         {
@@ -412,7 +412,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        public static IAsyncEnumerable<TSource> WhereAsync<TSource>(
+        public static IAsyncEnumerable<TSource> Where<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate)
         {
@@ -452,7 +452,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to filter.</param>
         /// <param name="predicate">A function to test each element for a condition; the second parameter of the function represents the index of the source element.</param>
-        public static IAsyncEnumerable<TSource> WhereAsync<TSource>(
+        public static IAsyncEnumerable<TSource> Where<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, long, bool> predicate)
         {
