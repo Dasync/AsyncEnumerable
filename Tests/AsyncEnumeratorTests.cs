@@ -71,24 +71,24 @@ namespace Tests
         }
 
         [Test]
-        [Ignore("Seems like the latest .NET framework has a different behaviour or a bug: " +
-            "the finalizer is called, which schedules a task to cancel the enumeration, which gets called, " +
-            "but it never resumes the enumeration function with an OperationCanceledException." +
-            "For .NET Core, the Assert.IsTrue() throws a NullReferenceException for unknown reason.")]
         public async Task DisposeByGCAfterPartialEnumeration()
         {
             // ARRANGE
 
             var testDisposable = new TestDisposable();
-            var enumerator = new AsyncEnumerator<int>(async yield =>
-            {
-                using (testDisposable)
+
+            Func<AsyncEnumerator<int>.Yield, Task> enumerationFunction =
+                async yield =>
                 {
-                    await yield.ReturnAsync(1);
-                    await yield.ReturnAsync(2);
-                    await yield.ReturnAsync(3);
-                }
-            });
+                    using (testDisposable)
+                    {
+                        await yield.ReturnAsync(1);
+                        await yield.ReturnAsync(2);
+                        await yield.ReturnAsync(3);
+                    }
+                };
+
+            var enumerator = new AsyncEnumerator<int>(enumerationFunction);
 
             // ACT
 
@@ -101,7 +101,7 @@ namespace Tests
 
             // Give some time to other thread that does the disposal of the enumerator.
             // (see finalizer of the AsyncEnumerator for details)
-            await Task.Delay(100);
+            await Task.Delay(16);
 
             // ASSERT
 

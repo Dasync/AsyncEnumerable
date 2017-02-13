@@ -44,7 +44,9 @@ namespace System.Collections.Async
             _enumerationFunction = enumerationFunction;
             _onDisposeAction = onDispose;
             State = state;
-            ClearState();
+
+            // No need for finalization until we actually start enumeration.
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -87,7 +89,11 @@ namespace System.Collections.Async
         /// <returns>Returns a Task that does transition to the next element. The result of the task is True if the enumerator was successfully advanced to the next element, or False if the enumerator has passed the end of the collection.</returns>
         public virtual Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (_yield == null)
+                _yield = new AsyncEnumerator<TItem>.Yield(this);
+
             var moveNextCompleteTask = _yield.OnMoveNext(cancellationToken);
+
             if (_enumerationTask == null)
             {
                 // Register for finalization, which might be needed if caller
@@ -98,6 +104,7 @@ namespace System.Collections.Async
                     _enumerationFunction(_yield, State)
                     .ContinueWith(OnEnumerationCompleteAction, this, TaskContinuationOptions.ExecuteSynchronously);
             }
+
             return moveNextCompleteTask;
         }
 
@@ -116,29 +123,21 @@ namespace System.Collections.Async
         /// <param name="manualDispose">True if called from Dispose() method, otherwise False - called by GC</param>
         protected virtual void Dispose(bool manualDispose)
         {
-            ClearState(isFinalizing: !manualDispose);
-            _onDisposeAction?.Invoke(State);
-        }
-
-        private void ClearState(bool isFinalizing = false)
-        {
-            if (isFinalizing)
-            {
-                if (_yield != null && !_yield.IsComplete)
-                {
-                    var yield = _yield; // capture variable instead of instance of 'this'
-                    Task.Run(() => yield.SetCanceled()); // don't block the GC thread
-                }
-            }
-            else
+            if (manualDispose)
             {
                 _yield?.SetCanceled();
-                _yield = new AsyncEnumerator<TItem>.Yield(this);
-                _enumerationTask = null;
-
-                // No need for finalization until we actually start enumeration.
-                GC.SuppressFinalize(this);
             }
+            else if (_yield != null && !_yield.IsComplete)
+            {
+                var yield = _yield;
+                Task.Run(() => yield.SetCanceled()); // don't block the GC thread
+            }
+
+            _enumerationTask = null;
+            _yield = null;
+
+            _onDisposeAction?.Invoke(State);
+            _onDisposeAction = null;
         }
 
         private static void OnEnumerationComplete(Task task, object state)
