@@ -257,7 +257,7 @@ return either `IAsyncEnumerable` or `IAsyncEnumerator` - the constructors of the
 of useful extension methods, like `ForEachAsync`.
 
 When you create an 'enumerable', you create a factory that produces 'enumerators', i.e. you can
-enumerate though a collection many times. On the other hand, creating an 'enumerator' is needed
+enumerate through a collection many times. On the other hand, creating an 'enumerator' is needed
 when you can through a collection only once.
 
 Consider these 2 scenarios:
@@ -302,7 +302,7 @@ __7: Where is Reset or ResetAsync?__
 The `Reset` method must not be on the `IEnumerator` interface, and should be considered as deprecated. Create a new enumerator instead.
 This is the reason why the 'oneTimeUse' flag was removed in version 2 of this library.
 
-__8: How can I do synchronous for-each enumeration though IAsyncEnumerable?__
+__8: How can I do synchronous for-each enumeration through IAsyncEnumerable?__
 
 You can use extension methods like `IAsyncEnumerable.ToEnumerable()` to use built-in `foreach` enumeration, BUT you should never do that!
 The general idea of this library is to avoid thread-blocking calls on worker threads, where converting an `IAsyncEnumerable` to `IEnumerable`
