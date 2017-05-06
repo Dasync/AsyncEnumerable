@@ -46,6 +46,8 @@ namespace System.Collections.Generic
         {
             if (enumerable == null)
                 throw new ArgumentNullException(nameof(enumerable));
+            if (ReferenceEquals(enumerable, Enumerable.Empty<T>()))
+                return AsyncEnumerable<T>.Empty;
             return enumerable as IAsyncEnumerable<T> ?? new AsyncEnumerableWrapper<T>(enumerable, runSynchronously);
         }
 
