@@ -25,7 +25,24 @@ namespace System.Collections.Async
             CancellationToken token = default(CancellationToken),
             bool disposeSource = true)
         {
-            return FirstAsync(source, PredicateCache<TSource>.True, token, disposeSource);
+            return FirstAsync(source, PredicateCache<TSource>.True, null, token, disposeSource);
+        }
+
+        /// <summary>
+        /// Returns the first element in the <see cref="IAsyncEnumerator{T}"/>.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return an element from.</param>
+        /// <param name="exceptionMessage">An optional custom exception message for the case when the <paramref name="source"/> is empty</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
+        public static Task<TSource> FirstAsync<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            string exceptionMessage,
+            CancellationToken token = default(CancellationToken),
+            bool disposeSource = true)
+        {
+            return FirstAsync(source, PredicateCache<TSource>.True, exceptionMessage, token, disposeSource);
         }
 
         /// <summary>
@@ -36,9 +53,28 @@ namespace System.Collections.Async
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
+        public static Task<TSource> FirstAsync<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            Func<TSource, bool> predicate,
+            CancellationToken token = default(CancellationToken),
+            bool disposeSource = true)
+        {
+            return FirstAsync(source, predicate, null, token, disposeSource);
+        }
+
+        /// <summary>
+        /// Returns the first element in a sequence that satisfies a specified condition.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return an element from.</param>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="exceptionMessage">An optional custom exception message for the case when the <paramref name="source"/> is empty</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
+            string exceptionMessage,
             CancellationToken token = default(CancellationToken),
             bool disposeSource = true)
         {
@@ -53,7 +89,7 @@ namespace System.Collections.Async
                     if (predicate(source.Current))
                         return source.Current;
 
-                throw new InvalidOperationException("No Matching Element Found");
+                throw new InvalidOperationException(string.IsNullOrEmpty(exceptionMessage) ? "No Matching Element Found" : exceptionMessage);
             }
             finally
             {
