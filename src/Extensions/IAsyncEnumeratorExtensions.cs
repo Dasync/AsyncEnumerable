@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Collections.Async.IAsyncEnumerableExtensions;
@@ -617,6 +618,247 @@ namespace System.Collections.Async
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, WhereWithIndexContext<TSource>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
+        #region Batch
+
+        /// <summary>
+        /// Splits the input collection into series of batches.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to batch.</param>
+        /// <param name="batchSize">The maximum number of elements to put in a batch.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<List<TSource>> Batch<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            int batchSize,
+            bool disposeSource = true)
+        {
+            return Batch<TSource, List<TSource>>(source, batchSize, disposeSource);
+        }
+
+        /// <summary>
+        /// Splits the input collection into series of batches.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <typeparam name="TStandardCollection">
+        /// The type of a .NET's standard collection that forms a batch. Supported types are:
+        /// <see cref="List{T}"/>, <see cref="Stack{T}"/>, <see cref="Queue{T}"/>, <see cref="HashSet{T}"/>,
+        /// <see cref="LinkedList{T}"/>, <see cref="SortedSet{T}"/>, <see cref="BlockingCollection{T}"/>,
+        /// <see cref="ConcurrentStack{T}"/>, <see cref="ConcurrentQueue{T}"/>, <see cref="ConcurrentBag{T}"/>.
+        /// </typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to batch.</param>
+        /// <param name="batchSize">The maximum number of elements to put in a batch.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<TStandardCollection> Batch<TSource, TStandardCollection>(
+            this IAsyncEnumerator<TSource> source,
+            int batchSize,
+            bool disposeSource = true)
+        {
+            return Batch(source, batchSize, long.MaxValue, null,
+                BatchCollectionHelper<TSource>.GetCreateCollectionFunction<TStandardCollection>(),
+                BatchCollectionHelper<TSource>.GetAddToCollectionAction<TStandardCollection>(),
+                disposeSource);
+        }
+
+        /// <summary>
+        /// Splits the input collection into series of batches.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to batch.</param>
+        /// <param name="maxBatchWeight">The maximum logical weight of elements that a single batch can accomodate.</param>
+        /// <param name="weightSelector">A function that computes a weight of a particular element, which is used to make a decision if it can fit into a batch.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<List<TSource>> Batch<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            long maxBatchWeight,
+            Func<TSource, long> weightSelector,
+            bool disposeSource = true)
+        {
+            return Batch<TSource, List<TSource>>(source, maxBatchWeight, weightSelector, disposeSource);
+        }
+
+        /// <summary>
+        /// Splits the input collection into series of batches.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <typeparam name="TStandardCollection">
+        /// The type of a .NET's standard collection that forms a batch. Supported types are:
+        /// <see cref="List{T}"/>, <see cref="Stack{T}"/>, <see cref="Queue{T}"/>, <see cref="HashSet{T}"/>,
+        /// <see cref="LinkedList{T}"/>, <see cref="SortedSet{T}"/>, <see cref="BlockingCollection{T}"/>,
+        /// <see cref="ConcurrentStack{T}"/>, <see cref="ConcurrentQueue{T}"/>, <see cref="ConcurrentBag{T}"/>.
+        /// </typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to batch.</param>
+        /// <param name="maxBatchWeight">The maximum logical weight of elements that a single batch can accomodate.</param>
+        /// <param name="weightSelector">A function that computes a weight of a particular element, which is used to make a decision if it can fit into a batch.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<TStandardCollection> Batch<TSource, TStandardCollection>(
+            this IAsyncEnumerator<TSource> source,
+            long maxBatchWeight,
+            Func<TSource, long> weightSelector,
+            bool disposeSource = true)
+        {
+            return Batch(source, null, maxBatchWeight, weightSelector,
+                BatchCollectionHelper<TSource>.GetCreateCollectionFunction<TStandardCollection>(),
+                BatchCollectionHelper<TSource>.GetAddToCollectionAction<TStandardCollection>(),
+                disposeSource);
+        }
+
+        /// <summary>
+        /// Splits the input collection into series of batches.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to batch.</param>
+        /// <param name="maxItemsInBatch">The maximum number of elements to put in a batch regardless their total weight.</param>
+        /// <param name="maxBatchWeight">The maximum logical weight of elements that a single batch can accomodate.</param>
+        /// <param name="weightSelector">A function that computes a weight of a particular element, which is used to make a decision if it can fit into a batch.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<List<TSource>> Batch<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            int maxItemsInBatch,
+            long maxBatchWeight,
+            Func<TSource, long> weightSelector,
+            bool disposeSource = true)
+        {
+            return Batch<TSource, List<TSource>>(source, maxItemsInBatch, maxBatchWeight, weightSelector, disposeSource);
+        }
+
+        /// <summary>
+        /// Splits the input collection into series of batches.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <typeparam name="TStandardCollection">
+        /// The type of a .NET's standard collection that forms a batch. Supported types are:
+        /// <see cref="List{T}"/>, <see cref="Stack{T}"/>, <see cref="Queue{T}"/>, <see cref="HashSet{T}"/>,
+        /// <see cref="LinkedList{T}"/>, <see cref="SortedSet{T}"/>, <see cref="BlockingCollection{T}"/>,
+        /// <see cref="ConcurrentStack{T}"/>, <see cref="ConcurrentQueue{T}"/>, <see cref="ConcurrentBag{T}"/>.
+        /// </typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to batch.</param>
+        /// <param name="maxItemsInBatch">The maximum number of elements to put in a batch regardless their total weight.</param>
+        /// <param name="maxBatchWeight">The maximum logical weight of elements that a single batch can accomodate.</param>
+        /// <param name="weightSelector">A function that computes a weight of a particular element, which is used to make a decision if it can fit into a batch.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<TStandardCollection> Batch<TSource, TStandardCollection>(
+            this IAsyncEnumerator<TSource> source,
+            int maxItemsInBatch,
+            long maxBatchWeight,
+            Func<TSource, long> weightSelector,
+            bool disposeSource = true)
+        {
+            return Batch(source, maxItemsInBatch, maxBatchWeight, weightSelector,
+                BatchCollectionHelper<TSource>.GetCreateCollectionFunction<TStandardCollection>(),
+                BatchCollectionHelper<TSource>.GetAddToCollectionAction<TStandardCollection>(),
+                disposeSource);
+        }
+
+        /// <summary>
+        /// Splits the input collection into series of batches.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
+        /// <typeparam name="TBatch">The type of a batch of elements.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to batch.</param>
+        /// <param name="maxItemsInBatch">The maximum number of elements to put in a batch regardless their total weight.</param>
+        /// <param name="maxBatchWeight">The maximum logical weight of elements that a single batch can accomodate.</param>
+        /// <param name="weightSelector">A function that computes a weight of a particular element, which is used to make a decision if it can fit into a batch.</param>
+        /// <param name="createBatch">A function that creates a new batch with optional suggested capacity.</param>
+        /// <param name="addItem">An action that adds an element to a batch.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<TBatch> Batch<TSource, TBatch>(
+            this IAsyncEnumerator<TSource> source,
+            int? maxItemsInBatch,
+            long maxBatchWeight,
+            Func<TSource, long> weightSelector,
+            Func<int?, TBatch> createBatch,
+            Action<TBatch, TSource> addItem,
+            bool disposeSource = true)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source), "You must supply a source collection.");
+            if (maxItemsInBatch <= 0)
+                throw new ArgumentException("Batch size must be a positive number.", nameof(maxItemsInBatch));
+            if (createBatch == null)
+                throw new ArgumentNullException(nameof(createBatch), "You must specify a function that creates a batch.");
+            if (addItem == null)
+                throw new ArgumentNullException(nameof(addItem), "You must specify an action that adds an item to a batch.");
+
+            if (maxItemsInBatch == null || weightSelector == null)
+                throw new InvalidOperationException("You must supply either a max batch size or a weight selector.");
+
+            return new AsyncEnumeratorWithState<TBatch, BatchContext<TSource, TBatch>>(
+                BatchContext<TSource, TBatch>.Enumerate,
+                new BatchContext<TSource, TBatch>
+                {
+                    CreateBatch = createBatch,
+                    AddItemToBatch = addItem,
+                    BatchPreallocateSize = maxItemsInBatch,
+                    MaxItemsInBatch = maxItemsInBatch ?? int.MaxValue,
+                    MaxBatchWeight = maxBatchWeight,
+                    WeightSelector = weightSelector,
+                    Source = source,
+                    DisposeSource = disposeSource
+                });
+        }
+
+        private struct BatchContext<TSource, TBatch>
+        {
+            public IAsyncEnumerator<TSource> Source;
+            public bool DisposeSource;
+            public int? BatchPreallocateSize;
+            public int MaxItemsInBatch;
+            public long MaxBatchWeight;
+            public Func<TSource, long> WeightSelector;
+            public Func<int?, TBatch> CreateBatch;
+            public Action<TBatch, TSource> AddItemToBatch;
+
+            private static async Task _enumerate(AsyncEnumerator<TBatch>.Yield yield, BatchContext<TSource, TBatch> context)
+            {
+                var batch = default(TBatch);
+                var itemsInBatch = 0;
+                var batchWeight = 0L;
+
+                try
+                {
+                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        var itemWeight = context.WeightSelector?.Invoke(context.Source.Current) ?? 0L;
+
+                        // Check if item does not fit into existing batch.
+                        if (itemsInBatch > 0 && batchWeight + itemWeight > context.MaxBatchWeight)
+                        {
+                            await yield.ReturnAsync(batch).ConfigureAwait(false);
+                            batch = default(TBatch);
+                            itemsInBatch = 0;
+                            batchWeight = 0;
+                        }
+
+                        if (itemsInBatch == 0)
+                            batch = context.CreateBatch(context.BatchPreallocateSize);
+
+                        context.AddItemToBatch(batch, context.Source.Current);
+                        batchWeight += itemWeight;
+
+                        if (itemsInBatch >= context.MaxItemsInBatch || batchWeight >= context.MaxBatchWeight)
+                        {
+                            await yield.ReturnAsync(batch).ConfigureAwait(false);
+                            batch = default(TBatch);
+                            itemsInBatch = 0;
+                            batchWeight = 0;
+                        }
+                    }
+
+                    if (itemsInBatch > 0)
+                        await yield.ReturnAsync(batch).ConfigureAwait(false);
+                }
+                finally
+                {
+                    if (context.DisposeSource)
+                        context.Source.Dispose();
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TBatch>.Yield, BatchContext<TSource, TBatch>, Task> Enumerate = _enumerate;
         }
 
         #endregion
