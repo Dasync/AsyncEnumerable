@@ -675,6 +675,39 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region Cast
+
+        /// <summary>
+        /// Casts the elements of an <see cref="IAsyncEnumerable"/> to the specified type.
+        /// </summary>
+        /// <typeparam name="TResult">The type to cast the elements of <paramref name="source"/> to.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable"/> that contains the elements to be cast to type <typeparamref name="TResult"/>.</param>
+        public static IAsyncEnumerable<TResult> Cast<TResult>(this IAsyncEnumerable source)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+
+            return new AsyncEnumerableWithState<TResult, CastContext<TResult>>(
+                CastContext<TResult>.Enumerate,
+                new CastContext<TResult> { Source = source });
+        }
+
+        private struct CastContext<TResult>
+        {
+            public IAsyncEnumerable Source;
+
+            private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, CastContext<TResult> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                        await yield.ReturnAsync((TResult)enumerator.Current).ConfigureAwait(false);
+            }
+
+            public static readonly Func<AsyncEnumerator<TResult>.Yield, CastContext<TResult>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
         #region Batch
 
         /// <summary>

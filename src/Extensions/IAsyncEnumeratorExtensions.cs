@@ -795,6 +795,48 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region Cast
+
+        /// <summary>
+        /// Casts the elements of an <see cref="IAsyncEnumerator"/> to the specified type.
+        /// </summary>
+        /// <typeparam name="TResult">The type to cast the elements of <paramref name="source"/> to.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerator"/> that contains the elements to be cast to type <typeparamref name="TResult"/>.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<TResult> Cast<TResult>(this IAsyncEnumerator source, bool disposeSource = true)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+
+            return new AsyncEnumeratorWithState<TResult, CastContext<TResult>>(
+                CastContext<TResult>.Enumerate,
+                new CastContext<TResult> { Source = source, DisposeSource = disposeSource });
+        }
+
+        private struct CastContext<TResult>
+        {
+            public IAsyncEnumerator Source;
+            public bool DisposeSource;
+
+            private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, CastContext<TResult> context)
+            {
+                try
+                {
+                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                        await yield.ReturnAsync((TResult)context.Source.Current).ConfigureAwait(false);
+                }
+                finally
+                {
+                    if (context.DisposeSource)
+                        context.Source.Dispose();
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TResult>.Yield, CastContext<TResult>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
         #region Batch
 
         /// <summary>
