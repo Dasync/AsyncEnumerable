@@ -1102,5 +1102,64 @@ namespace System.Collections.Async
         }
 
         #endregion
+
+        #region UnionAll
+
+        /// <summary>
+        /// Produces the set union of two sequences, which includes duplicate elements.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements of the input sequences.</typeparam>
+        /// <param name="first">An <see cref="IAsyncEnumerable{T}"/> whose elements form the first set for the union.</param>
+        /// <param name="second">An <see cref="IAsyncEnumerable{T}"/> whose elements form the second set for the union.</param>
+        public static IAsyncEnumerable<T> UnionAll<T>(this IAsyncEnumerable<T> first, IAsyncEnumerable<T> second)
+        {
+            if (null == first)
+                throw new ArgumentNullException(nameof(first));
+            if (null == second)
+                throw new ArgumentNullException(nameof(second));
+
+            return new AsyncEnumerableWithState<T, UnionContext<T>>(
+                UnionContext<T>.Enumerate,
+                new UnionContext<T> { Collections = new[] { first, second } });
+        }
+
+        /// <summary>
+        /// Produces the set union of multiple sequences, which includes duplicate elements.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements of the input sequences.</typeparam>
+        /// <param name="collections">A set of <see cref="IAsyncEnumerable{T}"/> whose elements form the union.</param>
+        public static IAsyncEnumerable<T> UnionAll<T>(this IEnumerable<IAsyncEnumerable<T>> collections)
+        {
+            if (null == collections)
+                throw new ArgumentNullException(nameof(collections));
+
+            return new AsyncEnumerableWithState<T, UnionContext<T>>(
+                UnionContext<T>.Enumerate,
+                new UnionContext<T> { Collections = collections });
+        }
+
+        private struct UnionContext<T>
+        {
+            public IEnumerable<IAsyncEnumerable<T>> Collections;
+
+            private static async Task _enumerate(AsyncEnumerator<T>.Yield yield, UnionContext<T> context)
+            {
+                foreach (var collection in context.Collections)
+                {
+                    if (collection == null)
+                        continue;
+
+                    using (var enumerator = await collection.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<T>.Yield, UnionContext<T>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
     }
 }

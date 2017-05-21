@@ -1140,5 +1140,72 @@ namespace System.Collections.Async
         }
 
         #endregion
+
+        #region UnionAll
+
+        /// <summary>
+        /// Produces the set union of two sequences, which includes duplicate elements.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements of the input sequences.</typeparam>
+        /// <param name="first">An <see cref="IAsyncEnumerator{T}"/> whose elements form the first set for the union.</param>
+        /// <param name="second">An <see cref="IAsyncEnumerator{T}"/> whose elements form the second set for the union.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="first"/> and <paramref name="second"/> when enumeration is complete.</param>
+        public static IAsyncEnumerator<T> UnionAll<T>(this IAsyncEnumerator<T> first, IAsyncEnumerator<T> second, bool disposeSource = true)
+        {
+            if (null == first)
+                throw new ArgumentNullException(nameof(first));
+            if (null == second)
+                throw new ArgumentNullException(nameof(second));
+
+            return new AsyncEnumeratorWithState<T, UnionContext<T>>(
+                UnionContext<T>.Enumerate,
+                new UnionContext<T> { Collections = new[] { first, second }, DisposeSource = disposeSource });
+        }
+
+        /// <summary>
+        /// Produces the set union of multiple sequences, which includes duplicate elements.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements of the input sequences.</typeparam>
+        /// <param name="collections">A set of <see cref="IAsyncEnumerator{T}"/> whose elements form the union.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on all input <paramref name="collections"/> when enumeration is complete.</param>
+        public static IAsyncEnumerator<T> UnionAll<T>(this IEnumerable<IAsyncEnumerator<T>> collections, bool disposeSource = true)
+        {
+            if (null == collections)
+                throw new ArgumentNullException(nameof(collections));
+
+            return new AsyncEnumeratorWithState<T, UnionContext<T>>(
+                UnionContext<T>.Enumerate,
+                new UnionContext<T> { Collections = collections, DisposeSource = disposeSource });
+        }
+
+        private struct UnionContext<T>
+        {
+            public IEnumerable<IAsyncEnumerator<T>> Collections;
+            public bool DisposeSource;
+
+            private static async Task _enumerate(AsyncEnumerator<T>.Yield yield, UnionContext<T> context)
+            {
+                foreach (var collection in context.Collections)
+                {
+                    if (collection == null)
+                        continue;
+
+                    try
+                    {
+                        while (await collection.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                            await yield.ReturnAsync(collection.Current).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        if (context.DisposeSource)
+                            collection.Dispose();
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<T>.Yield, UnionContext<T>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
     }
 }
