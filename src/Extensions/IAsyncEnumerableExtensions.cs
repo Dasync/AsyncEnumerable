@@ -12,6 +12,157 @@ namespace System.Collections.Async
     [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
     public static class IAsyncEnumerableExtensions
     {
+        #region Single / SingleOrDefault
+
+        /// <summary>
+        /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        public static Task<TSource> SingleAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            CancellationToken token = default(CancellationToken))
+        {
+            return SingleAsync(source, PredicateCache<TSource>.True, null, null, token);
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="noneExceptionMessage">The message of an exception which is thrown when the source collection is empty.</param>
+        /// <param name="manyExceptionMessage">The message of an exception which is thrown when the source collection has more than one element.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        public static Task<TSource> SingleAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            string noneExceptionMessage,
+            string manyExceptionMessage,
+            CancellationToken token = default(CancellationToken))
+        {
+            return SingleAsync(source, PredicateCache<TSource>.True, noneExceptionMessage, manyExceptionMessage, token);
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence that matches the criteria.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="predicate">Criteria predicate to select the only element.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        public static Task<TSource> SingleAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, bool> predicate,
+            CancellationToken token = default(CancellationToken))
+        {
+            return SingleAsync(source, predicate, null, null, token);
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence that matches the criteria.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="predicate">Criteria predicate to select the only element.</param>
+        /// <param name="noneExceptionMessage">The message of an exception which is thrown when the source collection is has no element matching the criteria.</param>
+        /// <param name="manyExceptionMessage">The message of an exception which is thrown when the source collection has more than one element matching the criteria.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        public static async Task<TSource> SingleAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, bool> predicate,
+            string noneExceptionMessage,
+            string manyExceptionMessage,
+            CancellationToken token = default(CancellationToken))
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+            if (null == predicate)
+                throw new ArgumentNullException(nameof(predicate));
+
+            var matchFound = false;
+            var lastMatch = default(TSource);
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
+                {
+                    if (predicate(enumerator.Current))
+                    {
+                        if (matchFound)
+                            throw new InvalidOperationException(string.IsNullOrEmpty(manyExceptionMessage) ? "Several elements found matching the criteria." : manyExceptionMessage);
+
+                        matchFound = true;
+                        lastMatch = enumerator.Current;
+                    }
+                }
+            }
+
+            if (!matchFound)
+                throw new InvalidOperationException(string.IsNullOrEmpty(noneExceptionMessage) ? "No element found matching the criteria." : noneExceptionMessage);
+
+            return lastMatch;
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and returns a default value if there is not exactly one element in the sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        public static Task<TSource> SingleOrDefaultAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            CancellationToken token = default(CancellationToken))
+        {
+            return SingleOrDefaultAsync(source, PredicateCache<TSource>.True, token);
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and returns a default value if there is not exactly one element in the sequence that matches the criteria.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="predicate">Criteria predicate to select the only element.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        public static async Task<TSource> SingleOrDefaultAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, bool> predicate,
+            CancellationToken token = default(CancellationToken))
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+            if (null == predicate)
+                throw new ArgumentNullException(nameof(predicate));
+
+            var matchFound = false;
+            var lastMatch = default(TSource);
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
+                {
+                    if (predicate(enumerator.Current))
+                    {
+                        if (matchFound)
+                        {
+                            matchFound = false;
+                            break;
+                        }
+
+                        matchFound = true;
+                        lastMatch = enumerator.Current;
+                    }
+                }
+            }
+
+            if (!matchFound)
+                return default(TSource);
+
+            return lastMatch;
+        }
+
+        #endregion
+
         #region First / FirstOrDefault
 
         internal static class PredicateCache<T>

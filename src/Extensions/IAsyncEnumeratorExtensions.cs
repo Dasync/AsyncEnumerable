@@ -12,6 +12,179 @@ namespace System.Collections.Async
     [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
     public static class IAsyncEnumeratorExtensions
     {
+        #region Single / SingleOrDefault
+
+        /// <summary>
+        /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
+        public static Task<TSource> SingleAsync<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            CancellationToken token = default(CancellationToken),
+            bool disposeSource = true)
+        {
+            return SingleAsync(source, PredicateCache<TSource>.True, null, null, token, disposeSource);
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="noneExceptionMessage">The message of an exception which is thrown when the source collection is empty.</param>
+        /// <param name="manyExceptionMessage">The message of an exception which is thrown when the source collection has more than one element.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
+        public static Task<TSource> SingleAsync<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            string noneExceptionMessage,
+            string manyExceptionMessage,
+            CancellationToken token = default(CancellationToken),
+            bool disposeSource = true)
+        {
+            return SingleAsync(source, PredicateCache<TSource>.True, noneExceptionMessage, manyExceptionMessage, token, disposeSource);
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence that matches the criteria.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="predicate">Criteria predicate to select the only element.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
+        public static Task<TSource> SingleAsync<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            Func<TSource, bool> predicate,
+            CancellationToken token = default(CancellationToken),
+            bool disposeSource = true)
+        {
+            return SingleAsync(source, predicate, null, null, token, disposeSource);
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence that matches the criteria.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="predicate">Criteria predicate to select the only element.</param>
+        /// <param name="noneExceptionMessage">The message of an exception which is thrown when the source collection is has no element matching the criteria.</param>
+        /// <param name="manyExceptionMessage">The message of an exception which is thrown when the source collection has more than one element matching the criteria.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
+        public static async Task<TSource> SingleAsync<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            Func<TSource, bool> predicate,
+            string noneExceptionMessage,
+            string manyExceptionMessage,
+            CancellationToken token = default(CancellationToken),
+            bool disposeSource = true)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+            if (null == predicate)
+                throw new ArgumentNullException(nameof(predicate));
+
+            var matchFound = false;
+            var lastMatch = default(TSource);
+
+            try
+            {
+                while (await source.MoveNextAsync(token).ConfigureAwait(false))
+                {
+                    if (predicate(source.Current))
+                    {
+                        if (matchFound)
+                            throw new InvalidOperationException(string.IsNullOrEmpty(manyExceptionMessage) ? "Several elements found matching the criteria." : manyExceptionMessage);
+
+                        matchFound = true;
+                        lastMatch = source.Current;
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeSource)
+                    source.Dispose();
+            }
+
+            if (!matchFound)
+                throw new InvalidOperationException(string.IsNullOrEmpty(noneExceptionMessage) ? "No element found matching the criteria." : noneExceptionMessage);
+
+            return lastMatch;
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and returns a default value if there is not exactly one element in the sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
+        public static Task<TSource> SingleOrDefaultAsync<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            CancellationToken token = default(CancellationToken),
+            bool disposeSource = true)
+        {
+            return SingleOrDefaultAsync(source, PredicateCache<TSource>.True, token, disposeSource);
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence, and returns a default value if there is not exactly one element in the sequence that matches the criteria.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="predicate">Criteria predicate to select the only element.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
+        public static async Task<TSource> SingleOrDefaultAsync<TSource>(
+            this IAsyncEnumerator<TSource> source,
+            Func<TSource, bool> predicate,
+            CancellationToken token = default(CancellationToken),
+            bool disposeSource = true)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+            if (null == predicate)
+                throw new ArgumentNullException(nameof(predicate));
+
+            var matchFound = false;
+            var lastMatch = default(TSource);
+
+            try
+            {
+                while (await source.MoveNextAsync(token).ConfigureAwait(false))
+                {
+                    if (predicate(source.Current))
+                    {
+                        if (matchFound)
+                        {
+                            matchFound = false;
+                            break;
+                        }
+
+                        matchFound = true;
+                        lastMatch = source.Current;
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeSource)
+                    source.Dispose();
+            }
+
+            if (!matchFound)
+                return default(TSource);
+
+            return lastMatch;
+        }
+
+        #endregion
+
         #region First / FirstOrDefault
 
         /// <summary>
