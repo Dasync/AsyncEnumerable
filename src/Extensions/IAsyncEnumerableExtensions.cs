@@ -708,6 +708,61 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region DefaultIfEmpty
+
+        /// <summary>
+        /// Returns the elements of the specified sequence or the specified value in a singleton collection if the sequence is empty.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">The sequence to return the specified value for if it is empty.</param>
+        public static IAsyncEnumerable<TSource> DefaultIfEmpty<TSource>(this IAsyncEnumerable<TSource> source)
+        {
+            return DefaultIfEmpty(source, default(TSource));
+        }
+
+        /// <summary>
+        /// Returns the elements of the specified sequence or the specified value in a singleton collection if the sequence is empty.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">The sequence to return the specified value for if it is empty.</param>
+        /// <param name="defaultValue">The value to return if the sequence is empty.</param>
+        public static IAsyncEnumerable<TSource> DefaultIfEmpty<TSource>(this IAsyncEnumerable<TSource> source, TSource defaultValue)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+
+            return new AsyncEnumerableWithState<TSource, DefaultIfEmptyContext<TSource>>(
+                DefaultIfEmptyContext<TSource>.Enumerate,
+                new DefaultIfEmptyContext<TSource> { Source = source, DefaultValue = defaultValue });
+        }
+
+        private struct DefaultIfEmptyContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public TSource DefaultValue;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, DefaultIfEmptyContext<TSource> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    var isEmpty = true;
+
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        isEmpty = false;
+                        await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                    }
+
+                    if (isEmpty)
+                        await yield.ReturnAsync(context.DefaultValue).ConfigureAwait(false);
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, DefaultIfEmptyContext<TSource>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
         #region Batch
 
         /// <summary>

@@ -837,6 +837,69 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region DefaultIfEmpty
+
+        /// <summary>
+        /// Returns the elements of the specified sequence or the specified value in a singleton collection if the sequence is empty.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">The sequence to return the specified value for if it is empty.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<TSource> DefaultIfEmpty<TSource>(this IAsyncEnumerator<TSource> source, bool disposeSource = true)
+        {
+            return DefaultIfEmpty(source, default(TSource), disposeSource);
+        }
+
+        /// <summary>
+        /// Returns the elements of the specified sequence or the specified value in a singleton collection if the sequence is empty.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">The sequence to return the specified value for if it is empty.</param>
+        /// <param name="defaultValue">The value to return if the sequence is empty.</param>
+        /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
+        public static IAsyncEnumerator<TSource> DefaultIfEmpty<TSource>(this IAsyncEnumerator<TSource> source, TSource defaultValue, bool disposeSource = true)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+
+            return new AsyncEnumeratorWithState<TSource, DefaultIfEmptyContext<TSource>>(
+                DefaultIfEmptyContext<TSource>.Enumerate,
+                new DefaultIfEmptyContext<TSource> { Source = source, DefaultValue = defaultValue, DisposeSource = disposeSource });
+        }
+
+        private struct DefaultIfEmptyContext<TSource>
+        {
+            public IAsyncEnumerator<TSource> Source;
+            public TSource DefaultValue;
+            public bool DisposeSource;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, DefaultIfEmptyContext<TSource> context)
+            {
+                try
+                {
+                    var isEmpty = true;
+
+                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        isEmpty = false;
+                        await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
+                    }
+
+                    if (isEmpty)
+                        await yield.ReturnAsync(context.DefaultValue).ConfigureAwait(false);
+                }
+                finally
+                {
+                    if (context.DisposeSource)
+                        context.Source.Dispose();
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, DefaultIfEmptyContext<TSource>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
         #region Batch
 
         /// <summary>
