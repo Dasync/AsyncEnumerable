@@ -159,5 +159,30 @@ namespace Tests
                 HasDisposed = true;
             }
         }
+
+        [Test]
+        public async Task EnumerationMustEndAfterDispose()
+        {
+            // ARRANGE
+
+            var enumerator = new AsyncEnumerator<int>(async yield =>
+            {
+                await yield.ReturnAsync(1);
+                await yield.ReturnAsync(2);
+            });
+
+            await enumerator.MoveNextAsync();
+
+            // ACT
+
+            enumerator.Dispose();
+            bool moveNextResult = await enumerator.MoveNextAsync();
+            int currentElement = enumerator.Current;
+
+            // ASSERT
+
+            Assert.IsFalse(moveNextResult, "MoveNextAsync must return False after Dispose");
+            Assert.AreEqual(1, currentElement, "Current must not change after Dispose");
+        }
     }
 }

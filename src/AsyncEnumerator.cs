@@ -41,7 +41,7 @@ namespace System.Collections.Async
             TState state,
             Action<TState> onDispose = null)
         {
-            _enumerationFunction = enumerationFunction;
+            _enumerationFunction = enumerationFunction ?? throw new ArgumentNullException(nameof(enumerationFunction));
             _onDisposeAction = onDispose;
             State = state;
 
@@ -70,7 +70,7 @@ namespace System.Collections.Async
         {
             get
             {
-                if (_enumerationTask == null)
+                if (!HasCurrentValue)
                     throw new InvalidOperationException("Call MoveNextAsync() or MoveNext() before accessing the Current item");
                 return CurrentValue;
             }
@@ -90,6 +90,9 @@ namespace System.Collections.Async
         /// <returns>Returns a Task that does transition to the next element. The result of the task is True if the enumerator was successfully advanced to the next element, or False if the enumerator has passed the end of the collection.</returns>
         public virtual Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (_enumerationFunction == null)
+                return TaskEx.False;
+
             if (_yield == null)
                 _yield = new AsyncEnumerator<TItem>.Yield(this);
 
@@ -139,6 +142,7 @@ namespace System.Collections.Async
 
             _onDisposeAction?.Invoke(State);
             _onDisposeAction = null;
+            _enumerationFunction = null;
         }
 
         private static void OnEnumerationComplete(Task task, object state)

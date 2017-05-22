@@ -5,6 +5,25 @@
     /// </summary>
     public abstract class CurrentValueContainer<T> : AsyncEnumerator
     {
-        internal T CurrentValue;
+        private T _currentValue;
+
+        internal T CurrentValue
+        {
+            get
+            {
+                return _currentValue;
+            }
+            set
+            {
+                _currentValue = value;
+                HasCurrentValue = true;
+            }
+        }
+
+        internal bool HasCurrentValue
+        {
+            get;
+            private set;
+        }
     }
 }
