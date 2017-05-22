@@ -311,6 +311,9 @@ will just defeat the whole purpose of this library. This is the reason why such 
 
 ## RELEASE NOTES
 
+2.1.0: New extension methods: Batch, UnionAll, Single, SingleOrDefault, DefaultIfEmpty, Cast.
+       Bug-fix: AsyncEnumerator.MoveNextAsync() must not succeed after Dispose().
+
 2.0.1: Bug-fix: call onDispose when AsyncEnumerator is GC'ed but enumeration hasn't been started.
        Bug-fix: re-throw base exception instead of AggregateException in blocking synchronous methods.
 
