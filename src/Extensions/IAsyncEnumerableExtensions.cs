@@ -1083,6 +1083,7 @@ namespace System.Collections.Async
 
                         context.AddItemToBatch(batch, enumerator.Current);
                         batchWeight += itemWeight;
+                        itemsInBatch += 1;
 
                         if (itemsInBatch >= context.MaxItemsInBatch || batchWeight >= context.MaxBatchWeight)
                         {
