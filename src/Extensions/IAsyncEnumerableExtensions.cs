@@ -907,7 +907,7 @@ namespace System.Collections.Async
             if (addItem == null)
                 throw new ArgumentNullException(nameof(addItem), "You must specify an action that adds an item to a batch.");
 
-            if (maxItemsInBatch == null || weightSelector == null)
+            if (maxItemsInBatch == null && weightSelector == null)
                 throw new InvalidOperationException("You must supply either a max batch size or a weight selector.");
 
             return new AsyncEnumerableWithState<TBatch, BatchContext<TSource, TBatch>>(
