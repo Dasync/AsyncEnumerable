@@ -156,20 +156,20 @@ namespace System.Collections.Async
             {
                 if (task.Exception.GetBaseException() is AsyncEnumerationCanceledException)
                 {
-                    enumerator._yield.SetCanceled();
+                    enumerator._yield?.SetCanceled();
                 }
                 else
                 {
-                    enumerator._yield.SetFailed(task.Exception);
+                    enumerator._yield?.SetFailed(task.Exception);
                 }
             }
             else if (task.IsCanceled)
             {
-                enumerator._yield.SetCanceled();
+                enumerator._yield?.SetCanceled();
             }
             else
             {
-                enumerator._yield.SetComplete();
+                enumerator._yield?.SetComplete();
             }
         }
     }
