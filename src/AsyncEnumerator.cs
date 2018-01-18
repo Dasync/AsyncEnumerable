@@ -165,11 +165,11 @@ namespace System.Collections.Async
             }
             else if (task.IsCanceled)
             {
-                enumerator._yield.SetCanceled();
+                enumerator._yield?.SetCanceled();
             }
             else
             {
-                enumerator._yield.SetComplete();
+                enumerator._yield?.SetComplete();
             }
         }
     }
