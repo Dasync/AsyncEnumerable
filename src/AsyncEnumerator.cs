@@ -258,7 +258,7 @@ namespace System.Collections.Async
                 {
                     CancellationToken = cancellationToken;
                     TaskCompletionSource.Reset(ref _moveNextCompleteTcs);
-                    _resumeEnumerationTcs?.SetResult(true);
+                    _resumeEnumerationTcs?.TrySetResult(true);
                 }
 
                 return _moveNextCompleteTcs.Task;
