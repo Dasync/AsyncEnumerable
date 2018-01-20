@@ -321,6 +321,9 @@ better with memory usage, and helps with throttling-sensitive scenarios.
 
 ## RELEASE NOTES
 
+2.1.1: Bug-fix: AsyncEnumerator.OnEnumerationComplete might throw a NullReferneceException when enumeration is canceled.
+       Bug-fix: Batch extension method does not work at all - always throws InvalidOperationException.
+
 2.1.0: New extension methods: Batch, UnionAll, Single, SingleOrDefault, DefaultIfEmpty, Cast.
        Bug-fix: AsyncEnumerator.MoveNextAsync() must not succeed after Dispose().
 
