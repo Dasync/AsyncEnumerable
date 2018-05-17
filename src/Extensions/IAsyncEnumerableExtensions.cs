@@ -281,13 +281,13 @@ namespace System.Collections.Async
 
         #endregion
 
-        #region Select
+        #region Select / SelectMany
 
         /// <summary>
         /// Projects each element of a sequence into a new form.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
-        /// <typeparam name="TResult">The type of the value returned by <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TResult">The type of the value returned by <paramref name="selector"/>.</typeparam>
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         public static IAsyncEnumerable<TResult> Select<TSource, TResult>(
@@ -327,7 +327,7 @@ namespace System.Collections.Async
         /// Projects each element of a sequence into a new form.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
-        /// <typeparam name="TResult">The type of the value returned by <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TResult">The type of the value returned by <paramref name="selector"/>.</typeparam>
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
         public static IAsyncEnumerable<TResult> Select<TSource, TResult>(
@@ -363,6 +363,54 @@ namespace System.Collections.Async
             }
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, SelectWithIndexContext<TSource, TResult>, Task> Enumerate = _enumerate;
+        }
+
+        /// <summary>
+        /// Projects each element of a sequence to an IAsyncEnumerable&lt;T&gt; and flattens the resulting sequences into one sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TResult">The type of the value in the IAsyncEnumerable returned by <paramref name="selector"/>.</typeparam>
+        /// <param name="source">A sequence of values to invoke a transform function on.</param>
+        /// <param name="selector">A transform function to apply to each source element.</param>
+        public static IAsyncEnumerable<TResult> SelectMany<TSource, TResult>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, IAsyncEnumerable<TResult>> selector)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+            if (null == selector)
+                throw new ArgumentNullException(nameof(selector));
+
+            return new AsyncEnumerableWithState<TResult, SelectManyContext<TSource, TResult>>(
+                SelectManyContext<TSource, TResult>.Enumerate,
+                new SelectManyContext<TSource, TResult> { Source = source, Selector = selector });
+        }
+
+        private struct SelectManyContext<TSource, TResult>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public Func<TSource, IAsyncEnumerable<TResult>> Selector;
+
+            private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, SelectManyContext<TSource, TResult> context)
+            {
+                using (IAsyncEnumerator<TSource> sourceEnumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    while (await sourceEnumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        IAsyncEnumerable<TResult> items = context.Selector(sourceEnumerator.Current);
+
+                        using (IAsyncEnumerator<TResult> itemsEnumerator = await items.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                        {
+                            while (await itemsEnumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                            {
+                                await yield.ReturnAsync(itemsEnumerator.Current).ConfigureAwait(false);
+                            }
+                        }
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TResult>.Yield, SelectManyContext<TSource, TResult>, Task> Enumerate = _enumerate;
         }
 
         #endregion
