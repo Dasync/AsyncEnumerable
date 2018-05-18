@@ -15,12 +15,14 @@
     <DocumentationFile>bin\Debug\netstandard1.4\AsyncEnumerable.xml</DocumentationFile>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD1_4</DefineConstants>
     <OutputPath>bin\Debug\</OutputPath>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard1.4\AsyncEnumerable.xml</DocumentationFile>
     <DefineConstants>TRACE;RELEASE;NETSTANDARD;NETSTANDARD1_4</DefineConstants>
     <OutputPath>bin\Release\</OutputPath>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
