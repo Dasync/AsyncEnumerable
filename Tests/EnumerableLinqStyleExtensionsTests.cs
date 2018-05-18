@@ -332,5 +332,16 @@ namespace Tests
             var expectedObjectResult = collection;
             Assert.AreEqual(expectedObjectResult, actualObjectResult);
         }
+
+        [Test]
+        public async Task Concat()
+        {
+            var collection1 = new int[] { 1 }.ToAsyncEnumerable();
+            var collection2 = new int[] { 2, 3 }.ToAsyncEnumerable();
+            var resultCollection = collection1.Concat(collection2);
+            var actualResult = await resultCollection.ToArrayAsync();
+            var expectedResult = new int[] { 1, 2, 3 };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
     }
 }

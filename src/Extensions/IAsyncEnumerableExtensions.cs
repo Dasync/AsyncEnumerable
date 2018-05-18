@@ -1432,6 +1432,56 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region Concat
+
+        /// <summary>
+        /// Concatenates two sequences.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the input sequences.</typeparam>
+        /// <param name="first">The first sequence to concatenate.</param>
+        /// <param name="second">The sequence to concatenate to the first sequence.</param>
+        public static IAsyncEnumerable<TSource> Concat<TSource>(
+            this IAsyncEnumerable<TSource> first, IAsyncEnumerable<TSource> second)
+        {
+            if (null == first)
+                throw new ArgumentNullException(nameof(first));
+            if (null == second)
+                throw new ArgumentNullException(nameof(second));
+
+            return new AsyncEnumerableWithState<TSource, ConcatContext<TSource>>(
+                ConcatContext<TSource>.Enumerate,
+                new ConcatContext<TSource> { First = first, Second = second });
+        }
+
+        private struct ConcatContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> First;
+            public IAsyncEnumerable<TSource> Second;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, ConcatContext<TSource> context)
+            {
+                using (var enumerator = await context.First.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                    }
+                }
+
+                using (var enumerator = await context.Second.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, ConcatContext<TSource>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
         #region Shared Helpers
 
         internal static class ZeroTransformHelper
