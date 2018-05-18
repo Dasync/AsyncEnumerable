@@ -428,5 +428,35 @@ namespace Tests
             var expectedResult = "16";
             Assert.AreEqual(expectedResult, actualResult);
         }
+
+        [Test]
+        public async Task ToLookup()
+        {
+            var collection = new(int key, string value)[] { (1, "a"), (2, "b"), (1, "c") }.ToAsyncEnumerable();
+            var actualLookup = await collection.ToLookupAsync(x => x.key);
+            Assert.IsNotNull(actualLookup);
+            Assert.AreEqual(new[] { (1, "a"), (1, "c") }, actualLookup[1]);
+            Assert.AreEqual(new[] { (2, "b") }, actualLookup[2]);
+        }
+
+        [Test]
+        public async Task ToLookup_ValueSelector()
+        {
+            var collection = new(int key, string value)[] { (1, "a"), (2, "b"), (1, "c") }.ToAsyncEnumerable();
+            var actualLookup = await collection.ToLookupAsync(x => x.key, x => x.value);
+            Assert.IsNotNull(actualLookup);
+            Assert.AreEqual(new[] { "a", "c" }, actualLookup[1]);
+            Assert.AreEqual(new[] { "b" }, actualLookup[2]);
+        }
+
+        [Test]
+        public async Task ToLookup_ValueSelector_WithComparer()
+        {
+            var collection = new(string key, int value)[] { ("a", 1), ("b", 2), ("A", 3) }.ToAsyncEnumerable();
+            var actualLookup = await collection.ToLookupAsync(x => x.key, x => x.value, StringComparer.OrdinalIgnoreCase);
+            Assert.IsNotNull(actualLookup);
+            Assert.AreEqual(new[] { 1, 3 }, actualLookup["A"]);
+            Assert.AreEqual(new[] { 2 }, actualLookup["b"]);
+        }
     }
 }

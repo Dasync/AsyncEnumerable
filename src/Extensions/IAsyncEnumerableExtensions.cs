@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -804,6 +805,220 @@ namespace System.Collections.Async
             }
 
             return dictionary;
+        }
+
+        #endregion
+
+        #region ToLookup
+
+        private class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
+        {
+            private readonly List<TElement> _items = new List<TElement>();
+
+            public Grouping(TKey key)
+            {
+                Key = key;
+            }
+
+            public void Add(TElement item) => _items.Add(item);
+
+            public int Count => _items.Count;
+
+            public TKey Key { get; }
+
+            public IEnumerator<TElement> GetEnumerator() => _items.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        private class Lookup<TKey, TElement> : ILookup<TKey, TElement>
+        {
+            private readonly Dictionary<TKey, Grouping<TKey, TElement>> _dictionary;
+
+            public Lookup()
+            {
+                _dictionary = new Dictionary<TKey, Grouping<TKey, TElement>>();
+            }
+
+            public Lookup(IEqualityComparer<TKey> comparer)
+            {
+                _dictionary = new Dictionary<TKey, Grouping<TKey, TElement>>(comparer);
+            }
+
+            public void Add(TKey key, TElement item)
+            {
+                if (!_dictionary.TryGetValue(key, out var grouping))
+                {
+                    grouping = new Grouping<TKey, TElement>(key);
+                    _dictionary.Add(grouping.Key, grouping);
+                }
+                grouping.Add(item);
+                Count++;
+            }
+
+            public IEnumerable<TElement> this[TKey key]
+            {
+                get
+                {
+                    if (_dictionary.TryGetValue(key, out var grouping))
+                        return grouping;
+                    return Enumerable.Empty<TElement>();
+                }
+            }
+
+            public int Count { get; private set; }
+
+            public bool Contains(TKey key) => _dictionary.ContainsKey(key);
+
+            public IEnumerator<IGrouping<TKey, TElement>> GetEnumerator() => _dictionary.Values.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ILookup{TKey, TElement}"/> from an <see cref="IAsyncEnumerable{T}"/> according to a specified key selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <param name="source">The <see cref="IAsyncEnumerable{T}"/> to create a <see cref="ILookup{TKey, TElement}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        public static async Task<ILookup<TKey, TSource>> ToLookupAsync<TSource, TKey>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+
+            var lookup = new Lookup<TKey, TSource>();
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var item = enumerator.Current;
+                    lookup.Add(keySelector(item), item);
+                }
+            }
+
+            return lookup;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ILookup{TKey, TElement}"/> from an <see cref="IAsyncEnumerable{T}"/> according to a specified key selector function and key comparer.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <param name="source">The <see cref="IAsyncEnumerable{T}"/> to create a <see cref="ILookup{TKey, TElement}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> to compare keys.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        public static async Task<ILookup<TKey, TSource>> ToLookupAsync<TSource, TKey>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            IEqualityComparer<TKey> comparer,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+            if (comparer == null)
+                throw new ArgumentNullException(nameof(comparer));
+
+            var lookup = new Lookup<TKey, TSource>(comparer);
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var item = enumerator.Current;
+                    lookup.Add(keySelector(item), item);
+                }
+            }
+
+            return lookup;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ILookup{TKey, TElement}"/> from an <see cref="IAsyncEnumerable{T}"/> according to a specified key selector function and an element selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <typeparam name="TElement">The type of the value returned by <paramref name="elementSelector"/>.</typeparam>
+        /// <param name="source">The <see cref="IAsyncEnumerable{T}"/> to create a <see cref="ILookup{TKey, TElement}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="elementSelector">A transform function to produce a result element value from each element.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        public static async Task<ILookup<TKey, TElement>> ToLookupAsync<TSource, TKey, TElement>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+            if (elementSelector == null)
+                throw new ArgumentNullException(nameof(elementSelector));
+
+            var lookup = new Lookup<TKey, TElement>();
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var item = enumerator.Current;
+                    lookup.Add(keySelector(item), elementSelector(item));
+                }
+            }
+
+            return lookup;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ILookup{TKey, TElement}"/> from an <see cref="IAsyncEnumerable{T}"/> according to a specified key selector function, a comparer and an element selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <typeparam name="TElement">The type of the value returned by <paramref name="elementSelector"/>.</typeparam>
+        /// <param name="source">The <see cref="IAsyncEnumerable{T}"/> to create a <see cref="ILookup{TKey, TElement}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="elementSelector">A transform function to produce a result element value from each element.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> to compare keys.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        public static async Task<ILookup<TKey, TElement>> ToLookupAsync<TSource, TKey, TElement>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector,
+            IEqualityComparer<TKey> comparer,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+            if (elementSelector == null)
+                throw new ArgumentNullException(nameof(elementSelector));
+            if (comparer == null)
+                throw new ArgumentNullException(nameof(comparer));
+
+            var lookup = new Lookup<TKey, TElement>(comparer);
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var item = enumerator.Current;
+                    lookup.Add(keySelector(item), elementSelector(item));
+                }
+            }
+
+            return lookup;
         }
 
         #endregion
