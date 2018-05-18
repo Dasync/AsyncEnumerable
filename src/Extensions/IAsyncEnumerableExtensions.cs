@@ -1333,6 +1333,71 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region Append / Prepend
+
+        /// <summary>
+        /// Creates a new sequence based on input one plus an extra element at the end.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="element">An extra element to be returned on enumeration.</param>
+        public static IAsyncEnumerable<TSource> Append<TSource>(
+            this IAsyncEnumerable<TSource> source, TSource element)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+
+            return new AsyncEnumerableWithState<TSource, ExtraElementContext<TSource>>(
+                ExtraElementContext<TSource>.Enumerate,
+                new ExtraElementContext<TSource> { Source = source, ExtraElement = element, Append = true });
+        }
+
+        /// <summary>
+        /// Creates a new sequence based on input one plus an extra element in the beginning.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
+        /// <param name="element">An extra element to be returned on enumeration.</param>
+        public static IAsyncEnumerable<TSource> Prepend<TSource>(
+            this IAsyncEnumerable<TSource> source, TSource element)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+
+            return new AsyncEnumerableWithState<TSource, ExtraElementContext<TSource>>(
+                ExtraElementContext<TSource>.Enumerate,
+                new ExtraElementContext<TSource> { Source = source, ExtraElement = element, Prepend = true });
+        }
+
+        private struct ExtraElementContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public TSource ExtraElement;
+            public bool Append;
+            public bool Prepend { get => !Append; set => Append = !value; }
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, ExtraElementContext<TSource> context)
+            {
+                if (context.Prepend)
+                    await yield.ReturnAsync(context.ExtraElement).ConfigureAwait(false);
+
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                {
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                    {
+                        await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                    }
+                }
+
+                if (context.Append)
+                    await yield.ReturnAsync(context.ExtraElement).ConfigureAwait(false);
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, ExtraElementContext<TSource>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
         #region Shared Helpers
 
         internal static class ZeroTransformHelper

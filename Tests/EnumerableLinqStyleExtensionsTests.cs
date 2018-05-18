@@ -3,6 +3,7 @@ using System.Collections.Async;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Tests
 {
@@ -282,6 +283,26 @@ namespace Tests
                 resultSelector: (collection, item) => item.ToString())
                 .ToArrayAsync();
             var expectedResult = new [] { "1", "2", "3", "4", "5" };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public async Task Append()
+        {
+            var collection = new int[] { 1, 2 }.ToAsyncEnumerable();
+            var extendedCollection = collection.Append(3);
+            var actualResult = await extendedCollection.ToArrayAsync();
+            var expectedResult = new int[] { 1, 2, 3 };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public async Task Prepend()
+        {
+            var collection = new int[] { 1, 2 }.ToAsyncEnumerable();
+            var extendedCollection = collection.Prepend(0);
+            var actualResult = await extendedCollection.ToArrayAsync();
+            var expectedResult = new int[] { 0, 1, 2 };
             Assert.AreEqual(expectedResult, actualResult);
         }
     }
