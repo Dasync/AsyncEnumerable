@@ -376,5 +376,23 @@ namespace Tests
             Assert.AreEqual(actualDictionary["A"], 1);
             Assert.AreEqual(actualDictionary["B"], 2);
         }
+
+        [Test]
+        public async Task Distinct()
+        {
+            var collection = new [] { "a", "a", "A", "a" }.ToAsyncEnumerable();
+            var actualResult = await collection.Distinct().ToArrayAsync();
+            var expectedResult = new [] { "a", "A" };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public async Task Distinct_WithComparer()
+        {
+            var collection = new[] { "a", "a", "A", "a" }.ToAsyncEnumerable();
+            var actualResult = await collection.Distinct(StringComparer.OrdinalIgnoreCase).ToArrayAsync();
+            var expectedResult = new[] { "a" };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
     }
 }

@@ -1636,6 +1636,60 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region Distinct
+
+        /// <summary>
+        /// Returns distinct elements from a sequence by using the default equality comparer to compare values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">The sequence to remove duplicate elements from.</param>
+        public static IAsyncEnumerable<TSource> Distinct<TSource>(this IAsyncEnumerable<TSource> source)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+
+            return new AsyncEnumerableWithState<TSource, DistinctContext<TSource>>(
+                DistinctContext<TSource>.Enumerate,
+                new DistinctContext<TSource> { Source = source });
+        }
+
+        /// <summary>
+        /// Returns distinct elements from a sequence by using a specified <see cref="IEqualityComparer{T}"/> to compare values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">The sequence to remove duplicate elements from.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> to compare values.</param>
+        public static IAsyncEnumerable<TSource> Distinct<TSource>(this IAsyncEnumerable<TSource> source, IEqualityComparer<TSource> comparer)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+            if (null == comparer)
+                throw new ArgumentNullException(nameof(comparer));
+
+            return new AsyncEnumerableWithState<TSource, DistinctContext<TSource>>(
+                DistinctContext<TSource>.Enumerate,
+                new DistinctContext<TSource> { Source = source, Comparer = comparer });
+        }
+
+        private struct DistinctContext<TSource>
+        {
+            public IAsyncEnumerable<TSource> Source;
+            public IEqualityComparer<TSource> Comparer;
+
+            private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, DistinctContext<TSource> context)
+            {
+                var set = context.Comparer == null ? new HashSet<TSource>() : new HashSet<TSource>(context.Comparer);
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                        if (set.Add(enumerator.Current))
+                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+            }
+
+            public static readonly Func<AsyncEnumerator<TSource>.Yield, DistinctContext<TSource>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
         #region Shared Helpers
 
         internal static class ZeroTransformHelper
