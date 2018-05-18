@@ -232,5 +232,57 @@ namespace Tests
             var expectedResult = new int[] { 1 };
             Assert.AreEqual(expectedResult, actualResult);
         }
+
+        [Test]
+        public async Task SelectMany_Async()
+        {
+            var collection1 = new int[] { 1, 2 }.ToAsyncEnumerable();
+            var collection2 = new int[0].ToAsyncEnumerable();
+            var collection3 = new int[] { 3, 4, 5 }.ToAsyncEnumerable();
+            var set = new[] { collection1, collection2, collection3 }.ToAsyncEnumerable();
+            var actualResult = await set.SelectMany(collection => collection).ToArrayAsync();
+            var expectedResult = new int[] { 1, 2, 3, 4, 5 };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public async Task SelectMany_Async_Transform()
+        {
+            var collection1 = new int[] { 1, 2 }.ToAsyncEnumerable();
+            var collection2 = new int[] { 3, 4, 5 }.ToAsyncEnumerable();
+            var set = new[] { collection1, collection2 }.ToAsyncEnumerable();
+            var actualResult = await set.SelectMany(
+                collectionSelector: collection => collection,
+                resultSelector: (collection, item) => item.ToString())
+                .ToArrayAsync();
+            var expectedResult = new [] { "1", "2", "3", "4", "5" };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public async Task SelectMany_Sync()
+        {
+            var collection1 = new int[] { 1, 2 };
+            var collection2 = new int[0];
+            var collection3 = new int[] { 3, 4, 5 };
+            var set = new[] { collection1, collection2, collection3 }.ToAsyncEnumerable();
+            var actualResult = await set.SelectMany(collection => collection).ToArrayAsync();
+            var expectedResult = new int[] { 1, 2, 3, 4, 5 };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public async Task SelectMany_Sync_Transform()
+        {
+            var collection1 = new int[] { 1, 2 };
+            var collection2 = new int[] { 3, 4, 5 };
+            var set = new[] { collection1, collection2 }.ToAsyncEnumerable();
+            var actualResult = await set.SelectMany(
+                collectionSelector: collection => collection,
+                resultSelector: (collection, item) => item.ToString())
+                .ToArrayAsync();
+            var expectedResult = new [] { "1", "2", "3", "4", "5" };
+            Assert.AreEqual(expectedResult, actualResult);
+        }
     }
 }
