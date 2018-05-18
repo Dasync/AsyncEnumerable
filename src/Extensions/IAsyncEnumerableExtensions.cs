@@ -1690,6 +1690,98 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region Aggregate
+
+        /// <summary>
+        /// Applies an accumulator function over a sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source"> An <see cref="IAsyncEnumerable{T}"/> to aggregate over.</param>
+        /// <param name="func">An accumulator function to be invoked on each element.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        public static async Task<TSource> AggregateAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TSource, TSource> func,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            TSource val;
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                if (!await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                    throw new InvalidOperationException("The sequence contains no elements.");
+                val = enumerator.Current;
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                    val = func(val, enumerator.Current);
+            }
+            return val;
+        }
+
+        /// <summary>
+        /// Applies an accumulator function over a sequence. The specified seed value is used as the initial accumulator value.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TAccumulate">The type of the accumulator value.</typeparam>
+        /// <param name="source"> An <see cref="IAsyncEnumerable{T}"/> to aggregate over.</param>
+        /// <param name="seed">The initial accumulator value.</param>
+        /// <param name="func">An accumulator function to be invoked on each element.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        public static async Task<TAccumulate> AggregateAsync<TSource, TAccumulate>(
+            this IAsyncEnumerable<TSource> source,
+            TAccumulate seed,
+            Func<TAccumulate, TSource, TAccumulate> func,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            var val = seed;
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                    val = func(val, enumerator.Current);
+            return val;
+        }
+
+        /// <summary>
+        /// Applies an accumulator function over a sequence. The specified seed value is used as the initial accumulator value, and the specified function is used to select the result value.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TAccumulate">The type of the accumulator value.</typeparam>
+        /// <typeparam name="TResult">The type of the resulting value.</typeparam>
+        /// <param name="source"> An <see cref="IAsyncEnumerable{T}"/> to aggregate over.</param>
+        /// <param name="seed">The initial accumulator value.</param>
+        /// <param name="func">An accumulator function to be invoked on each element.</param>
+        /// <param name="resultSelector">A function to transform the final accumulator value into the result value.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        public static async Task<TResult> AggregateAsync<TSource, TAccumulate, TResult>(
+            this IAsyncEnumerable<TSource> source,
+            TAccumulate seed,
+            Func<TAccumulate, TSource, TAccumulate> func,
+            Func<TAccumulate, TResult> resultSelector,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+            if (resultSelector == null)
+                throw new ArgumentNullException(nameof(resultSelector));
+
+            var val = seed;
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                    val = func(val, enumerator.Current);
+            return resultSelector(val);
+        }
+
+        #endregion
+
         #region Shared Helpers
 
         internal static class ZeroTransformHelper

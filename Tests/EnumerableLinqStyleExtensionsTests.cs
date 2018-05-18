@@ -394,5 +394,39 @@ namespace Tests
             var expectedResult = new[] { "a" };
             Assert.AreEqual(expectedResult, actualResult);
         }
+
+        [Test]
+        public void Aggregate_NoElements()
+        {
+            var collection = new int[0].ToAsyncEnumerable();
+            Assert.ThrowsAsync<InvalidOperationException>(() => collection.AggregateAsync((a, b) => a + b));
+        }
+
+        [Test]
+        public async Task Aggregate()
+        {
+            var collection = new [] { 1, 2, 3}.ToAsyncEnumerable();
+            var actualResult = await collection.AggregateAsync((a, b) => a + b);
+            var expectedResult = 6;
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public async Task Aggregate_Seed()
+        {
+            var collection = new[] { 1, 2, 3 }.ToAsyncEnumerable();
+            var actualResult = await collection.AggregateAsync(-10, (a, b) => a + b);
+            var expectedResult = -4;
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public async Task Aggregate_Seed_ResultSelector()
+        {
+            var collection = new[] { 1, 2, 3 }.ToAsyncEnumerable();
+            var actualResult = await collection.AggregateAsync(10, (a, b) => a + b, x => x.ToString());
+            var expectedResult = "16";
+            Assert.AreEqual(expectedResult, actualResult);
+        }
     }
 }
