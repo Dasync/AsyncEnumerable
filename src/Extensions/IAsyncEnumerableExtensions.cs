@@ -670,6 +670,160 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region ToDictionary
+
+        /// <summary>
+        /// Creates a <see cref="Dictionary{TKey, TValue}"/> from an <see cref="IAsyncEnumerable{T}"/> according to a specified key selector function, a comparer, and an element selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        /// <returns></returns>
+        public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+
+            var dictionary = new Dictionary<TKey, TSource>();
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var item = enumerator.Current;
+                    dictionary.Add(keySelector(item), item);
+                }
+            }
+
+            return dictionary;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Dictionary{TKey, TValue}"/> from an <see cref="IAsyncEnumerable{T}"/> according to a specified key selector function, a comparer, and an element selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> to compare keys.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        /// <returns></returns>
+        public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            IEqualityComparer<TKey> comparer,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+            if (comparer == null)
+                throw new ArgumentNullException(nameof(comparer));
+
+            var dictionary = new Dictionary<TKey, TSource>(comparer);
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var item = enumerator.Current;
+                    dictionary.Add(keySelector(item), item);
+                }
+            }
+
+            return dictionary;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Dictionary{TKey, TValue}"/> from an <see cref="IAsyncEnumerable{T}"/> according to a specified key selector function, a comparer, and an element selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <typeparam name="TElement">The type of the value returned by <paramref name="elementSelector"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="elementSelector">A transform function to produce a result element value from each element.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        /// <returns></returns>
+        public static async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+            if (elementSelector == null)
+                throw new ArgumentNullException(nameof(elementSelector));
+
+            var dictionary = new Dictionary<TKey, TElement>();
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var item = enumerator.Current;
+                    dictionary.Add(keySelector(item), elementSelector(item));
+                }
+            }
+
+            return dictionary;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Dictionary{TKey, TValue}"/> from an <see cref="IAsyncEnumerable{T}"/> according to a specified key selector function, a comparer, and an element selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <typeparam name="TElement">The type of the value returned by <paramref name="elementSelector"/>.</typeparam>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="elementSelector">A transform function to produce a result element value from each element.</param>
+        /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> to compare keys.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        /// <returns></returns>
+        public static async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector,
+            IEqualityComparer<TKey> comparer,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+            if (elementSelector == null)
+                throw new ArgumentNullException(nameof(elementSelector));
+            if (comparer == null)
+                throw new ArgumentNullException(nameof(comparer));
+
+            var dictionary = new Dictionary<TKey, TElement>(comparer);
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var item = enumerator.Current;
+                    dictionary.Add(keySelector(item), elementSelector(item));
+                }
+            }
+
+            return dictionary;
+        }
+
+        #endregion
+
         #region Skip / SkipWhile
 
         /// <summary>

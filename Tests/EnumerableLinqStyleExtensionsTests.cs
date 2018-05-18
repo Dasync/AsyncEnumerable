@@ -343,5 +343,38 @@ namespace Tests
             var expectedResult = new int[] { 1, 2, 3 };
             Assert.AreEqual(expectedResult, actualResult);
         }
+
+        [Test]
+        public async Task ToDictionary()
+        {
+            var collection = new(int key, string value)[] { (1, "a"), (2, "b") };
+            var asyncCollection = collection.ToAsyncEnumerable();
+            var actualDictionary = await asyncCollection.ToDictionaryAsync(x => x.key);
+            Assert.IsNotNull(actualDictionary);
+            Assert.AreEqual(actualDictionary[1], collection[0]);
+            Assert.AreEqual(actualDictionary[2], collection[1]);
+        }
+
+        [Test]
+        public async Task ToDictionary_ValueSelector()
+        {
+            var collection = new(int key, string value)[] { (1, "a"), (2, "b") };
+            var asyncCollection = collection.ToAsyncEnumerable();
+            var actualDictionary = await asyncCollection.ToDictionaryAsync(x => x.key, x => x.value);
+            Assert.IsNotNull(actualDictionary);
+            Assert.AreEqual(actualDictionary[1], "a");
+            Assert.AreEqual(actualDictionary[2], "b");
+        }
+
+        [Test]
+        public async Task ToDictionary_ValueSelector_WithComparer()
+        {
+            var collection = new(string key, int value)[] { ("a", 1), ("b", 2) };
+            var asyncCollection = collection.ToAsyncEnumerable();
+            var actualDictionary = await asyncCollection.ToDictionaryAsync(x => x.key, x => x.value, StringComparer.OrdinalIgnoreCase);
+            Assert.IsNotNull(actualDictionary);
+            Assert.AreEqual(actualDictionary["A"], 1);
+            Assert.AreEqual(actualDictionary["B"], 2);
+        }
     }
 }
