@@ -13,7 +13,7 @@ namespace System.Collections.Async
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        Task<IAsyncEnumerator> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IAsyncEnumerator> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -27,6 +27,6 @@ namespace System.Collections.Async
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        new Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default(CancellationToken));
+        new Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default);
     }
 }

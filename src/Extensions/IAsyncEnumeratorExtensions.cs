@@ -23,7 +23,7 @@ namespace System.Collections.Async
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> SingleAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             return SingleAsync(source, PredicateCache<TSource>.True, null, null, token, disposeSource);
@@ -42,7 +42,7 @@ namespace System.Collections.Async
             this IAsyncEnumerator<TSource> source,
             string noneExceptionMessage,
             string manyExceptionMessage,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             return SingleAsync(source, PredicateCache<TSource>.True, noneExceptionMessage, manyExceptionMessage, token, disposeSource);
@@ -59,7 +59,7 @@ namespace System.Collections.Async
         public static Task<TSource> SingleAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             return SingleAsync(source, predicate, null, null, token, disposeSource);
@@ -80,7 +80,7 @@ namespace System.Collections.Async
             Func<TSource, bool> predicate,
             string noneExceptionMessage,
             string manyExceptionMessage,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             if (null == source)
@@ -126,7 +126,7 @@ namespace System.Collections.Async
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             return SingleOrDefaultAsync(source, PredicateCache<TSource>.True, token, disposeSource);
@@ -143,7 +143,7 @@ namespace System.Collections.Async
         public static async Task<TSource> SingleOrDefaultAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             if (null == source)
@@ -178,7 +178,7 @@ namespace System.Collections.Async
             }
 
             if (!matchFound)
-                return default(TSource);
+                return default;
 
             return lastMatch;
         }
@@ -196,7 +196,7 @@ namespace System.Collections.Async
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             return FirstAsync(source, PredicateCache<TSource>.True, null, token, disposeSource);
@@ -213,7 +213,7 @@ namespace System.Collections.Async
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             string exceptionMessage,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             return FirstAsync(source, PredicateCache<TSource>.True, exceptionMessage, token, disposeSource);
@@ -230,7 +230,7 @@ namespace System.Collections.Async
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             return FirstAsync(source, predicate, null, token, disposeSource);
@@ -249,7 +249,7 @@ namespace System.Collections.Async
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
             string exceptionMessage,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             try
@@ -281,7 +281,7 @@ namespace System.Collections.Async
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             return FirstOrDefaultAsync(source, PredicateCache<TSource>.True, token, disposeSource);
@@ -298,7 +298,7 @@ namespace System.Collections.Async
         public static async Task<TSource> FirstOrDefaultAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default(CancellationToken),
+            CancellationToken token = default,
             bool disposeSource = true)
         {
             try
@@ -312,7 +312,7 @@ namespace System.Collections.Async
                     if (predicate(source.Current))
                         return source.Current;
 
-                return default(TSource);
+                return default;
             }
             finally
             {
@@ -539,7 +539,7 @@ namespace System.Collections.Async
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<List<T>> ToListAsync<T>(
             this IAsyncEnumerator<T> source,
-            CancellationToken cancellationToken = default(CancellationToken),
+            CancellationToken cancellationToken = default,
             bool disposeSource = true)
         {
             try
@@ -569,7 +569,7 @@ namespace System.Collections.Async
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<T[]> ToArrayAsync<T>(
             this IAsyncEnumerator<T> source,
-            CancellationToken cancellationToken = default(CancellationToken),
+            CancellationToken cancellationToken = default,
             bool disposeSource = true)
         {
             try
@@ -847,7 +847,7 @@ namespace System.Collections.Async
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when enumeration is complete</param>
         public static IAsyncEnumerator<TSource> DefaultIfEmpty<TSource>(this IAsyncEnumerator<TSource> source, bool disposeSource = true)
         {
-            return DefaultIfEmpty(source, default(TSource), disposeSource);
+            return DefaultIfEmpty(source, default, disposeSource);
         }
 
         /// <summary>
@@ -1106,7 +1106,7 @@ namespace System.Collections.Async
                         if (itemsInBatch > 0 && batchWeight + itemWeight > context.MaxBatchWeight)
                         {
                             await yield.ReturnAsync(batch).ConfigureAwait(false);
-                            batch = default(TBatch);
+                            batch = default;
                             itemsInBatch = 0;
                             batchWeight = 0;
                         }
@@ -1121,7 +1121,7 @@ namespace System.Collections.Async
                         if (itemsInBatch >= context.MaxItemsInBatch || batchWeight >= context.MaxBatchWeight)
                         {
                             await yield.ReturnAsync(batch).ConfigureAwait(false);
-                            batch = default(TBatch);
+                            batch = default;
                             itemsInBatch = 0;
                             batchWeight = 0;
                         }

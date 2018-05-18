@@ -63,8 +63,7 @@ namespace System.Collections.Generic
             if (enumerable == null)
                 throw new ArgumentNullException(nameof(enumerable));
 
-            var asyncEnumerable = enumerable as IAsyncEnumerable<T>;
-            if (asyncEnumerable != null)
+            if (enumerable is IAsyncEnumerable<T> asyncEnumerable)
                 return asyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             var enumerator = enumerable.GetEnumerator();
@@ -107,8 +106,7 @@ namespace System.Collections.Async
         {
             if (asyncEnumerable == null)
                 throw new ArgumentNullException(nameof(asyncEnumerable));
-            var enumerable = asyncEnumerable as IEnumerable;
-            if (enumerable != null)
+            if (asyncEnumerable is IEnumerable enumerable)
                 return enumerable;
             return new EnumerableAdapter(asyncEnumerable);
         }
@@ -124,8 +122,7 @@ namespace System.Collections.Async
         {
             if (asyncEnumerable == null)
                 throw new ArgumentNullException(nameof(asyncEnumerable));
-            var enumerable = asyncEnumerable as IEnumerable<T>;
-            if (enumerable != null)
+            if (asyncEnumerable is IEnumerable<T> enumerable)
                 return enumerable;
             return new EnumerableAdapter<T>(asyncEnumerable);
         }
@@ -141,8 +138,7 @@ namespace System.Collections.Async
         {
             if (asyncEnumerator == null)
                 throw new ArgumentNullException(nameof(asyncEnumerator));
-            var enumerator = asyncEnumerator as IEnumerator;
-            if (enumerator != null)
+            if (asyncEnumerator is IEnumerator enumerator)
                 return enumerator;
             return new EnumeratorAdapter(asyncEnumerator);
         }
@@ -158,8 +154,7 @@ namespace System.Collections.Async
         {
             if (asyncEnumerator == null)
                 throw new ArgumentNullException(nameof(asyncEnumerator));
-            var enumerator = asyncEnumerator as IEnumerator<T>;
-            if (enumerator != null)
+            if (asyncEnumerator is IEnumerator<T> enumerator)
                 return enumerator;
             return new EnumeratorAdapter<T>(asyncEnumerator);
         }

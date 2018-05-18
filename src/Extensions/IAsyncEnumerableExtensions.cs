@@ -21,10 +21,8 @@ namespace System.Collections.Async
         /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
         public static Task<TSource> SingleAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            CancellationToken token = default(CancellationToken))
-        {
-            return SingleAsync(source, PredicateCache<TSource>.True, null, null, token);
-        }
+            CancellationToken token = default)
+            => SingleAsync(source, PredicateCache<TSource>.True, null, null, token);
 
         /// <summary>
         /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence.
@@ -38,10 +36,8 @@ namespace System.Collections.Async
             this IAsyncEnumerable<TSource> source,
             string noneExceptionMessage,
             string manyExceptionMessage,
-            CancellationToken token = default(CancellationToken))
-        {
-            return SingleAsync(source, PredicateCache<TSource>.True, noneExceptionMessage, manyExceptionMessage, token);
-        }
+            CancellationToken token = default)
+            => SingleAsync(source, PredicateCache<TSource>.True, noneExceptionMessage, manyExceptionMessage, token);
 
         /// <summary>
         /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence that matches the criteria.
@@ -53,10 +49,8 @@ namespace System.Collections.Async
         public static Task<TSource> SingleAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default(CancellationToken))
-        {
-            return SingleAsync(source, predicate, null, null, token);
-        }
+            CancellationToken token = default)
+            => SingleAsync(source, predicate, null, null, token);
 
         /// <summary>
         /// Returns the only element of a sequence, and throws an exception if there is not exactly one element in the sequence that matches the criteria.
@@ -72,7 +66,7 @@ namespace System.Collections.Async
             Func<TSource, bool> predicate,
             string noneExceptionMessage,
             string manyExceptionMessage,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -111,10 +105,8 @@ namespace System.Collections.Async
         /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            CancellationToken token = default(CancellationToken))
-        {
-            return SingleOrDefaultAsync(source, PredicateCache<TSource>.True, token);
-        }
+            CancellationToken token = default)
+            => SingleOrDefaultAsync(source, PredicateCache<TSource>.True, token);
 
         /// <summary>
         /// Returns the only element of a sequence, and returns a default value if there is not exactly one element in the sequence that matches the criteria.
@@ -126,7 +118,7 @@ namespace System.Collections.Async
         public static async Task<TSource> SingleOrDefaultAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -155,7 +147,7 @@ namespace System.Collections.Async
             }
 
             if (!matchFound)
-                return default(TSource);
+                return default;
 
             return lastMatch;
         }
@@ -178,10 +170,8 @@ namespace System.Collections.Async
         /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            CancellationToken token = default(CancellationToken))
-        {
-            return FirstAsync(source, PredicateCache<TSource>.True, null, token);
-        }
+            CancellationToken token = default)
+            => FirstAsync(source, PredicateCache<TSource>.True, null, token);
 
         /// <summary>
         /// Returns the first element in the <see cref="IAsyncEnumerable{T}"/>.
@@ -193,10 +183,8 @@ namespace System.Collections.Async
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             string exceptionMessage,
-            CancellationToken token = default(CancellationToken))
-        {
-            return FirstAsync(source, PredicateCache<TSource>.True, exceptionMessage, token);
-        }
+            CancellationToken token = default)
+            => FirstAsync(source, PredicateCache<TSource>.True, exceptionMessage, token);
 
         /// <summary>
         /// Returns the first element in a sequence that satisfies a specified condition.
@@ -208,10 +196,8 @@ namespace System.Collections.Async
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default(CancellationToken))
-        {
-            return FirstAsync(source, predicate, null, token);
-        }
+            CancellationToken token = default)
+            => FirstAsync(source, predicate, null, token);
 
         /// <summary>
         /// Returns the first element in a sequence that satisfies a specified condition.
@@ -225,7 +211,7 @@ namespace System.Collections.Async
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
             string exceptionMessage,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -248,10 +234,8 @@ namespace System.Collections.Async
         /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
-            CancellationToken token = default(CancellationToken))
-        {
-            return FirstOrDefaultAsync(source, PredicateCache<TSource>.True, token);
-        }
+            CancellationToken token = default)
+            => FirstOrDefaultAsync(source, PredicateCache<TSource>.True, token);
 
         /// <summary>
         /// Returns the first element in a sequence that satisfies a specified condition, or a default value if no element is found.
@@ -263,7 +247,7 @@ namespace System.Collections.Async
         public static async Task<TSource> FirstOrDefaultAsync<TSource>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default(CancellationToken))
+            CancellationToken token = default)
         {
             if (null == source)
                 throw new ArgumentNullException(nameof(source));
@@ -275,7 +259,7 @@ namespace System.Collections.Async
                     if (predicate(enumerator.Current))
                         return enumerator.Current;
 
-            return default(TSource);
+            return default;
         }
 
         #endregion
@@ -632,7 +616,7 @@ namespace System.Collections.Async
         /// <typeparam name="T">The type of the elements of source</typeparam>
         /// <param name="source">The collection of elements</param>
         /// <param name="cancellationToken">A cancellation token to cancel the async operation</param>
-        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
         {
             var resultList = new List<T>();
             using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
@@ -655,7 +639,7 @@ namespace System.Collections.Async
         /// <typeparam name="T">The type of the elements of source</typeparam>
         /// <param name="source">The collection of elements</param>
         /// <param name="cancellationToken">A cancellation token to cancel the async operation</param>
-        public static async Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
         {
             var resultList = new List<T>();
             using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
@@ -1074,9 +1058,7 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
         /// <param name="source">The sequence to return the specified value for if it is empty.</param>
         public static IAsyncEnumerable<TSource> DefaultIfEmpty<TSource>(this IAsyncEnumerable<TSource> source)
-        {
-            return DefaultIfEmpty(source, default(TSource));
-        }
+            => DefaultIfEmpty(source, default);
 
         /// <summary>
         /// Returns the elements of the specified sequence or the specified value in a singleton collection if the sequence is empty.
@@ -1132,9 +1114,7 @@ namespace System.Collections.Async
         public static IAsyncEnumerable<List<TSource>> Batch<TSource>(
             this IAsyncEnumerable<TSource> source,
             int batchSize)
-        {
-            return Batch<TSource, List<TSource>>(source, batchSize);
-        }
+            => Batch<TSource, List<TSource>>(source, batchSize);
 
         /// <summary>
         /// Splits the input collection into series of batches.
@@ -1151,11 +1131,9 @@ namespace System.Collections.Async
         public static IAsyncEnumerable<TStandardCollection> Batch<TSource, TStandardCollection>(
             this IAsyncEnumerable<TSource> source,
             int batchSize)
-        {
-            return Batch(source, batchSize, long.MaxValue, null,
+            => Batch(source, batchSize, long.MaxValue, null,
                 BatchCollectionHelper<TSource>.GetCreateCollectionFunction<TStandardCollection>(),
                 BatchCollectionHelper<TSource>.GetAddToCollectionAction<TStandardCollection>());
-        }
 
         /// <summary>
         /// Splits the input collection into series of batches.
@@ -1168,9 +1146,7 @@ namespace System.Collections.Async
             this IAsyncEnumerable<TSource> source,
             long maxBatchWeight,
             Func<TSource, long> weightSelector)
-        {
-            return Batch<TSource, List<TSource>>(source, maxBatchWeight, weightSelector);
-        }
+            => Batch<TSource, List<TSource>>(source, maxBatchWeight, weightSelector);
 
         /// <summary>
         /// Splits the input collection into series of batches.
@@ -1189,11 +1165,9 @@ namespace System.Collections.Async
             this IAsyncEnumerable<TSource> source,
             long maxBatchWeight,
             Func<TSource, long> weightSelector)
-        {
-            return Batch(source, null, maxBatchWeight, weightSelector,
+            => Batch(source, null, maxBatchWeight, weightSelector,
                 BatchCollectionHelper<TSource>.GetCreateCollectionFunction<TStandardCollection>(),
                 BatchCollectionHelper<TSource>.GetAddToCollectionAction<TStandardCollection>());
-        }
 
         /// <summary>
         /// Splits the input collection into series of batches.
@@ -1208,9 +1182,7 @@ namespace System.Collections.Async
             int maxItemsInBatch,
             long maxBatchWeight,
             Func<TSource, long> weightSelector)
-        {
-            return Batch<TSource, List<TSource>>(source, maxItemsInBatch, maxBatchWeight, weightSelector);
-        }
+            => Batch<TSource, List<TSource>>(source, maxItemsInBatch, maxBatchWeight, weightSelector);
 
         /// <summary>
         /// Splits the input collection into series of batches.
@@ -1231,11 +1203,9 @@ namespace System.Collections.Async
             int maxItemsInBatch,
             long maxBatchWeight,
             Func<TSource, long> weightSelector)
-        {
-            return Batch(source, maxItemsInBatch, maxBatchWeight, weightSelector,
+            => Batch(source, maxItemsInBatch, maxBatchWeight, weightSelector,
                 BatchCollectionHelper<TSource>.GetCreateCollectionFunction<TStandardCollection>(),
                 BatchCollectionHelper<TSource>.GetAddToCollectionAction<TStandardCollection>());
-        }
 
         /// <summary>
         /// Splits the input collection into series of batches.
@@ -1431,7 +1401,7 @@ namespace System.Collections.Async
                         if (itemsInBatch > 0 && batchWeight + itemWeight > context.MaxBatchWeight)
                         {
                             await yield.ReturnAsync(batch).ConfigureAwait(false);
-                            batch = default(TBatch);
+                            batch = default;
                             itemsInBatch = 0;
                             batchWeight = 0;
                         }
@@ -1446,7 +1416,7 @@ namespace System.Collections.Async
                         if (itemsInBatch >= context.MaxItemsInBatch || batchWeight >= context.MaxBatchWeight)
                         {
                             await yield.ReturnAsync(batch).ConfigureAwait(false);
-                            batch = default(TBatch);
+                            batch = default;
                             itemsInBatch = 0;
                             batchWeight = 0;
                         }

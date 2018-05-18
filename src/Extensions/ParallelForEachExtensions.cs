@@ -16,9 +16,9 @@ namespace System.Collections.Async
             private TaskCompletionSource<object> _completionTcs;
             private List<Exception> _exceptionList;
             private SpinLock _exceptionListLock;
-            private int _maxDegreeOfParalellism;
-            private bool _breakLoopOnException;
-            private bool _gracefulBreak;
+            private readonly int _maxDegreeOfParalellism;
+            private readonly bool _breakLoopOnException;
+            private readonly bool _gracefulBreak;
             private CancellationToken _cancellationToken;
             private CancellationTokenRegistration _cancellationTokenRegistration;
 
@@ -174,7 +174,7 @@ namespace System.Collections.Async
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
             bool gracefulBreak,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             if (collection == null)
                 throw new ArgumentNullException(nameof(collection));
@@ -229,8 +229,7 @@ namespace System.Collections.Async
                                             {
                                                 ex = task.Exception;
 
-                                                var aggEx = ex as AggregateException;
-                                                if (aggEx != null && aggEx.InnerExceptions.Count == 1)
+                                                if (ex is AggregateException aggEx && aggEx.InnerExceptions.Count == 1)
                                                     ex = aggEx.InnerException;
 
                                                 ex.Data["ForEach.Index"] = capturedItemIndex;
@@ -276,7 +275,7 @@ namespace System.Collections.Async
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
             bool gracefulBreak,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             if (enumerator == null)
                 throw new ArgumentNullException(nameof(enumerator));
@@ -329,8 +328,7 @@ namespace System.Collections.Async
                                         {
                                             ex = task.Exception;
 
-                                            var aggEx = ex as AggregateException;
-                                            if (aggEx != null && aggEx.InnerExceptions.Count == 1)
+                                            if (ex is AggregateException aggEx && aggEx.InnerExceptions.Count == 1)
                                                 ex = aggEx.InnerException;
 
                                             ex.Data["ForEach.Index"] = capturedItemIndex;
@@ -374,7 +372,7 @@ namespace System.Collections.Async
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ParallelForEachAsync(
                 asyncItemAction,
                 maxDegreeOfParalellism,
@@ -398,7 +396,7 @@ namespace System.Collections.Async
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ParallelForEachAsync(
                 asyncItemAction,
                 maxDegreeOfParalellism,
@@ -420,7 +418,7 @@ namespace System.Collections.Async
             this IAsyncEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ParallelForEachAsync(
                 asyncItemAction,
                 maxDegreeOfParalellism,
@@ -442,7 +440,7 @@ namespace System.Collections.Async
             this IAsyncEnumerator<T> enumerator,
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ParallelForEachAsync(
                 asyncItemAction,
                 maxDegreeOfParalellism,
@@ -462,7 +460,7 @@ namespace System.Collections.Async
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ParallelForEachAsync(
                 asyncItemAction,
                 /*maxDegreeOfParalellism:*/0,
@@ -482,7 +480,7 @@ namespace System.Collections.Async
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerator<T> enumerator,
             Func<T, long, Task> asyncItemAction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ParallelForEachAsync(
                 asyncItemAction,
                 /*maxDegreeOfParalellism:*/0,
@@ -506,7 +504,7 @@ namespace System.Collections.Async
             Func<T, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -530,7 +528,7 @@ namespace System.Collections.Async
             Func<T, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -556,7 +554,7 @@ namespace System.Collections.Async
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
             bool gracefulBreak,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -582,7 +580,7 @@ namespace System.Collections.Async
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
             bool gracefulBreak,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -604,7 +602,7 @@ namespace System.Collections.Async
             this IAsyncEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
             int maxDegreeOfParalellism,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -626,7 +624,7 @@ namespace System.Collections.Async
             this IAsyncEnumerator<T> enumerator,
             Func<T, Task> asyncItemAction,
             int maxDegreeOfParalellism,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -646,7 +644,7 @@ namespace System.Collections.Async
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 /*maxDegreeOfParalellism:*/0,
@@ -666,7 +664,7 @@ namespace System.Collections.Async
         public static Task ParallelForEachAsync<T>(
             this IAsyncEnumerator<T> enumerator,
             Func<T, Task> asyncItemAction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 /*maxDegreeOfParalellism:*/0,
@@ -690,7 +688,7 @@ namespace System.Collections.Async
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ToAsyncEnumerable<T>(runSynchronously: true).ParallelForEachAsync(
                 asyncItemAction,
                 maxDegreeOfParalellism,
@@ -714,7 +712,7 @@ namespace System.Collections.Async
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ToAsyncEnumerator(runSynchronously: true).ParallelForEachAsync(
                 asyncItemAction,
                 maxDegreeOfParalellism,
@@ -736,7 +734,7 @@ namespace System.Collections.Async
             this IEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ToAsyncEnumerable<T>(runSynchronously: true).ParallelForEachAsync(
                 asyncItemAction,
                 maxDegreeOfParalellism,
@@ -758,7 +756,7 @@ namespace System.Collections.Async
             this IEnumerator<T> enumerator,
             Func<T, long, Task> asyncItemAction,
             int maxDegreeOfParalellism,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ToAsyncEnumerator(runSynchronously: true).ParallelForEachAsync(
                 asyncItemAction,
                 maxDegreeOfParalellism,
@@ -778,7 +776,7 @@ namespace System.Collections.Async
         public static Task ParallelForEachAsync<T>(
             this IEnumerable<T> collection,
             Func<T, long, Task> asyncItemAction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ToAsyncEnumerable<T>(runSynchronously: true).ParallelForEachAsync(
                 asyncItemAction,
                 /*maxDegreeOfParalellism:*/0,
@@ -798,7 +796,7 @@ namespace System.Collections.Async
         public static Task ParallelForEachAsync<T>(
             this IEnumerator<T> enumerator,
             Func<T, long, Task> asyncItemAction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ToAsyncEnumerator(runSynchronously: true).ParallelForEachAsync(
                 asyncItemAction,
                 /*maxDegreeOfParalellism:*/0,
@@ -822,7 +820,7 @@ namespace System.Collections.Async
             Func<T, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ToAsyncEnumerable<T>(runSynchronously: true).ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -846,7 +844,7 @@ namespace System.Collections.Async
             Func<T, Task> asyncItemAction,
             int maxDegreeOfParalellism,
             bool breakLoopOnException,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ToAsyncEnumerator(runSynchronously: true).ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -868,7 +866,7 @@ namespace System.Collections.Async
             this IEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
             int maxDegreeOfParalellism,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ToAsyncEnumerable<T>(runSynchronously: true).ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -890,7 +888,7 @@ namespace System.Collections.Async
             this IEnumerator<T> enumerator,
             Func<T, Task> asyncItemAction,
             int maxDegreeOfParalellism,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ToAsyncEnumerator(runSynchronously: true).ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 maxDegreeOfParalellism,
@@ -910,7 +908,7 @@ namespace System.Collections.Async
         public static Task ParallelForEachAsync<T>(
             this IEnumerable<T> collection,
             Func<T, Task> asyncItemAction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => collection.ToAsyncEnumerable<T>(runSynchronously: true).ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 /*maxDegreeOfParalellism:*/0,
@@ -930,7 +928,7 @@ namespace System.Collections.Async
         public static Task ParallelForEachAsync<T>(
             this IEnumerator<T> enumerator,
             Func<T, Task> asyncItemAction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => enumerator.ToAsyncEnumerator(runSynchronously: true).ParallelForEachAsync(
                 (item, index) => asyncItemAction(item),
                 /*maxDegreeOfParalellism:*/0,
