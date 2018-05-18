@@ -4,7 +4,7 @@
         <id>AsyncEnumerator</id>
         <version>2.2.0</version>
         <authors>Serge Semenov</authors>
-        <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+        <licenseUrl>https://raw.githubusercontent.com/tyrotoxin/AsyncEnumerable/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()
