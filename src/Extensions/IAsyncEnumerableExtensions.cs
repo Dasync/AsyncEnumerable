@@ -878,6 +878,40 @@ namespace System.Collections.Async
 
         #endregion
 
+        #region OfType
+
+        /// <summary>
+        /// Filters the elements of an <see cref="IAsyncEnumerable"/> based on a specified type.
+        /// </summary>
+        /// <typeparam name="TResult">The type to filter the elements of the sequence on.</typeparam>
+        /// <param name="source">The <see cref="IAsyncEnumerable"/> whose elements to filter.</param>
+        public static IAsyncEnumerable<TResult> OfType<TResult>(this IAsyncEnumerable source)
+        {
+            if (null == source)
+                throw new ArgumentNullException(nameof(source));
+
+            return new AsyncEnumerableWithState<TResult, OfTypeContext<TResult>>(
+                OfTypeContext<TResult>.Enumerate,
+                new OfTypeContext<TResult> { Source = source });
+        }
+
+        private struct OfTypeContext<TResult>
+        {
+            public IAsyncEnumerable Source;
+
+            private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, OfTypeContext<TResult> context)
+            {
+                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
+                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+                        if (enumerator.Current is TResult item)
+                            await yield.ReturnAsync(item).ConfigureAwait(false);
+            }
+
+            public static readonly Func<AsyncEnumerator<TResult>.Yield, OfTypeContext<TResult>, Task> Enumerate = _enumerate;
+        }
+
+        #endregion
+
         #region DefaultIfEmpty
 
         /// <summary>

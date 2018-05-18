@@ -305,5 +305,32 @@ namespace Tests
             var expectedResult = new int[] { 0, 1, 2 };
             Assert.AreEqual(expectedResult, actualResult);
         }
+
+        [Test]
+        public async Task OfType()
+        {
+            var collection = new object[] { "a", 1, "b", Guid.NewGuid() };
+            var asyncCollection = collection.ToAsyncEnumerable();
+
+            var filteredStringCollection = asyncCollection.OfType<string>();
+            var actualStringResult = await filteredStringCollection.ToArrayAsync();
+            var expectedStringResult = new [] { "a", "b" };
+            Assert.AreEqual(expectedStringResult, actualStringResult);
+
+            var filteredIntegerCollection = asyncCollection.OfType<int>();
+            var actualIntegerResult = await filteredIntegerCollection.ToArrayAsync();
+            var expectedIntegerResult = new[] { 1 };
+            Assert.AreEqual(expectedIntegerResult, actualIntegerResult);
+
+            var filteredUriCollection = asyncCollection.OfType<Uri>();
+            var actualUriResult = await filteredUriCollection.ToArrayAsync();
+            var expectedUriResult = new Uri[0];
+            Assert.AreEqual(expectedUriResult, actualUriResult);
+
+            var filteredObjectCollection = asyncCollection.OfType<object>();
+            var actualObjectResult = await filteredObjectCollection.ToArrayAsync();
+            var expectedObjectResult = collection;
+            Assert.AreEqual(expectedObjectResult, actualObjectResult);
+        }
     }
 }
