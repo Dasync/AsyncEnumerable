@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>2.1.1</version>
+        <version>2.2.0</version>
         <authors>Serge Semenov</authors>
         <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
@@ -71,6 +71,7 @@ static void ConsumeNumbers()
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
         <releaseNotes>
+2.2.0: New extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
 2.1.0: New extension methods: Batch, UnionAll, Single, SingleOrDefault, DefaultIfEmpty, Cast.
 2.0.0: Revise design of the library: same features, but slight paradigm shift and interface breaking changes.
 1.5.0: Add support for .NET Standard, minor improvements.

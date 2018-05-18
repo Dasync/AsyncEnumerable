@@ -321,6 +321,8 @@ better with memory usage, and helps with throttling-sensitive scenarios.
 
 ## RELEASE NOTES
 
+2.2.0: New LINQ-style extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
+
 2.1.1: Bug-fix: AsyncEnumerator.OnEnumerationComplete might throw a NullReferneceException when enumeration is canceled.
        Bug-fix: Batch extension method does not work at all - always throws InvalidOperationException.
 
