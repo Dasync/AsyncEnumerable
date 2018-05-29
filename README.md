@@ -1,3 +1,5 @@
+![Unofficial C# Async Streams](banner.png)
+
 ## SUMMARY
 
 Introduces `IAsyncEnumerable`, `IAsyncEnumerator`, `ForEachAsync()`, and `ParallelForEachAsync()`
