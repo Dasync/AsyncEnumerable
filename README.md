@@ -103,6 +103,12 @@ the thread (the processing is scheduled on a worker thread instead).
 ```
 
 
+## [EXAMPLE 4 (Azure Cloud Table streaming)](https://gist.github.com/tyrotoxin/9f5ffb69cbcd9042f6f989104e4da0f6)
+
+
+## [EXAMPLE 5 (Azure Cloud Queue streaming)](https://gist.github.com/tyrotoxin/c1f85a900bba9e5a4f2d570f67be2e37)
+
+
 ## WILL THIS MAKE MY APP FASTER?
 
 No and Yes. Just making everything `async` makes your app tiny little bit slower because it
