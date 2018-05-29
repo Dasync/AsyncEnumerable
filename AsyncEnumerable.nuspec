@@ -7,8 +7,8 @@
         <licenseUrl>https://raw.githubusercontent.com/Dasync/AsyncEnumerable/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/Dasync/AsyncEnumerable</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <tags>async for-each parallel async-streams enumerator linq charp .net</tags>
-        <title>C# Async Streams</title>
+        <iconUrl>https://raw.githubusercontent.com/Dasync/AsyncEnumerable/master/icon.png</iconUrl>
+        <title>C# Async Streams features</title>
         <description>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()
 GitHub: https://github.com/Dasync/AsyncEnumerable
 
@@ -84,7 +84,7 @@ static void ConsumeNumbers()
 1.2.1: New Linq-style extension methods in System.Collections.Async namespace.
 1.1.0: Add ParallelForEachAsync extension methods for IEnumerable&lt;T&gt; and IAsyncEnumerable&lt;T&gt; in System.Collections.Async namespace.
         </releaseNotes>
-        <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync ParallelForEachAsync async await foreach parallel</tags>
+        <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync ParallelForEachAsync async await foreach parallel async-streams linq charp .net</tags>
     </metadata>
     <files>
         <file src="NetFramework.4.5\lib\bin\Release\AsyncEnumerable.dll" target="lib\net45\AsyncEnumerable.dll" />
