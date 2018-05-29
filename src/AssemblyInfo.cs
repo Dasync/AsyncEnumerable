@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("AsyncEnumerable")]
 [assembly: AssemblyDescription("Asynchronous enumeration with IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Serge Semenov")]
+[assembly: AssemblyCompany("D-ASYNC LLC")]
 [assembly: AssemblyCopyright("Copyright © 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

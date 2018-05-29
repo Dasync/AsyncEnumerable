@@ -3,12 +3,14 @@
     <metadata>
         <id>AsyncEnumerator</id>
         <version>2.2.0</version>
-        <authors>Serge Semenov</authors>
-        <licenseUrl>https://raw.githubusercontent.com/tyrotoxin/AsyncEnumerable/master/LICENSE</licenseUrl>
-        <projectUrl>https://github.com/tyrotoxin/AsyncEnumerable</projectUrl>
+        <authors>sergiis,Dasync</authors>
+        <licenseUrl>https://raw.githubusercontent.com/Dasync/AsyncEnumerable/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/Dasync/AsyncEnumerable</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <tags>async for-each parallel async-streams enumerator linq charp .net</tags>
+        <title>C# Async Streams</title>
         <description>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()
-GitHub: https://github.com/tyrotoxin/AsyncEnumerable
+GitHub: https://github.com/Dasync/AsyncEnumerable
 
 PROBLEM SPACE
 

@@ -116,11 +116,11 @@ or a database client implementation where result of a query is a set or rows.
 
 ## REFERENCES
 
-GitHub: https://github.com/tyrotoxin/AsyncEnumerable
+GitHub: https://github.com/Dasync/AsyncEnumerable
 
 NuGet.org: https://www.nuget.org/packages/AsyncEnumerator/
 
-License: https://opensource.org/licenses/MIT
+License: https://github.com/Dasync/AsyncEnumerable/blob/master/LICENSE
 
 
 ## IMPLEMENTATION DETAILS
