@@ -2,7 +2,7 @@
 
 ## SUMMARY
 
-Introduces `IAsyncEnumerable`, `IAsyncEnumerator`, `ForEachAsync()`, and `ParallelForEachAsync()`
+Makes asynchronous enumeration as easy as the synchronous counterpart. Such feature is also known as 'Async Streams' in upcoming C# 8.0. The library introduces familiar and easy to use syntax, `IAsyncEnumerable`, `IAsyncEnumerator`, `ForEachAsync()`, `ParallelForEachAsync()`, and other useful extension methods.
 
 
 ## PROBLEM SPACE
@@ -11,6 +11,7 @@ Helps to (a) create an element provider, where producing an element can take a l
 due to dependency on other asynchronous events (e.g. wait handles, network streams), and
 (b) a consumer that processes those element as soon as they are ready without blocking
 the thread (the processing is scheduled on a worker thread instead).
+[Bassam Alugili made a great explanation on Async Streams in an InfoQ article](https://www.infoq.com/articles/Async-Streams).
 
 
 ## EXAMPLE 1 (demonstrates usage only)
