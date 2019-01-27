@@ -227,7 +227,7 @@ namespace System.Collections.Async
             /// <exception cref="AsyncEnumerationCanceledException">Always throws this exception to stop the enumeration task</exception>
             public void Break()
             {
-                SetCanceled();
+                SetComplete();
                 throw new AsyncEnumerationCanceledException();
             }
 

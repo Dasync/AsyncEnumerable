@@ -184,5 +184,38 @@ namespace Tests
             Assert.IsFalse(moveNextResult, "MoveNextAsync must return False after Dispose");
             Assert.AreEqual(1, currentElement, "Current must not change after Dispose");
         }
+
+        [Test]
+        public async Task YieldBreak()
+        {
+            // ARRANGE
+
+            var asyncEnumerationCanceledExceptionRaised = false;
+
+            var enumerator = new AsyncEnumerator<int>(async yield =>
+            {
+                try
+                {
+                    yield.Break();
+                }
+                catch (AsyncEnumerationCanceledException)
+                {
+                    asyncEnumerationCanceledExceptionRaised = true;
+                }
+
+                await yield.ReturnAsync(1);
+            });
+
+            // ACT
+
+            var result = await enumerator.MoveNextAsync();
+
+            await Task.Yield();
+
+            // ASSERT
+
+            Assert.IsFalse(result, "MoveNextAsync must return False due to Yield.Break");
+            Assert.IsTrue(asyncEnumerationCanceledExceptionRaised, "Yield.Break must throw AsyncEnumerationCanceledException so the enumerator body can perform finalization");
+        }
     }
 }
