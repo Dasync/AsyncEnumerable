@@ -324,6 +324,8 @@ The `ForEachAsync` allows you to go through a collection and perform an action o
 
 ## RELEASE NOTES
 
+2.2.2: Bug-fix: IAsyncEnumerator.MoveNext must return FAlse on Yield.Break instead of throwing OperationCanceledException.
+
 2.2.0: New LINQ-style extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
 
 2.1.1: Bug-fix: AsyncEnumerator.OnEnumerationComplete might throw a NullReferneceException when enumeration is canceled.
