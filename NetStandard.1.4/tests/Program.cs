@@ -43,6 +43,11 @@ namespace Tests
             {
                 _output.WriteLine(output.Text);
             }
+
+            public void SendMessage(TestMessage message)
+            {
+                _output.WriteLine(message.Message);
+            }
         }
     }
 }
