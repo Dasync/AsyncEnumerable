@@ -94,7 +94,7 @@ Helps to (a) create an element provider, where producing an element can take a l
                 var str = await httpClient.GetStringAsync(uri, cancellationToken);
                 result.Add(str);
             },
-            maxDegreeOfParalellism: 5,
+            maxDegreeOfParallelism: 5,
             cancellationToken: cancellationToken);
         
         return result;
@@ -319,7 +319,7 @@ You can use extension methods like `IAsyncEnumerable.ToEnumerable()` to use buil
 
 __9: What's the difference between ForEachAsync and ParallelForEachAsync?__
 
-The `ForEachAsync` allows you to go through a collection and perform an action on every single item in sequential manner. On the other hand, `ParallelForEachAsync` allows you to run the action on multiple items at the same time where the sequential order of completion is not guaranteed. For the latter, the degree of the parallelism is controlled by the `maxDegreeOfParalellism` argument, however it does not guarantee to spin up the exact amount of threads, because it depends on the [thread pool size](https://msdn.microsoft.com/en-us/library/system.threading.threadpool.setmaxthreads(v=vs.110).aspx) and its occupancy at a moment of time. Such parallel approach is much better than trying to create a task for an action for every single item on the collection and then awaiting on all of them with `Task.WhenAll`, because it adds less overhead to the runtime, better with memory usage, and helps with throttling-sensitive scenarios.
+The `ForEachAsync` allows you to go through a collection and perform an action on every single item in sequential manner. On the other hand, `ParallelForEachAsync` allows you to run the action on multiple items at the same time where the sequential order of completion is not guaranteed. For the latter, the degree of the parallelism is controlled by the `maxDegreeOfParallelism` argument, however it does not guarantee to spin up the exact amount of threads, because it depends on the [thread pool size](https://msdn.microsoft.com/en-us/library/system.threading.threadpool.setmaxthreads(v=vs.110).aspx) and its occupancy at a moment of time. Such parallel approach is much better than trying to create a task for an action for every single item on the collection and then awaiting on all of them with `Task.WhenAll`, because it adds less overhead to the runtime, better with memory usage, and helps with throttling-sensitive scenarios.
 
 
 ## RELEASE NOTES
