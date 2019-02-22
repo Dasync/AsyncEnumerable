@@ -64,7 +64,11 @@ namespace System.Collections.Generic
                 throw new ArgumentNullException(nameof(enumerable));
 
             if (enumerable is IAsyncEnumerable<T> asyncEnumerable)
+#if NETCOREAPP3_0
+                return asyncEnumerable.GetAsyncEnumerator();
+#else
                 return asyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken.None).GetAwaiter().GetResult();
+#endif
 
             var enumerator = enumerable.GetEnumerator();
             return new AsyncEnumeratorWrapper<T>(enumerator, runSynchronously);
@@ -170,7 +174,11 @@ namespace System.Collections.Async
         {
             if (asyncEnumerable == null)
                 throw new ArgumentNullException(nameof(asyncEnumerable));
+#if NETCOREAPP3_0
+            return asyncEnumerable.GetAsyncEnumerator().ToEnumerator();
+#else
             return asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult().ToEnumerator();
+#endif
         }
 
         /// <summary>
@@ -184,7 +192,11 @@ namespace System.Collections.Async
         {
             if (asyncEnumerable == null)
                 throw new ArgumentNullException(nameof(asyncEnumerable));
+#if NETCOREAPP3_0
+            return asyncEnumerable.GetAsyncEnumerator().ToEnumerator();
+#else
             return asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult().ToEnumerator();
+#endif
         }
 
         /// <summary>

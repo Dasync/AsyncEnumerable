@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>2.2.2</version>
+        <version>3.0.0-beta1</version>
         <authors>sergiis,Dasync</authors>
         <licenseUrl>https://raw.githubusercontent.com/Dasync/AsyncEnumerable/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/Dasync/AsyncEnumerable</projectUrl>
@@ -73,6 +73,7 @@ static void ConsumeNumbers()
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
         <releaseNotes>
+3.0.0-beta1: Add support for NET Core App 3.0.
 2.2.0: New extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
 2.1.0: New extension methods: Batch, UnionAll, Single, SingleOrDefault, DefaultIfEmpty, Cast.
 2.0.0: Revise design of the library: same features, but slight paradigm shift and interface breaking changes.
@@ -91,5 +92,7 @@ static void ConsumeNumbers()
         <file src="NetFramework.4.5\lib\bin\Release\AsyncEnumerable.xml" target="lib\net45\AsyncEnumerable.xml" />
         <file src="NetStandard.1.4\lib\bin\Release\netstandard1.4\AsyncEnumerable.dll" target="lib\netstandard1.4\AsyncEnumerable.dll" />
         <file src="NetStandard.1.4\lib\bin\Release\netstandard1.4\AsyncEnumerable.xml" target="lib\netstandard1.4\AsyncEnumerable.xml" />
+        <file src="NetCoreApp.3.0\lib\bin\Release\netcoreapp3.0\AsyncEnumerable.dll" target="lib\netcoreapp3.0\AsyncEnumerable.dll" />
+        <file src="NetCoreApp.3.0\lib\bin\Release\netcoreapp3.0\AsyncEnumerable.xml" target="lib\netcoreapp3.0\AsyncEnumerable.xml" />
     </files>
 </package>

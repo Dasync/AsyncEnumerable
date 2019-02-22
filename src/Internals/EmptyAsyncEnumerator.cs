@@ -1,9 +1,10 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Collections.Async.Internals
 {
-    internal sealed class EmptyAsyncEnumerator<T> : IAsyncEnumerator<T>
+    internal sealed class EmptyAsyncEnumerator<T> : IAsyncEnumerator, IAsyncEnumerator<T>
     {
         public T Current
         {
@@ -15,7 +16,13 @@ namespace System.Collections.Async.Internals
 
         object IAsyncEnumerator.Current => Current;
 
+#if NETCOREAPP3_0
+        public ValueTask<bool> MoveNextAsync() => new ValueTask<bool>(false);
+
+        public ValueTask DisposeAsync() => new ValueTask();
+#else
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken) => TaskEx.False;
+#endif
 
         public void Dispose() { }
     }

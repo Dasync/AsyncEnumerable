@@ -1,4 +1,5 @@
 ﻿using System.Collections.Async.Internals;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,10 +16,17 @@ namespace System.Collections.Async
         /// </summary>
         public static IAsyncEnumerable<T> Empty<T>() => AsyncEnumerable<T>.Empty;
 
-        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
+#if NETCOREAPP3_0
+        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
+#else
+        async Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+#endif
     }
 
     /// <summary>
@@ -43,7 +51,7 @@ namespace System.Collections.Async
     /// }
     /// </code>
     /// </example>
-    public class AsyncEnumerable<T> : AsyncEnumerable, IAsyncEnumerable<T>
+    public class AsyncEnumerable<T> : AsyncEnumerable, IAsyncEnumerable, IAsyncEnumerable<T>
     {
         private readonly Func<AsyncEnumerator<T>.Yield, Task> _enumerationFunction;
 
@@ -61,6 +69,18 @@ namespace System.Collections.Async
             _enumerationFunction = enumerationFunction;
         }
 
+#if NETCOREAPP3_0
+        /// <summary>
+        /// Creates an enumerator that iterates through a collection asynchronously
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
+        /// <returns>Returns a task with the created enumerator as result on completion</returns>
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            => new AsyncEnumerator<T>(_enumerationFunction) { MasterCancellationToken = cancellationToken };
+
+        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
+            => new AsyncEnumerator<T>(_enumerationFunction) { MasterCancellationToken = cancellationToken };
+#else
         /// <summary>
         /// Creates an enumerator that iterates through a collection asynchronously
         /// </summary>
@@ -68,8 +88,15 @@ namespace System.Collections.Async
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
         public virtual Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default)
         {
-            var enumerator = new AsyncEnumerator<T>(_enumerationFunction);
-            return Task.FromResult<IAsyncEnumerator<T>>(enumerator);
+            try
+            {
+                var enumerator = new AsyncEnumerator<T>(_enumerationFunction);
+                return Task.FromResult<IAsyncEnumerator<T>>(enumerator);
+            }
+            catch (Exception ex)
+            {
+                return TaskEx.FromException<IAsyncEnumerator<T>>(ex);
+            }
         }
 
         /// <summary>
@@ -81,6 +108,7 @@ namespace System.Collections.Async
         {
             return await GetAsyncEnumeratorAsync(cancellationToken);
         }
+#endif
     }
 
     /// <summary>
@@ -89,7 +117,7 @@ namespace System.Collections.Async
     /// </summary>
     /// <typeparam name="TItem">Type of items returned by </typeparam>
     /// <typeparam name="TState">Type of the state object</typeparam>
-    public class AsyncEnumerableWithState<TItem, TState> : AsyncEnumerable, IAsyncEnumerable<TItem>
+    public class AsyncEnumerableWithState<TItem, TState> : AsyncEnumerable, IAsyncEnumerable, IAsyncEnumerable<TItem>
     {
         private readonly Func<AsyncEnumerator<TItem>.Yield, TState, Task> _enumerationFunction;
 
@@ -109,6 +137,23 @@ namespace System.Collections.Async
         /// </summary>
         protected TState State { get; }
 
+#if NETCOREAPP3_0
+        /// <summary>
+        /// Creates an enumerator that iterates through a collection asynchronously
+        /// </summary>
+        /// <returns>Returns a task with the created enumerator as result on completion</returns>
+        public virtual IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            => new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State)
+                { MasterCancellationToken = cancellationToken };
+
+        /// <summary>
+        /// Creates an enumerator that iterates through a collection asynchronously
+        /// </summary>
+        /// <returns>Returns a task with the created enumerator as result on completion</returns>
+        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
+            => new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State)
+                { MasterCancellationToken = cancellationToken };
+#else
         /// <summary>
         /// Creates an enumerator that iterates through a collection asynchronously
         /// </summary>
@@ -127,8 +172,16 @@ namespace System.Collections.Async
         /// <returns>Returns a task with the created enumerator as result on completion</returns>
         Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
         {
-            var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State);
-            return Task.FromResult<IAsyncEnumerator>(enumerator);
+            try
+            {
+                var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State);
+                return Task.FromResult<IAsyncEnumerator>(enumerator);
+            }
+            catch (Exception ex)
+            {
+                return TaskEx.FromException<IAsyncEnumerator>(ex);
+            }
         }
+#endif
     }
 }

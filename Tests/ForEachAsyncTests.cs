@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Async;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -13,7 +14,7 @@ namespace Tests
         [Test]
         public void SimpleSyncForEach()
         {
-            var enumerable = new AsyncEnumerable<int>(
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
                 async yield =>
                 {
                     for (int i = 0; i < 5; i++)
@@ -33,7 +34,7 @@ namespace Tests
         [Test]
         public async Task SimpleAsyncForEach()
         {
-            var enumerable = new AsyncEnumerable<int>(
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
                 async yield =>
                 {
                     for (int i = 0; i < 5; i++)
@@ -52,7 +53,7 @@ namespace Tests
         [Test]
         public async Task RethrowProducerException()
         {
-            var enumerable = new AsyncEnumerable<int>(
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
                 async yield =>
                 {
                     throw new ArgumentException("test");
@@ -77,7 +78,7 @@ namespace Tests
         [Test]
         public async Task RethrowConsumerException()
         {
-            var enumerable = new AsyncEnumerable<int>(
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
                 async yield =>
                 {
                     await yield.ReturnAsync(123);

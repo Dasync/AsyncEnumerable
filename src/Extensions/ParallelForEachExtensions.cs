@@ -188,11 +188,20 @@ namespace System.Collections.Async
                 {
                     try
                     {
+#if NETCOREAPP3_0
+                        var enumerator = collection.GetAsyncEnumerator(cancellationToken);
+                        try
+#else
                         using (var enumerator = await collection.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+#endif
                         {
                             var itemIndex = 0L;
 
+#if NETCOREAPP3_0
+                            while (await enumerator.MoveNextAsync())
+#else
                             while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+#endif
                             {
                                 if (context.IsLoopBreakRequested)
                                     break;
@@ -243,6 +252,12 @@ namespace System.Collections.Async
                                 itemIndex++;
                             }
                         }
+#if NETCOREAPP3_0
+                        finally
+                        {
+                            await enumerator.DisposeAsync();
+                        }
+#endif
                     }
                     catch (Exception ex)
                     {
@@ -291,7 +306,11 @@ namespace System.Collections.Async
                     {
                         var itemIndex = 0L;
 
+#if NETCOREAPP3_0
+                        while (await enumerator.MoveNextAsync())
+#else
                         while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+#endif
                         {
                             if (context.IsLoopBreakRequested)
                                 break;
@@ -348,7 +367,11 @@ namespace System.Collections.Async
                     }
                     finally
                     {
+#if NETCOREAPP3_0
+                        await enumerator.DisposeAsync();
+#else
                         enumerator.Dispose();
+#endif
                         context.OnOperationComplete();
                     }
                 });

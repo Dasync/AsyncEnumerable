@@ -37,6 +37,11 @@ namespace System.Collections.Async.Internals
 
         public void Reset() => throw new NotSupportedException("The IEnumerator.Reset() method is obsolete. Create a new enumerator instead.");
 
-        public void Dispose() => _asyncEnumerator.Dispose();
+        public void Dispose() =>
+#if NETCOREAPP3_0
+            _asyncEnumerator.DisposeAsync().GetAwaiter().GetResult();
+#else
+            _asyncEnumerator.Dispose();
+#endif
     }
 }

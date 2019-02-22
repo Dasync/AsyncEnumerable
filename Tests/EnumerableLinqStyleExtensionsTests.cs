@@ -310,7 +310,7 @@ namespace Tests
         public async Task OfType()
         {
             var collection = new object[] { "a", 1, "b", Guid.NewGuid() };
-            var asyncCollection = collection.ToAsyncEnumerable();
+            var asyncCollection = (IAsyncEnumerable)collection.ToAsyncEnumerable();
 
             var filteredStringCollection = asyncCollection.OfType<string>();
             var actualStringResult = await filteredStringCollection.ToArrayAsync();

@@ -11,7 +11,14 @@ namespace System.Collections.Async.Internals
             _asyncEnumerable = asyncEnumerable;
         }
 
-        public IEnumerator GetEnumerator() => new EnumeratorAdapter(_asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult());
+        public IEnumerator GetEnumerator() =>
+            new EnumeratorAdapter(
+#if NETCOREAPP3_0
+                _asyncEnumerable.GetAsyncEnumerator()
+#else
+                _asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult()
+#endif
+            );
     }
 
     internal sealed class EnumerableAdapter<T> : IEnumerable, IEnumerable<T>
@@ -25,6 +32,13 @@ namespace System.Collections.Async.Internals
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<T> GetEnumerator() => new EnumeratorAdapter<T>(_asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult());
+        public IEnumerator<T> GetEnumerator() =>
+            new EnumeratorAdapter<T>(
+#if NETCOREAPP3_0
+                _asyncEnumerable.GetAsyncEnumerator()
+#else
+                _asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult()
+#endif
+            );
     }
 }

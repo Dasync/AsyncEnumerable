@@ -33,15 +33,15 @@ namespace Tests
         public void CancelEnumeration()
         {
             var cts = new CancellationTokenSource();
+            cts.Cancel();
 
-            var enumerator = new AsyncEnumerator<int>(yield =>
+            var enumerable = new AsyncEnumerable<int>(async yield =>
             {
-                cts.Cancel();
+                await Task.Yield();
                 yield.CancellationToken.ThrowIfCancellationRequested();
-                return Task.FromResult(0);
             });
 
-            Assert.ThrowsAsync<OperationCanceledException>(() => enumerator.MoveNextAsync(cts.Token));
+            Assert.ThrowsAsync<TaskCanceledException>(() => enumerable.ToListAsync(cts.Token));
         }
 
         [Test]
@@ -77,23 +77,26 @@ namespace Tests
 
             var testDisposable = new TestDisposable();
 
-            var enumerator = new AsyncEnumerator<int>(async yield =>
+            void CreateEnumeratorAndMoveNext()
             {
-                using (testDisposable)
+                var enumerator = new AsyncEnumerator<int>(async yield =>
                 {
-                    await yield.ReturnAsync(1);
-                    await yield.ReturnAsync(2);
-                    await yield.ReturnAsync(3);
-                }
-            });
+                    using (testDisposable)
+                    {
+                        await yield.ReturnAsync(1);
+                        await yield.ReturnAsync(2);
+                        await yield.ReturnAsync(3);
+                    }
+                });
+
+                // Do partial enumeration.
+                enumerator.MoveNextAsync().GetAwaiter().GetResult();
+            }
 
             // ACT
-
-            // Do partial enumeration.
-            await enumerator.MoveNextAsync();
+            CreateEnumeratorAndMoveNext();
 
             // Instead of calling enumerator.Dispose(), do garbage collection.
-            enumerator = null;
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
 
             // Give some time to other thread that does the disposal of the enumerator.
@@ -134,15 +137,18 @@ namespace Tests
 
             var testDisposable = new TestDisposable();
 
-            var enumerator = new AsyncEnumerator<int>(async yield =>
+            void CreateEnumerator()
             {
-                await yield.ReturnAsync(1);
-            },
-            onDispose: () => testDisposable.Dispose());
+                var enumerator = new AsyncEnumerator<int>(async yield =>
+                {
+                    await yield.ReturnAsync(1);
+                },
+                onDispose: () => testDisposable.Dispose());
+            }
 
             // ACT
 
-            enumerator = null;
+            CreateEnumerator();
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
             Thread.Sleep(16);
 

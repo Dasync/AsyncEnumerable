@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Collections.Async
@@ -18,6 +19,20 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync(this IAsyncEnumerable enumerable, Action<object> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    action(enumerator.Current);
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -25,6 +40,7 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -36,6 +52,19 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync(this IAsyncEnumerator enumerator, Action<object> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            try
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    action(enumerator.Current);
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (enumerator)
             {
                 while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -43,6 +72,7 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -54,6 +84,23 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync(this IAsyncEnumerable enumerable, Action<object, long> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                long index = 0;
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    action(enumerator.Current, index);
+                    index++;
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 long index = 0;
@@ -64,6 +111,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -75,6 +123,22 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync(this IAsyncEnumerator enumerator, Action<object, long> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            try
+            {
+                long index = 0;
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    action(enumerator.Current, index);
+                    index++;
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (enumerator)
             {
                 long index = 0;
@@ -85,6 +149,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -96,6 +161,20 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync(this IAsyncEnumerable enumerable, Func<object, Task> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    await action(enumerator.Current).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -103,6 +182,7 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -114,6 +194,19 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync(this IAsyncEnumerator enumerator, Func<object, Task> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            try
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    await action(enumerator.Current).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (enumerator)
             {
                 while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -121,6 +214,7 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -132,6 +226,23 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync(this IAsyncEnumerable enumerable, Func<object, long, Task> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                long index = 0;
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    await action(enumerator.Current, index).ConfigureAwait(false);
+                    index++;
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 long index = 0;
@@ -142,6 +253,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -153,6 +265,22 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync(this IAsyncEnumerator enumerator, Func<object, long, Task> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            try
+            {
+                long index = 0;
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    await action(enumerator.Current, index).ConfigureAwait(false);
+                    index++;
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (enumerator)
             {
                 long index = 0;
@@ -163,6 +291,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -175,6 +304,20 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync<T>(this IAsyncEnumerable<T> enumerable, Action<T> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    action(enumerator.Current);
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -182,6 +325,7 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -194,6 +338,16 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync<T>(this IAsyncEnumerator<T> enumerator, Action<T> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            try
+            {
+                action(enumerator.Current);
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (enumerator)
             {
                 while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -201,6 +355,7 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -213,6 +368,23 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync<T>(this IAsyncEnumerable<T> enumerable, Action<T, long> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                long index = 0;
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    action(enumerator.Current, index);
+                    index++;
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 long index = 0;
@@ -223,6 +395,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -235,6 +408,22 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync<T>(this IAsyncEnumerator<T> enumerator, Action<T, long> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            try
+            {
+                long index = 0;
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    action(enumerator.Current, index);
+                    index++;
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (enumerator)
             {
                 long index = 0;
@@ -245,6 +434,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -257,6 +447,20 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    await action(enumerator.Current).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -264,6 +468,7 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -276,6 +481,19 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync<T>(this IAsyncEnumerator<T> enumerator, Func<T, Task> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            try
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    await action(enumerator.Current).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (enumerator)
             {
                 while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -283,6 +501,7 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -295,6 +514,23 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync<T>(this IAsyncEnumerable<T> enumerable, Func<T, long, Task> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator(cancellationToken);
+            try
+            {
+                long index = 0;
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    await action(enumerator.Current, index).ConfigureAwait(false);
+                    index++;
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (var enumerator = await enumerable.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
             {
                 long index = 0;
@@ -305,6 +541,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -317,6 +554,22 @@ namespace System.Collections.Async
         /// <returns>Returns a Task which does enumeration over elements in the collection</returns>
         public static async Task ForEachAsync<T>(this IAsyncEnumerator<T> enumerator, Func<T, long, Task> action, CancellationToken cancellationToken = default)
         {
+#if NETCOREAPP3_0
+            try
+            {
+                long index = 0;
+
+                while (await enumerator.MoveNextAsync())
+                {
+                    await action(enumerator.Current, index).ConfigureAwait(false);
+                    index++;
+                }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
+#else
             using (enumerator)
             {
                 long index = 0;
@@ -327,6 +580,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+#endif
         }
     }
 }

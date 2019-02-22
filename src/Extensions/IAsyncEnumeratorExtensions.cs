@@ -93,7 +93,11 @@ namespace System.Collections.Async
 
             try
             {
+#if NETCOREAPP3_0
+                while (await source.MoveNextAsync())
+#else
                 while (await source.MoveNextAsync(token).ConfigureAwait(false))
+#endif
                 {
                     if (predicate(source.Current))
                     {
@@ -108,7 +112,11 @@ namespace System.Collections.Async
             finally
             {
                 if (disposeSource)
+#if NETCOREAPP3_0
+                    await source.DisposeAsync();
+#else
                     source.Dispose();
+#endif
             }
 
             if (!matchFound)
@@ -156,7 +164,11 @@ namespace System.Collections.Async
 
             try
             {
+#if NETCOREAPP3_0
+                while (await source.MoveNextAsync())
+#else
                 while (await source.MoveNextAsync(token).ConfigureAwait(false))
+#endif
                 {
                     if (predicate(source.Current))
                     {
@@ -174,7 +186,11 @@ namespace System.Collections.Async
             finally
             {
                 if (disposeSource)
+#if NETCOREAPP3_0
+                    await source.DisposeAsync();
+#else
                     source.Dispose();
+#endif
             }
 
             if (!matchFound)
@@ -259,7 +275,11 @@ namespace System.Collections.Async
                 if (null == predicate)
                     throw new ArgumentNullException(nameof(predicate));
 
+#if NETCOREAPP3_0
+                while (await source.MoveNextAsync())
+#else
                 while (await source.MoveNextAsync(token).ConfigureAwait(false))
+#endif
                     if (predicate(source.Current))
                         return source.Current;
 
@@ -268,7 +288,11 @@ namespace System.Collections.Async
             finally
             {
                 if (disposeSource)
+#if NETCOREAPP3_0
+                    await source.DisposeAsync();
+#else
                     source.Dispose();
+#endif
             }
         }
 
@@ -308,7 +332,11 @@ namespace System.Collections.Async
                 if (null == predicate)
                     throw new ArgumentNullException(nameof(predicate));
 
+#if NETCOREAPP3_0
+                while (await source.MoveNextAsync())
+#else
                 while (await source.MoveNextAsync(token).ConfigureAwait(false))
+#endif
                     if (predicate(source.Current))
                         return source.Current;
 
@@ -317,7 +345,11 @@ namespace System.Collections.Async
             finally
             {
                 if (disposeSource)
+#if NETCOREAPP3_0
+                    await source.DisposeAsync();
+#else
                     source.Dispose();
+#endif
             }
         }
 
@@ -358,7 +390,11 @@ namespace System.Collections.Async
             {
                 try
                 {
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         await yield.ReturnAsync(context.Selector(context.Source.Current)).ConfigureAwait(false);
                     }
@@ -366,7 +402,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -407,7 +447,11 @@ namespace System.Collections.Async
                 try
                 {
                     long index = 0;
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         await yield.ReturnAsync(context.Selector(context.Source.Current, index)).ConfigureAwait(false);
                         index++;
@@ -416,7 +460,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -462,14 +510,22 @@ namespace System.Collections.Async
                 {
                     for (var i = context.Count; i > 0; i--)
                     {
+#if NETCOREAPP3_0
+                        if (await context.Source.MoveNextAsync())
+#else
                         if (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
                     }
                 }
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -508,7 +564,11 @@ namespace System.Collections.Async
             {
                 try
                 {
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         if (context.Predicate(context.Source.Current))
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
@@ -519,7 +579,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -545,14 +609,22 @@ namespace System.Collections.Async
             try
             {
                 var resultList = new List<T>();
+#if NETCOREAPP3_0
+                while (await source.MoveNextAsync())
+#else
                 while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+#endif
                     resultList.Add(source.Current);
                 return resultList;
             }
             finally
             {
                 if (disposeSource)
+#if NETCOREAPP3_0
+                    await source.DisposeAsync();
+#else
                     source.Dispose();
+#endif
             }
         }
 
@@ -575,14 +647,22 @@ namespace System.Collections.Async
             try
             {
                 var resultList = new List<T>();
+#if NETCOREAPP3_0
+                while (await source.MoveNextAsync())
+#else
                 while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+#endif
                     resultList.Add(source.Current);
                 return resultList.ToArray();
             }
             finally
             {
                 if (disposeSource)
+#if NETCOREAPP3_0
+                    await source.DisposeAsync();
+#else
                     source.Dispose();
+#endif
             }
         }
 
@@ -621,7 +701,11 @@ namespace System.Collections.Async
                 try
                 {
                     var itemsToSkip = context.Count;
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         if (itemsToSkip > 0)
                             itemsToSkip--;
@@ -632,7 +716,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -672,7 +760,11 @@ namespace System.Collections.Async
                 try
                 {
                     var yielding = false;
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         if (!yielding && !context.Predicate(context.Source.Current))
                             yielding = true;
@@ -684,7 +776,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -727,7 +823,11 @@ namespace System.Collections.Async
             {
                 try
                 {
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         if (context.Predicate(context.Source.Current))
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
@@ -736,7 +836,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -776,7 +880,11 @@ namespace System.Collections.Async
                 try
                 {
                     long index = 0;
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         if (context.Predicate(context.Source.Current, index))
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
@@ -786,7 +894,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -822,13 +934,21 @@ namespace System.Collections.Async
             {
                 try
                 {
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                         await yield.ReturnAsync((TResult)context.Source.Current).ConfigureAwait(false);
                 }
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -879,7 +999,11 @@ namespace System.Collections.Async
                 {
                     var isEmpty = true;
 
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         isEmpty = false;
                         await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
@@ -891,7 +1015,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -1098,7 +1226,11 @@ namespace System.Collections.Async
 
                 try
                 {
+#if NETCOREAPP3_0
+                    while (await context.Source.MoveNextAsync())
+#else
                     while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                     {
                         var itemWeight = context.WeightSelector?.Invoke(context.Source.Current) ?? 0L;
 
@@ -1133,7 +1265,11 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
+#if NETCOREAPP3_0
+                        await context.Source.DisposeAsync();
+#else
                         context.Source.Dispose();
+#endif
                 }
             }
 
@@ -1193,13 +1329,21 @@ namespace System.Collections.Async
 
                     try
                     {
+#if NETCOREAPP3_0
+                        while (await collection.MoveNextAsync())
+#else
                         while (await collection.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
+#endif
                             await yield.ReturnAsync(collection.Current).ConfigureAwait(false);
                     }
                     finally
                     {
                         if (context.DisposeSource)
+#if NETCOREAPP3_0
+                            await collection.DisposeAsync();
+#else
                             collection.Dispose();
+#endif
                     }
                 }
             }
@@ -1207,6 +1351,6 @@ namespace System.Collections.Async
             public static readonly Func<AsyncEnumerator<T>.Yield, UnionContext<T>, Task> Enumerate = _enumerate;
         }
 
-        #endregion
+#endregion
     }
 }
