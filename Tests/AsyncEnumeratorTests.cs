@@ -157,6 +157,42 @@ namespace Tests
             Assert.IsTrue(testDisposable.HasDisposed);
         }
 
+        [Test]
+        public async Task DisposeWaitsForFinalization()
+        {
+            var tcs = new TaskCompletionSource<object>();
+            var isFinalized = false;
+
+            var enumerable = new AsyncEnumerable<int>(async yield =>
+            {
+                try
+                {
+                    await yield.ReturnAsync(1);
+                    await yield.ReturnAsync(2);
+                }
+                finally
+                {
+                    await tcs.Task;
+                    isFinalized = true;
+                }
+            });
+
+#if NETCOREAPP3_0
+            var enumerator = enumerable.GetAsyncEnumerator();
+#else
+            var enumerator = await enumerable.GetAsyncEnumeratorAsync();
+#endif
+            await enumerator.MoveNextAsync();
+
+            var disposeTask = enumerator.DisposeAsync();
+            await Task.Yield();
+            Assert.IsFalse(disposeTask.IsCompleted);
+
+            tcs.SetResult(null);
+            await disposeTask;
+            Assert.IsTrue(isFinalized);
+        }
+
         private class TestDisposable : IDisposable
         {
             public bool HasDisposed { get; private set; }

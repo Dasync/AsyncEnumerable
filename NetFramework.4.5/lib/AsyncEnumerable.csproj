@@ -74,6 +74,9 @@
     <Compile Include="..\..\src\Extensions\ParallelForEachExtensions.cs">
       <Link>Extensions\ParallelForEachExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\IAsyncDisposable.cs">
+      <Link>IAsyncDisposable.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\IAsyncEnumerable.cs">
       <Link>IAsyncEnumerable.cs</Link>
     </Compile>

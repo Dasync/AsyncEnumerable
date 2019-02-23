@@ -6,10 +6,7 @@ namespace System.Collections.Async
     /// <summary>
     /// Supports a simple asynchronous iteration over a non-generic collection
     /// </summary>
-    public interface IAsyncEnumerator : IDisposable
-#if NETCOREAPP3_0
-        , IAsyncDisposable
-#endif
+    public interface IAsyncEnumerator : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// Gets the current element in the collection.

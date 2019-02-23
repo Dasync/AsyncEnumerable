@@ -152,17 +152,37 @@ namespace System.Collections.Async
         /// </summary>
         public void Dispose()
         {
-            Dispose(manualDispose: true);
-            GC.SuppressFinalize(this);
+            DisposeAsync().GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources
+        /// </summary>
+        public async
 #if NETCOREAPP3_0
-        public ValueTask DisposeAsync()
-        {
-            Dispose();
-            return new ValueTask();
-        }
+            ValueTask
+#else
+            Task
 #endif
+            DisposeAsync()
+        {
+            var enumTask = _enumerationTask;
+
+            Dispose(manualDispose: true);
+
+            if (enumTask != null)
+            {
+                try
+                {
+                    await enumTask;
+                }
+                catch
+                {
+                }
+            }
+
+            GC.SuppressFinalize(this);
+        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources
@@ -235,7 +255,6 @@ namespace System.Collections.Async
             private TaskCompletionSource<bool> _resumeEnumerationTcs; // Can be of any type - there is no non-generic version of the TaskCompletionSource
             private TaskCompletionSource<bool> _moveNextCompleteTcs;
             private CurrentValueContainer<T> _currentValueContainer;
-            private bool _isComplete;
 
             internal Yield(CurrentValueContainer<T> currentValueContainer)
             {
@@ -247,7 +266,7 @@ namespace System.Collections.Async
             /// </summary>
             public CancellationToken CancellationToken { get; private set; }
 
-            internal bool IsComplete => _isComplete;
+            internal bool IsComplete { get; private set; }
 
             /// <summary>
             /// Yields an item asynchronously (similar to 'yield return' statement)
@@ -276,13 +295,13 @@ namespace System.Collections.Async
 
             internal void SetComplete()
             {
-                _isComplete = true;
+                IsComplete = true;
                 _moveNextCompleteTcs.TrySetResult(false);
             }
 
             internal void SetCanceled()
             {
-                _isComplete = true;
+                IsComplete = true;
                 if (!CancellationToken.IsCancellationRequested)
                     CancellationToken = CancellationTokenEx.Canceled;
                 _resumeEnumerationTcs?.TrySetException(new AsyncEnumerationCanceledException());
@@ -291,14 +310,14 @@ namespace System.Collections.Async
 
             internal void SetFailed(Exception ex)
             {
-                _isComplete = true;
+                IsComplete = true;
                 _moveNextCompleteTcs?.TrySetException(ex.GetBaseException());
             }
 
 #if NETCOREAPP3_0
             internal ValueTask<bool> OnMoveNext(CancellationToken cancellationToken)
             {
-                if (!_isComplete)
+                if (!IsComplete)
                 {
                     CancellationToken = cancellationToken;
                     TaskCompletionSource.Reset(ref _moveNextCompleteTcs);
@@ -310,7 +329,7 @@ namespace System.Collections.Async
 #else
             internal Task<bool> OnMoveNext(CancellationToken cancellationToken)
             {
-                if (!_isComplete)
+                if (!IsComplete)
                 {
                     CancellationToken = cancellationToken;
                     TaskCompletionSource.Reset(ref _moveNextCompleteTcs);

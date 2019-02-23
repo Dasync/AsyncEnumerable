@@ -22,6 +22,8 @@ namespace System.Collections.Async.Internals
         public ValueTask DisposeAsync() => new ValueTask();
 #else
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken) => TaskEx.False;
+
+        public Task DisposeAsync() => TaskEx.Completed;
 #endif
 
         public void Dispose() { }

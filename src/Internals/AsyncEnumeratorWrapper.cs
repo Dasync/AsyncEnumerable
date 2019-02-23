@@ -67,6 +67,12 @@ namespace System.Collections.Async.Internals
             Dispose();
             return new ValueTask();
         }
+#else
+        public Task DisposeAsync()
+        {
+            Dispose();
+            return TaskEx.Completed;
+        }
 #endif
     }
 }

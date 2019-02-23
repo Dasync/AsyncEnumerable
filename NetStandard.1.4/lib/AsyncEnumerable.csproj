@@ -36,6 +36,7 @@
     <Compile Include="..\..\src\Extensions\IAsyncEnumeratorExtensions.cs" Link="Extensions\IAsyncEnumeratorExtensions.cs" />
     <Compile Include="..\..\src\Extensions\ParallelForEachException.cs" Link="Extensions\ParallelForEachException.cs" />
     <Compile Include="..\..\src\Extensions\ParallelForEachExtensions.cs" Link="Extensions\ParallelForEachExtensions.cs" />
+    <Compile Include="..\..\src\IAsyncDisposable.cs" Link="IAsyncDisposable.cs" />
     <Compile Include="..\..\src\IAsyncEnumerable.cs" Link="IAsyncEnumerable.cs" />
     <Compile Include="..\..\src\IAsyncEnumerator.cs" Link="IAsyncEnumerator.cs" />
     <Compile Include="..\..\src\Internals\AsyncEnumerableWrapper.cs" Link="Internals\AsyncEnumerableWrapper.cs" />
