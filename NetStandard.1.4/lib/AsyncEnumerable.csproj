@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFrameworks>netstandard1.4;netstandard2.0</TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>../../AsyncEnumerable.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
@@ -9,20 +9,19 @@
     <AssemblyName>AsyncEnumerable</AssemblyName>
     <RootNamespace>System.Collections.Async</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard1.4\AsyncEnumerable.xml</DocumentationFile>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD1_4</DefineConstants>
-    <OutputPath>bin\Debug\</OutputPath>
     <LangVersion>latest</LangVersion>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.4\AsyncEnumerable.xml</DocumentationFile>
     <DefineConstants>TRACE;RELEASE;NETSTANDARD;NETSTANDARD1_4</DefineConstants>
-    <OutputPath>bin\Release\</OutputPath>
     <LangVersion>latest</LangVersion>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -52,7 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
   </ItemGroup>
 
 </Project>
