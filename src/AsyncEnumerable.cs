@@ -16,17 +16,10 @@ namespace System.Collections.Async
         /// </summary>
         public static IAsyncEnumerable<T> Empty<T>() => AsyncEnumerable<T>.Empty;
 
-#if NETCOREAPP3_0
         IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
-#else
-        async Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-#endif
     }
 
     /// <summary>
@@ -69,7 +62,6 @@ namespace System.Collections.Async
             _enumerationFunction = enumerationFunction;
         }
 
-#if NETCOREAPP3_0
         /// <summary>
         /// Creates an enumerator that iterates through a collection asynchronously
         /// </summary>
@@ -80,35 +72,6 @@ namespace System.Collections.Async
 
         IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
             => new AsyncEnumerator<T>(_enumerationFunction) { MasterCancellationToken = cancellationToken };
-#else
-        /// <summary>
-        /// Creates an enumerator that iterates through a collection asynchronously
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
-        /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        public virtual Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var enumerator = new AsyncEnumerator<T>(_enumerationFunction);
-                return Task.FromResult<IAsyncEnumerator<T>>(enumerator);
-            }
-            catch (Exception ex)
-            {
-                return TaskEx.FromException<IAsyncEnumerator<T>>(ex);
-            }
-        }
-
-        /// <summary>
-        /// Creates an enumerator that iterates through a collection asynchronously
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
-        /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        async Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
-        {
-            return await GetAsyncEnumeratorAsync(cancellationToken);
-        }
-#endif
     }
 
     /// <summary>
@@ -137,7 +100,6 @@ namespace System.Collections.Async
         /// </summary>
         protected TState State { get; }
 
-#if NETCOREAPP3_0
         /// <summary>
         /// Creates an enumerator that iterates through a collection asynchronously
         /// </summary>
@@ -153,35 +115,5 @@ namespace System.Collections.Async
         IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
             => new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State)
                 { MasterCancellationToken = cancellationToken };
-#else
-        /// <summary>
-        /// Creates an enumerator that iterates through a collection asynchronously
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
-        /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        public virtual Task<IAsyncEnumerator<TItem>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default)
-        {
-            var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State);
-            return Task.FromResult<IAsyncEnumerator<TItem>>(enumerator);
-        }
-
-        /// <summary>
-        /// Creates an enumerator that iterates through a collection asynchronously
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token to cancel creation of the enumerator in case if it takes a lot of time</param>
-        /// <returns>Returns a task with the created enumerator as result on completion</returns>
-        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
-        {
-            try
-            {
-                var enumerator = new AsyncEnumeratorWithState<TItem, TState>(_enumerationFunction, State);
-                return Task.FromResult<IAsyncEnumerator>(enumerator);
-            }
-            catch (Exception ex)
-            {
-                return TaskEx.FromException<IAsyncEnumerator>(ex);
-            }
-        }
-#endif
     }
 }

@@ -177,11 +177,7 @@ namespace Tests
                 }
             });
 
-#if NETCOREAPP3_0
             var enumerator = enumerable.GetAsyncEnumerator();
-#else
-            var enumerator = await enumerable.GetAsyncEnumeratorAsync();
-#endif
             await enumerator.MoveNextAsync();
 
             var disposeTask = enumerator.DisposeAsync();

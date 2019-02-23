@@ -77,18 +77,10 @@ namespace System.Collections.Async
             var matchFound = false;
             var lastMatch = default(TSource);
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(token);
             try
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-#endif
             {
-#if NETCOREAPP3_0
-                while (await enumerator.MoveNextAsync())
-#else
-                while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
-#endif
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     if (predicate(enumerator.Current))
                     {
@@ -100,12 +92,10 @@ namespace System.Collections.Async
                     }
                 }
             }
-#if NETCOREAPP3_0
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#endif
 
             if (!matchFound)
                 throw new InvalidOperationException(string.IsNullOrEmpty(noneExceptionMessage) ? "No element found matching the criteria." : noneExceptionMessage);
@@ -144,18 +134,10 @@ namespace System.Collections.Async
             var matchFound = false;
             var lastMatch = default(TSource);
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(token);
             try
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-#endif
             {
-#if NETCOREAPP3_0
-                while (await enumerator.MoveNextAsync())
-#else
-                while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
-#endif
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     if (predicate(enumerator.Current))
                     {
@@ -170,12 +152,10 @@ namespace System.Collections.Async
                     }
                 }
             }
-#if NETCOREAPP3_0
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#endif
 
             if (!matchFound)
                 return default;
@@ -249,24 +229,17 @@ namespace System.Collections.Async
             if (null == predicate)
                 throw new ArgumentNullException(nameof(predicate));
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(token);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     if (predicate(enumerator.Current))
                         return enumerator.Current;
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-                while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
-                    if (predicate(enumerator.Current))
-                        return enumerator.Current;
-#endif
 
             throw new InvalidOperationException(string.IsNullOrEmpty(exceptionMessage) ? "No Matching Element Found" : exceptionMessage);
         }
@@ -299,24 +272,17 @@ namespace System.Collections.Async
             if (null == predicate)
                 throw new ArgumentNullException(nameof(predicate));
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(token);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     if (predicate(enumerator.Current))
                         return enumerator.Current;
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(token).ConfigureAwait(false))
-                while (await enumerator.MoveNextAsync(token).ConfigureAwait(false))
-                    if (predicate(enumerator.Current))
-                        return enumerator.Current;
-#endif
 
             return default;
         }
@@ -353,28 +319,18 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, SelectContext<TSource, TResult> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         await yield.ReturnAsync(context.Selector(enumerator.Current)).ConfigureAwait(false);
                     }
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        await yield.ReturnAsync(context.Selector(enumerator.Current)).ConfigureAwait(false);
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, SelectContext<TSource, TResult>, Task> Enumerate = _enumerate;
@@ -408,12 +364,11 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, SelectWithIndexContext<TSource, TResult> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
                     long index = 0;
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         await yield.ReturnAsync(context.Selector(enumerator.Current, index)).ConfigureAwait(false);
                         index++;
@@ -421,19 +376,8 @@ namespace System.Collections.Async
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    long index = 0;
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        await yield.ReturnAsync(context.Selector(enumerator.Current, index)).ConfigureAwait(false);
-                        index++;
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, SelectWithIndexContext<TSource, TResult>, Task> Enumerate = _enumerate;
@@ -508,18 +452,17 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, SelectManyContext<TSource, TItem, TResult> context)
             {
-#if NETCOREAPP3_0
                 var sourceEnumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await sourceEnumerator.MoveNextAsync())
+                    while (await sourceEnumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         var items = context.CollectionSelector(sourceEnumerator.Current);
 
                         var itemsEnumerator = items.GetAsyncEnumerator(yield.CancellationToken);
                         try
                         {
-                            while (await itemsEnumerator.MoveNextAsync())
+                            while (await itemsEnumerator.MoveNextAsync().ConfigureAwait(false))
                             {
                                 var resultItem = context.ResultSelector(sourceEnumerator.Current, itemsEnumerator.Current);
                                 await yield.ReturnAsync(resultItem).ConfigureAwait(false);
@@ -527,32 +470,14 @@ namespace System.Collections.Async
                         }
                         finally
                         {
-                            await itemsEnumerator.DisposeAsync();
+                            await itemsEnumerator.DisposeAsync().ConfigureAwait(false);
                         }
                     }
                 }
                 finally
                 {
-                    await sourceEnumerator.DisposeAsync();
+                    await sourceEnumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (IAsyncEnumerator<TSource> sourceEnumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    while (await sourceEnumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        var items = context.CollectionSelector(sourceEnumerator.Current);
-
-                        using (var itemsEnumerator = await items.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                        {
-                            while (await itemsEnumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                            {
-                                var resultItem = context.ResultSelector(sourceEnumerator.Current, itemsEnumerator.Current);
-                                await yield.ReturnAsync(resultItem).ConfigureAwait(false);
-                            }
-                        }
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, SelectManyContext<TSource, TItem, TResult>, Task> Enumerate = _enumerate;
@@ -623,11 +548,10 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, SelectManySyncContext<TSource, TItem, TResult> context)
             {
-#if NETCOREAPP3_0
                 var sourceEnumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await sourceEnumerator.MoveNextAsync())
+                    while (await sourceEnumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         foreach (var intermediateItem in context.CollectionSelector(sourceEnumerator.Current))
                         {
@@ -638,21 +562,8 @@ namespace System.Collections.Async
                 }
                 finally
                 {
-                    await sourceEnumerator.DisposeAsync();
+                    await sourceEnumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var sourceEnumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    while (await sourceEnumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        foreach (var intermediateItem in context.CollectionSelector(sourceEnumerator.Current))
-                        {
-                            var resultItem = context.ResultSelector(sourceEnumerator.Current, intermediateItem);
-                            await yield.ReturnAsync(resultItem).ConfigureAwait(false);
-                        }
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, SelectManySyncContext<TSource, TItem, TResult>, Task> Enumerate = _enumerate;
@@ -690,30 +601,19 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, TakeContext<TSource> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
                     for (var i = context.Count; i > 0; i--)
                     {
-                        if (await enumerator.MoveNextAsync())
+                        if (await enumerator.MoveNextAsync().ConfigureAwait(false))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
                     }
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    for (var i = context.Count; i > 0; i--)
-                    {
-                        if (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, TakeContext<TSource>, Task> Enumerate = _enumerate;
@@ -746,11 +646,10 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, TakeWhileContext<TSource> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (context.Predicate(enumerator.Current))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
@@ -760,20 +659,8 @@ namespace System.Collections.Async
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        if (context.Predicate(enumerator.Current))
-                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                        else
-                            break;
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, TakeWhileContext<TSource>, Task> Enumerate = _enumerate;
@@ -792,28 +679,19 @@ namespace System.Collections.Async
         public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
         {
             var resultList = new List<T>();
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     resultList.Add(enumerator.Current);
                 }
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    resultList.Add(enumerator.Current);
-                }
-            }
-#endif
+
             return resultList;
         }
 
@@ -830,28 +708,20 @@ namespace System.Collections.Async
         public static async Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
         {
             var resultList = new List<T>();
-#if NETCOREAPP3_0
+
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     resultList.Add(enumerator.Current);
                 }
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    resultList.Add(enumerator.Current);
-                }
-            }
-#endif
+
             return resultList.ToArray();
         }
 
@@ -880,11 +750,10 @@ namespace System.Collections.Async
 
             var dictionary = new Dictionary<TKey, TSource>();
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var item = enumerator.Current;
                     dictionary.Add(keySelector(item), item);
@@ -892,18 +761,8 @@ namespace System.Collections.Async
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var item = enumerator.Current;
-                    dictionary.Add(keySelector(item), item);
-                }
-            }
-#endif
 
             return dictionary;
         }
@@ -933,11 +792,10 @@ namespace System.Collections.Async
 
             var dictionary = new Dictionary<TKey, TSource>(comparer);
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var item = enumerator.Current;
                     dictionary.Add(keySelector(item), item);
@@ -945,18 +803,8 @@ namespace System.Collections.Async
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var item = enumerator.Current;
-                    dictionary.Add(keySelector(item), item);
-                }
-            }
-#endif
 
             return dictionary;
         }
@@ -987,11 +835,10 @@ namespace System.Collections.Async
 
             var dictionary = new Dictionary<TKey, TElement>();
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var item = enumerator.Current;
                     dictionary.Add(keySelector(item), elementSelector(item));
@@ -999,18 +846,8 @@ namespace System.Collections.Async
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var item = enumerator.Current;
-                    dictionary.Add(keySelector(item), elementSelector(item));
-                }
-            }
-#endif
 
             return dictionary;
         }
@@ -1045,11 +882,10 @@ namespace System.Collections.Async
 
             var dictionary = new Dictionary<TKey, TElement>(comparer);
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var item = enumerator.Current;
                     dictionary.Add(keySelector(item), elementSelector(item));
@@ -1057,18 +893,8 @@ namespace System.Collections.Async
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var item = enumerator.Current;
-                    dictionary.Add(keySelector(item), elementSelector(item));
-                }
-            }
-#endif
 
             return dictionary;
         }
@@ -1161,11 +987,10 @@ namespace System.Collections.Async
 
             var lookup = new Lookup<TKey, TSource>();
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var item = enumerator.Current;
                     lookup.Add(keySelector(item), item);
@@ -1173,18 +998,8 @@ namespace System.Collections.Async
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var item = enumerator.Current;
-                    lookup.Add(keySelector(item), item);
-                }
-            }
-#endif
 
             return lookup;
         }
@@ -1213,11 +1028,10 @@ namespace System.Collections.Async
 
             var lookup = new Lookup<TKey, TSource>(comparer);
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var item = enumerator.Current;
                     lookup.Add(keySelector(item), item);
@@ -1225,18 +1039,8 @@ namespace System.Collections.Async
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var item = enumerator.Current;
-                    lookup.Add(keySelector(item), item);
-                }
-            }
-#endif
 
             return lookup;
         }
@@ -1266,11 +1070,10 @@ namespace System.Collections.Async
 
             var lookup = new Lookup<TKey, TElement>();
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var item = enumerator.Current;
                     lookup.Add(keySelector(item), elementSelector(item));
@@ -1278,18 +1081,8 @@ namespace System.Collections.Async
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var item = enumerator.Current;
-                    lookup.Add(keySelector(item), elementSelector(item));
-                }
-            }
-#endif
 
             return lookup;
         }
@@ -1323,11 +1116,10 @@ namespace System.Collections.Async
 
             var lookup = new Lookup<TKey, TElement>(comparer);
 
-#if NETCOREAPP3_0
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var item = enumerator.Current;
                     lookup.Add(keySelector(item), elementSelector(item));
@@ -1335,18 +1127,8 @@ namespace System.Collections.Async
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var item = enumerator.Current;
-                    lookup.Add(keySelector(item), elementSelector(item));
-                }
-            }
-#endif
 
             return lookup;
         }
@@ -1380,12 +1162,11 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, SkipContext<TSource> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
                     var itemsToSkip = context.Count;
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (itemsToSkip > 0)
                             itemsToSkip--;
@@ -1395,21 +1176,8 @@ namespace System.Collections.Async
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    var itemsToSkip = context.Count;
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        if (itemsToSkip > 0)
-                            itemsToSkip--;
-                        else
-                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, SkipContext<TSource>, Task> Enumerate = _enumerate;
@@ -1442,12 +1210,11 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, SkipWhileContext<TSource> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
                     var yielding = false;
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (!yielding && !context.Predicate(enumerator.Current))
                             yielding = true;
@@ -1458,22 +1225,8 @@ namespace System.Collections.Async
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    var yielding = false;
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        if (!yielding && !context.Predicate(enumerator.Current))
-                            yielding = true;
-
-                        if (yielding)
-                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, SkipWhileContext<TSource>, Task> Enumerate = _enumerate;
@@ -1510,11 +1263,10 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, WhereContext<TSource> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (context.Predicate(enumerator.Current))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
@@ -1522,18 +1274,8 @@ namespace System.Collections.Async
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        if (context.Predicate(enumerator.Current))
-                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, WhereContext<TSource>, Task> Enumerate = _enumerate;
@@ -1566,31 +1308,21 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, WhereWithIndexContext<TSource> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
                 {
                     long index = 0;
-#if NETCOREAPP3_0
-                    while (await enumerator.MoveNextAsync())
-#else
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (context.Predicate(enumerator.Current, index))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
                         index++;
                     }
                 }
-#if NETCOREAPP3_0
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, WhereWithIndexContext<TSource>, Task> Enumerate = _enumerate;
@@ -1600,6 +1332,7 @@ namespace System.Collections.Async
 
 #region Cast
 
+#if !NETCOREAPP3_0
         /// <summary>
         /// Casts the elements of an <see cref="IAsyncEnumerable"/> to the specified type.
         /// </summary>
@@ -1621,32 +1354,28 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, CastContext<TResult> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                         if (enumerator.Current is TResult item)
                             await yield.ReturnAsync((TResult)enumerator.Current).ConfigureAwait(false);
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                        await yield.ReturnAsync((TResult)enumerator.Current).ConfigureAwait(false);
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, CastContext<TResult>, Task> Enumerate = _enumerate;
         }
+#endif
 
 #endregion
 
 #region OfType
 
+#if !NETCOREAPP3_0
         /// <summary>
         /// Filters the elements of an <see cref="IAsyncEnumerable"/> based on a specified type.
         /// </summary>
@@ -1668,28 +1397,22 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TResult>.Yield yield, OfTypeContext<TResult> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                         if (enumerator.Current is TResult item)
                             await yield.ReturnAsync(item).ConfigureAwait(false);
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                        if (enumerator.Current is TResult item)
-                            await yield.ReturnAsync(item).ConfigureAwait(false);
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, OfTypeContext<TResult>, Task> Enumerate = _enumerate;
         }
+#endif
 
 #endregion
 
@@ -1726,20 +1449,12 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, DefaultIfEmptyContext<TSource> context)
             {
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
                 {
                     var isEmpty = true;
 
-#if NETCOREAPP3_0
-                    while (await enumerator.MoveNextAsync())
-#else
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         isEmpty = false;
                         await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
@@ -1748,12 +1463,10 @@ namespace System.Collections.Async
                     if (isEmpty)
                         await yield.ReturnAsync(context.DefaultValue).ConfigureAwait(false);
                 }
-#if NETCOREAPP3_0
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, DefaultIfEmptyContext<TSource>, Task> Enumerate = _enumerate;
@@ -2049,18 +1762,10 @@ namespace System.Collections.Async
                 var itemsInBatch = 0;
                 var batchWeight = 0L;
 
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
                 {
-#if NETCOREAPP3_0
-                    while (await enumerator.MoveNextAsync())
-#else
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         var itemWeight = context.WeightSelector?.Invoke(enumerator.Current) ?? 0L;
 
@@ -2092,12 +1797,10 @@ namespace System.Collections.Async
                     if (itemsInBatch > 0)
                         await yield.ReturnAsync(batch).ConfigureAwait(false);
                 }
-#if NETCOREAPP3_0
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TBatch>.Yield, BatchContext<TSource, TBatch>, Task> Enumerate = _enumerate;
@@ -2151,24 +1854,16 @@ namespace System.Collections.Async
                     if (collection == null)
                         continue;
 
-#if NETCOREAPP3_0
                     var enumerator = collection.GetAsyncEnumerator(yield.CancellationToken);
                     try
                     {
-                        while (await enumerator.MoveNextAsync())
+                        while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
                     }
                     finally
                     {
-                        await enumerator.DisposeAsync();
+                        await enumerator.DisposeAsync().ConfigureAwait(false);
                     }
-#else
-                    using (var enumerator = await collection.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }
-#endif
                 }
             }
 
@@ -2225,26 +1920,16 @@ namespace System.Collections.Async
                 if (context.Prepend)
                     await yield.ReturnAsync(context.ExtraElement).ConfigureAwait(false);
 
-#if NETCOREAPP3_0
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                         await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }
-                }
-#endif
 
                 if (context.Append)
                     await yield.ReturnAsync(context.ExtraElement).ConfigureAwait(false);
@@ -2283,45 +1968,27 @@ namespace System.Collections.Async
 
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, ConcatContext<TSource> context)
             {
-#if NETCOREAPP3_0
                 var enumerator1 = context.First.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator1.MoveNextAsync())
+                    while (await enumerator1.MoveNextAsync().ConfigureAwait(false))
                         await yield.ReturnAsync(enumerator1.Current).ConfigureAwait(false);
                 }
                 finally
                 {
-                    await enumerator1.DisposeAsync();
+                    await enumerator1.DisposeAsync().ConfigureAwait(false);
                 }
 
                 var enumerator2 = context.Second.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator2.MoveNextAsync())
+                    while (await enumerator2.MoveNextAsync().ConfigureAwait(false))
                         await yield.ReturnAsync(enumerator2.Current).ConfigureAwait(false);
                 }
                 finally
                 {
-                    await enumerator2.DisposeAsync();
+                    await enumerator2.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.First.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }
-                }
-
-                using (var enumerator = await context.Second.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                {
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                    {
-                        await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-                    }
-                }
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, ConcatContext<TSource>, Task> Enumerate = _enumerate;
@@ -2372,24 +2039,18 @@ namespace System.Collections.Async
             private static async Task _enumerate(AsyncEnumerator<TSource>.Yield yield, DistinctContext<TSource> context)
             {
                 var set = context.Comparer == null ? new HashSet<TSource>() : new HashSet<TSource>(context.Comparer);
-#if NETCOREAPP3_0
+
                 var enumerator = context.Source.GetAsyncEnumerator(yield.CancellationToken);
                 try
                 {
-                    while (await enumerator.MoveNextAsync())
+                    while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                         if (set.Add(enumerator.Current))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
                 }
                 finally
                 {
-                    await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync().ConfigureAwait(false);
                 }
-#else
-                using (var enumerator = await context.Source.GetAsyncEnumeratorAsync(yield.CancellationToken).ConfigureAwait(false))
-                    while (await enumerator.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-                        if (set.Add(enumerator.Current))
-                            await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
-#endif
             }
 
             public static readonly Func<AsyncEnumerator<TSource>.Yield, DistinctContext<TSource>, Task> Enumerate = _enumerate;
@@ -2417,30 +2078,21 @@ namespace System.Collections.Async
                 throw new ArgumentNullException(nameof(func));
 
             TSource val;
-#if NETCOREAPP3_0
+
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                if (!await enumerator.MoveNextAsync())
+                if (!await enumerator.MoveNextAsync().ConfigureAwait(false))
                     throw new InvalidOperationException("The sequence contains no elements.");
                 val = enumerator.Current;
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     val = func(val, enumerator.Current);
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-            {
-                if (!await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                    throw new InvalidOperationException("The sequence contains no elements.");
-                val = enumerator.Current;
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                    val = func(val, enumerator.Current);
-            }
-#endif
+
             return val;
         }
 
@@ -2465,22 +2117,18 @@ namespace System.Collections.Async
                 throw new ArgumentNullException(nameof(func));
 
             var val = seed;
-#if NETCOREAPP3_0
+
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     val = func(val, enumerator.Current);
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                    val = func(val, enumerator.Current);
-#endif
+
             return val;
         }
 
@@ -2510,22 +2158,18 @@ namespace System.Collections.Async
                 throw new ArgumentNullException(nameof(resultSelector));
 
             var val = seed;
-#if NETCOREAPP3_0
+
             var enumerator = source.GetAsyncEnumerator(cancellationToken);
             try
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                     val = func(val, enumerator.Current);
             }
             finally
             {
-                await enumerator.DisposeAsync();
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
-#else
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
-                while (await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                    val = func(val, enumerator.Current);
-#endif
+
             return resultSelector(val);
         }
 

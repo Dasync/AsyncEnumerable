@@ -306,6 +306,7 @@ namespace Tests
             Assert.AreEqual(expectedResult, actualResult);
         }
 
+#if !NETCOREAPP3_0
         [Test]
         public async Task OfType()
         {
@@ -332,6 +333,7 @@ namespace Tests
             var expectedObjectResult = collection;
             Assert.AreEqual(expectedObjectResult, actualObjectResult);
         }
+#endif
 
         [Test]
         public async Task Concat()

@@ -10,7 +10,7 @@ namespace System.Collections.Async.Internals
 
         public static Task<T> FromException<T>(Exception ex)
         {
-#if NETFX4_5
+#if NETFX4_5 || NETFX4_5_2
             var tcs = new TaskCompletionSource<T>();
             tcs.SetException(ex);
             return tcs.Task;

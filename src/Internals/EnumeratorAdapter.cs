@@ -2,6 +2,7 @@
 
 namespace System.Collections.Async.Internals
 {
+#if !NETCOREAPP3_0
     internal sealed class EnumeratorAdapter : IEnumerator
     {
         private readonly IAsyncEnumerator _asyncEnumerator;
@@ -19,6 +20,7 @@ namespace System.Collections.Async.Internals
 
         public void Dispose() => _asyncEnumerator.Dispose();
     }
+#endif
 
     internal sealed class EnumeratorAdapter<T> : IEnumerator, IEnumerator<T>
     {
@@ -38,10 +40,6 @@ namespace System.Collections.Async.Internals
         public void Reset() => throw new NotSupportedException("The IEnumerator.Reset() method is obsolete. Create a new enumerator instead.");
 
         public void Dispose() =>
-#if NETCOREAPP3_0
             _asyncEnumerator.DisposeAsync().GetAwaiter().GetResult();
-#else
-            _asyncEnumerator.Dispose();
-#endif
     }
 }

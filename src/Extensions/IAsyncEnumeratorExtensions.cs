@@ -19,14 +19,12 @@ namespace System.Collections.Async
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> SingleAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
-            return SingleAsync(source, PredicateCache<TSource>.True, null, null, token, disposeSource);
+            return SingleAsync(source, PredicateCache<TSource>.True, null, null, disposeSource);
         }
 
         /// <summary>
@@ -36,16 +34,14 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
         /// <param name="noneExceptionMessage">The message of an exception which is thrown when the source collection is empty.</param>
         /// <param name="manyExceptionMessage">The message of an exception which is thrown when the source collection has more than one element.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> SingleAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             string noneExceptionMessage,
             string manyExceptionMessage,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
-            return SingleAsync(source, PredicateCache<TSource>.True, noneExceptionMessage, manyExceptionMessage, token, disposeSource);
+            return SingleAsync(source, PredicateCache<TSource>.True, noneExceptionMessage, manyExceptionMessage, disposeSource);
         }
 
         /// <summary>
@@ -54,15 +50,13 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
         /// <param name="predicate">Criteria predicate to select the only element.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> SingleAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
-            return SingleAsync(source, predicate, null, null, token, disposeSource);
+            return SingleAsync(source, predicate, null, null, disposeSource);
         }
 
         /// <summary>
@@ -73,14 +67,12 @@ namespace System.Collections.Async
         /// <param name="predicate">Criteria predicate to select the only element.</param>
         /// <param name="noneExceptionMessage">The message of an exception which is thrown when the source collection is has no element matching the criteria.</param>
         /// <param name="manyExceptionMessage">The message of an exception which is thrown when the source collection has more than one element matching the criteria.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<TSource> SingleAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
             string noneExceptionMessage,
             string manyExceptionMessage,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
             if (null == source)
@@ -93,11 +85,7 @@ namespace System.Collections.Async
 
             try
             {
-#if NETCOREAPP3_0
-                while (await source.MoveNextAsync())
-#else
-                while (await source.MoveNextAsync(token).ConfigureAwait(false))
-#endif
+                while (await source.MoveNextAsync().ConfigureAwait(false))
                 {
                     if (predicate(source.Current))
                     {
@@ -112,11 +100,7 @@ namespace System.Collections.Async
             finally
             {
                 if (disposeSource)
-#if NETCOREAPP3_0
-                    await source.DisposeAsync();
-#else
-                    source.Dispose();
-#endif
+                    await source.DisposeAsync().ConfigureAwait(false);
             }
 
             if (!matchFound)
@@ -130,14 +114,12 @@ namespace System.Collections.Async
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
-            return SingleOrDefaultAsync(source, PredicateCache<TSource>.True, token, disposeSource);
+            return SingleOrDefaultAsync(source, PredicateCache<TSource>.True, disposeSource);
         }
 
         /// <summary>
@@ -146,12 +128,10 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> to return the single element of.</param>
         /// <param name="predicate">Criteria predicate to select the only element.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/>.</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<TSource> SingleOrDefaultAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
             if (null == source)
@@ -164,11 +144,7 @@ namespace System.Collections.Async
 
             try
             {
-#if NETCOREAPP3_0
-                while (await source.MoveNextAsync())
-#else
-                while (await source.MoveNextAsync(token).ConfigureAwait(false))
-#endif
+                while (await source.MoveNextAsync().ConfigureAwait(false))
                 {
                     if (predicate(source.Current))
                     {
@@ -186,11 +162,7 @@ namespace System.Collections.Async
             finally
             {
                 if (disposeSource)
-#if NETCOREAPP3_0
-                    await source.DisposeAsync();
-#else
-                    source.Dispose();
-#endif
+                    await source.DisposeAsync().ConfigureAwait(false);
             }
 
             if (!matchFound)
@@ -208,14 +180,12 @@ namespace System.Collections.Async
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return an element from.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
-            return FirstAsync(source, PredicateCache<TSource>.True, null, token, disposeSource);
+            return FirstAsync(source, PredicateCache<TSource>.True, null, disposeSource);
         }
 
         /// <summary>
@@ -224,15 +194,13 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return an element from.</param>
         /// <param name="exceptionMessage">An optional custom exception message for the case when the <paramref name="source"/> is empty</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             string exceptionMessage,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
-            return FirstAsync(source, PredicateCache<TSource>.True, exceptionMessage, token, disposeSource);
+            return FirstAsync(source, PredicateCache<TSource>.True, exceptionMessage, disposeSource);
         }
 
         /// <summary>
@@ -241,15 +209,13 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return an element from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
-            return FirstAsync(source, predicate, null, token, disposeSource);
+            return FirstAsync(source, predicate, null, disposeSource);
         }
 
         /// <summary>
@@ -259,13 +225,11 @@ namespace System.Collections.Async
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return an element from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
         /// <param name="exceptionMessage">An optional custom exception message for the case when the <paramref name="source"/> is empty</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<TSource> FirstAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
             string exceptionMessage,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
             try
@@ -275,11 +239,7 @@ namespace System.Collections.Async
                 if (null == predicate)
                     throw new ArgumentNullException(nameof(predicate));
 
-#if NETCOREAPP3_0
-                while (await source.MoveNextAsync())
-#else
-                while (await source.MoveNextAsync(token).ConfigureAwait(false))
-#endif
+                while (await source.MoveNextAsync().ConfigureAwait(false))
                     if (predicate(source.Current))
                         return source.Current;
 
@@ -288,11 +248,7 @@ namespace System.Collections.Async
             finally
             {
                 if (disposeSource)
-#if NETCOREAPP3_0
-                    await source.DisposeAsync();
-#else
-                    source.Dispose();
-#endif
+                    await source.DisposeAsync().ConfigureAwait(false);
             }
         }
 
@@ -301,14 +257,12 @@ namespace System.Collections.Async
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return an element from.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
-            return FirstOrDefaultAsync(source, PredicateCache<TSource>.True, token, disposeSource);
+            return FirstOrDefaultAsync(source, PredicateCache<TSource>.True, disposeSource);
         }
 
         /// <summary>
@@ -317,12 +271,10 @@ namespace System.Collections.Async
         /// <typeparam name="TSource">The type of the elements of <paramref name="source"/></typeparam>
         /// <param name="source">An <see cref="IAsyncEnumerator{T}"/> to return an element from.</param>
         /// <param name="predicate">A function to test each element for a condition.</param>
-        /// <param name="token">A <see cref="CancellationToken"/> that can halt enumeration of <paramref name="source"/></param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<TSource> FirstOrDefaultAsync<TSource>(
             this IAsyncEnumerator<TSource> source,
             Func<TSource, bool> predicate,
-            CancellationToken token = default,
             bool disposeSource = true)
         {
             try
@@ -332,11 +284,7 @@ namespace System.Collections.Async
                 if (null == predicate)
                     throw new ArgumentNullException(nameof(predicate));
 
-#if NETCOREAPP3_0
-                while (await source.MoveNextAsync())
-#else
-                while (await source.MoveNextAsync(token).ConfigureAwait(false))
-#endif
+                while (await source.MoveNextAsync().ConfigureAwait(false))
                     if (predicate(source.Current))
                         return source.Current;
 
@@ -345,11 +293,7 @@ namespace System.Collections.Async
             finally
             {
                 if (disposeSource)
-#if NETCOREAPP3_0
-                    await source.DisposeAsync();
-#else
-                    source.Dispose();
-#endif
+                    await source.DisposeAsync().ConfigureAwait(false);
             }
         }
 
@@ -390,11 +334,7 @@ namespace System.Collections.Async
             {
                 try
                 {
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         await yield.ReturnAsync(context.Selector(context.Source.Current)).ConfigureAwait(false);
                     }
@@ -402,11 +342,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -447,11 +383,7 @@ namespace System.Collections.Async
                 try
                 {
                     long index = 0;
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         await yield.ReturnAsync(context.Selector(context.Source.Current, index)).ConfigureAwait(false);
                         index++;
@@ -460,11 +392,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -510,22 +438,14 @@ namespace System.Collections.Async
                 {
                     for (var i = context.Count; i > 0; i--)
                     {
-#if NETCOREAPP3_0
-                        if (await context.Source.MoveNextAsync())
-#else
-                        if (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                        if (await context.Source.MoveNextAsync().ConfigureAwait(false))
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
                     }
                 }
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -564,11 +484,7 @@ namespace System.Collections.Async
             {
                 try
                 {
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (context.Predicate(context.Source.Current))
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
@@ -579,11 +495,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -599,32 +511,22 @@ namespace System.Collections.Async
         /// </summary>
         /// <typeparam name="T">The type of the elements of source</typeparam>
         /// <param name="source">The collection of elements</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the async operation</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<List<T>> ToListAsync<T>(
             this IAsyncEnumerator<T> source,
-            CancellationToken cancellationToken = default,
             bool disposeSource = true)
         {
             try
             {
                 var resultList = new List<T>();
-#if NETCOREAPP3_0
-                while (await source.MoveNextAsync())
-#else
-                while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-#endif
+                while (await source.MoveNextAsync().ConfigureAwait(false))
                     resultList.Add(source.Current);
                 return resultList;
             }
             finally
             {
                 if (disposeSource)
-#if NETCOREAPP3_0
-                    await source.DisposeAsync();
-#else
-                    source.Dispose();
-#endif
+                    await source.DisposeAsync().ConfigureAwait(false);
             }
         }
 
@@ -637,32 +539,22 @@ namespace System.Collections.Async
         /// </summary>
         /// <typeparam name="T">The type of the elements of source</typeparam>
         /// <param name="source">The collection of elements</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the async operation</param>
         /// <param name="disposeSource">Flag to call the <see cref="IDisposable.Dispose"/> on input <paramref name="source"/> when this operation is complete</param>
         public static async Task<T[]> ToArrayAsync<T>(
             this IAsyncEnumerator<T> source,
-            CancellationToken cancellationToken = default,
             bool disposeSource = true)
         {
             try
             {
                 var resultList = new List<T>();
-#if NETCOREAPP3_0
-                while (await source.MoveNextAsync())
-#else
-                while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-#endif
+                while (await source.MoveNextAsync().ConfigureAwait(false))
                     resultList.Add(source.Current);
                 return resultList.ToArray();
             }
             finally
             {
                 if (disposeSource)
-#if NETCOREAPP3_0
-                    await source.DisposeAsync();
-#else
-                    source.Dispose();
-#endif
+                    await source.DisposeAsync().ConfigureAwait(false);
             }
         }
 
@@ -701,11 +593,7 @@ namespace System.Collections.Async
                 try
                 {
                     var itemsToSkip = context.Count;
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (itemsToSkip > 0)
                             itemsToSkip--;
@@ -716,11 +604,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -760,11 +644,7 @@ namespace System.Collections.Async
                 try
                 {
                     var yielding = false;
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (!yielding && !context.Predicate(context.Source.Current))
                             yielding = true;
@@ -776,11 +656,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -823,11 +699,7 @@ namespace System.Collections.Async
             {
                 try
                 {
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (context.Predicate(context.Source.Current))
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
@@ -836,11 +708,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -880,11 +748,7 @@ namespace System.Collections.Async
                 try
                 {
                     long index = 0;
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         if (context.Predicate(context.Source.Current, index))
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
@@ -894,11 +758,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -909,6 +769,7 @@ namespace System.Collections.Async
 
         #region Cast
 
+#if !NETCOREAPP3_0
         /// <summary>
         /// Casts the elements of an <see cref="IAsyncEnumerator"/> to the specified type.
         /// </summary>
@@ -934,26 +795,19 @@ namespace System.Collections.Async
             {
                 try
                 {
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                         await yield.ReturnAsync((TResult)context.Source.Current).ConfigureAwait(false);
                 }
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, CastContext<TResult>, Task> Enumerate = _enumerate;
         }
+#endif
 
         #endregion
 
@@ -999,11 +853,7 @@ namespace System.Collections.Async
                 {
                     var isEmpty = true;
 
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         isEmpty = false;
                         await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
@@ -1015,11 +865,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -1226,11 +1072,7 @@ namespace System.Collections.Async
 
                 try
                 {
-#if NETCOREAPP3_0
-                    while (await context.Source.MoveNextAsync())
-#else
-                    while (await context.Source.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                    while (await context.Source.MoveNextAsync().ConfigureAwait(false))
                     {
                         var itemWeight = context.WeightSelector?.Invoke(context.Source.Current) ?? 0L;
 
@@ -1265,11 +1107,7 @@ namespace System.Collections.Async
                 finally
                 {
                     if (context.DisposeSource)
-#if NETCOREAPP3_0
-                        await context.Source.DisposeAsync();
-#else
-                        context.Source.Dispose();
-#endif
+                        await context.Source.DisposeAsync().ConfigureAwait(false);
                 }
             }
 
@@ -1329,21 +1167,13 @@ namespace System.Collections.Async
 
                     try
                     {
-#if NETCOREAPP3_0
-                        while (await collection.MoveNextAsync())
-#else
-                        while (await collection.MoveNextAsync(yield.CancellationToken).ConfigureAwait(false))
-#endif
+                        while (await collection.MoveNextAsync().ConfigureAwait(false))
                             await yield.ReturnAsync(collection.Current).ConfigureAwait(false);
                     }
                     finally
                     {
                         if (context.DisposeSource)
-#if NETCOREAPP3_0
-                            await collection.DisposeAsync();
-#else
-                            collection.Dispose();
-#endif
+                            await collection.DisposeAsync().ConfigureAwait(false);
                     }
                 }
             }

@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.28606.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncEnumerable", "NetFramework.4.5\lib\AsyncEnumerable.csproj", "{111536C3-DABF-48CF-B993-E504C0BC5CE7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET Framework 4.5", ".Net Framework 4.5", "{6D19B0B6-35B3-4A6B-B060-60DD1E7F8CAB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET Framework 4.5", ".NET Framework 4.5", "{6D19B0B6-35B3-4A6B-B060-60DD1E7F8CAB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.NetFramework.4.5", "NetFramework.4.5\tests\Tests.NetFramework.4.5.csproj", "{9557379C-26E0-448F-AB22-B197885B05E2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET Standard 1.4", ".Net Standard 1.4", "{FEFF0146-6799-40F0-A9CF-AB5AAB6584C9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET Standard 1.4", ".NET Standard 1.4", "{FEFF0146-6799-40F0-A9CF-AB5AAB6584C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncEnumerable", "NetStandard.1.4\lib\AsyncEnumerable.csproj", "{2299336C-BC95-41DB-8697-5127E3754370}"
 EndProject

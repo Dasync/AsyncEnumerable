@@ -2,6 +2,7 @@
 
 namespace System.Collections.Async.Internals
 {
+#if !NETCOREAPP3_0
     internal sealed class EnumerableAdapter : IEnumerable
     {
         private readonly IAsyncEnumerable _asyncEnumerable;
@@ -12,14 +13,9 @@ namespace System.Collections.Async.Internals
         }
 
         public IEnumerator GetEnumerator() =>
-            new EnumeratorAdapter(
-#if NETCOREAPP3_0
-                _asyncEnumerable.GetAsyncEnumerator()
-#else
-                _asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult()
-#endif
-            );
+            new EnumeratorAdapter(_asyncEnumerable.GetAsyncEnumerator());
     }
+#endif
 
     internal sealed class EnumerableAdapter<T> : IEnumerable, IEnumerable<T>
     {
@@ -33,12 +29,6 @@ namespace System.Collections.Async.Internals
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IEnumerator<T> GetEnumerator() =>
-            new EnumeratorAdapter<T>(
-#if NETCOREAPP3_0
-                _asyncEnumerable.GetAsyncEnumerator()
-#else
-                _asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult()
-#endif
-            );
+            new EnumeratorAdapter<T>(_asyncEnumerable.GetAsyncEnumerator());
     }
 }

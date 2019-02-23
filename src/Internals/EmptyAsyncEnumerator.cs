@@ -16,15 +16,9 @@ namespace System.Collections.Async.Internals
 
         object IAsyncEnumerator.Current => Current;
 
-#if NETCOREAPP3_0
         public ValueTask<bool> MoveNextAsync() => new ValueTask<bool>(false);
 
         public ValueTask DisposeAsync() => new ValueTask();
-#else
-        public Task<bool> MoveNextAsync(CancellationToken cancellationToken) => TaskEx.False;
-
-        public Task DisposeAsync() => TaskEx.Completed;
-#endif
 
         public void Dispose() { }
     }

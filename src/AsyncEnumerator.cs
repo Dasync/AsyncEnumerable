@@ -59,9 +59,7 @@ namespace System.Collections.Async
             Dispose(manualDispose: false);
         }
 
-#if NETCOREAPP3_0
         internal CancellationToken MasterCancellationToken;
-#endif
 
         /// <summary>
         /// A user state that gets passed into the enumeration function.
@@ -88,7 +86,6 @@ namespace System.Collections.Async
 
         object IAsyncEnumerator.Current => Current;
 
-#if NETCOREAPP3_0
         /// <summary>
         /// Advances the enumerator to the next element of the collection asynchronously
         /// </summary>
@@ -99,38 +96,9 @@ namespace System.Collections.Async
                 return new ValueTask<bool>(false);
 
             if (_yield == null)
-                _yield = new AsyncEnumerator<TItem>.Yield(this);
+                _yield = new AsyncEnumerator<TItem>.Yield(this, MasterCancellationToken);
 
-            var moveNextCompleteTask = _yield.OnMoveNext(MasterCancellationToken);
-
-            if (_enumerationTask == null)
-            {
-                // Register for finalization, which might be needed if caller
-                // doesn't not finish the enumeration and does not call Dispose().
-                GC.ReRegisterForFinalize(this);
-
-                _enumerationTask =
-                    _enumerationFunction(_yield, State)
-                    .ContinueWith(OnEnumerationCompleteAction, this, TaskContinuationOptions.ExecuteSynchronously);
-            }
-
-            return moveNextCompleteTask;
-        }
-#else
-        /// <summary>
-        /// Advances the enumerator to the next element of the collection asynchronously
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token to cancel the enumeration</param>
-        /// <returns>Returns a Task that does transition to the next element. The result of the task is True if the enumerator was successfully advanced to the next element, or False if the enumerator has passed the end of the collection.</returns>
-        public virtual Task<bool> MoveNextAsync(CancellationToken cancellationToken = default)
-        {
-            if (_enumerationFunction == null)
-                return TaskEx.False;
-
-            if (_yield == null)
-                _yield = new AsyncEnumerator<TItem>.Yield(this);
-
-            var moveNextCompleteTask = _yield.OnMoveNext(cancellationToken);
+            var moveNextCompleteTask = _yield.OnMoveNext();
 
             if (_enumerationTask == null)
             {
@@ -145,7 +113,6 @@ namespace System.Collections.Async
 
             return moveNextCompleteTask;
         }
-#endif
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources
@@ -158,13 +125,7 @@ namespace System.Collections.Async
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources
         /// </summary>
-        public async
-#if NETCOREAPP3_0
-            ValueTask
-#else
-            Task
-#endif
-            DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             var enumTask = _enumerationTask;
 
@@ -256,13 +217,14 @@ namespace System.Collections.Async
             private TaskCompletionSource<bool> _moveNextCompleteTcs;
             private CurrentValueContainer<T> _currentValueContainer;
 
-            internal Yield(CurrentValueContainer<T> currentValueContainer)
+            internal Yield(CurrentValueContainer<T> currentValueContainer, CancellationToken cancellationToken)
             {
                 _currentValueContainer = currentValueContainer;
+                CancellationToken = cancellationToken;
             }
 
             /// <summary>
-            /// Gets the cancellation token that was passed to the <see cref="IAsyncEnumerator.MoveNextAsync(CancellationToken)"/> method
+            /// Gets the cancellation token that was passed to the <see cref="IAsyncEnumerator.MoveNextAsync()"/> method
             /// </summary>
             public CancellationToken CancellationToken { get; private set; }
 
@@ -314,31 +276,16 @@ namespace System.Collections.Async
                 _moveNextCompleteTcs?.TrySetException(ex.GetBaseException());
             }
 
-#if NETCOREAPP3_0
-            internal ValueTask<bool> OnMoveNext(CancellationToken cancellationToken)
+            internal ValueTask<bool> OnMoveNext()
             {
                 if (!IsComplete)
                 {
-                    CancellationToken = cancellationToken;
                     TaskCompletionSource.Reset(ref _moveNextCompleteTcs);
                     _resumeEnumerationTcs?.TrySetResult(true);
                 }
 
                 return new ValueTask<bool>(_moveNextCompleteTcs.Task);
             }
-#else
-            internal Task<bool> OnMoveNext(CancellationToken cancellationToken)
-            {
-                if (!IsComplete)
-                {
-                    CancellationToken = cancellationToken;
-                    TaskCompletionSource.Reset(ref _moveNextCompleteTcs);
-                    _resumeEnumerationTcs?.TrySetResult(true);
-                }
-
-                return _moveNextCompleteTcs.Task;
-            }
-#endif
         }
 
         /// <summary>
