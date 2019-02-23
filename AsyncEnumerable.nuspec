@@ -73,7 +73,7 @@ static void ConsumeNumbers()
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
         <releaseNotes>
-3.0.0-beta1: Add support for NET Core App 3.0.
+3.0.0-beta1: Add support for NET Core App 3.0, consolidate interface with Microsoft's implementation.
 2.2.0: New extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
 2.1.0: New extension methods: Batch, UnionAll, Single, SingleOrDefault, DefaultIfEmpty, Cast.
 2.0.0: Revise design of the library: same features, but slight paradigm shift and interface breaking changes.

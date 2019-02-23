@@ -324,6 +324,9 @@ The `ForEachAsync` allows you to go through a collection and perform an action o
 
 ## RELEASE NOTES
 
+3.0.0-beta1: Add support for NET Core App 3.0.
+             Consolidate interface with Microsoft's implementation.
+
 2.2.2: Bug-fix: IAsyncEnumerator.MoveNext must return FAlse on Yield.Break instead of throwing OperationCanceledException.
 
 2.2.0: New LINQ-style extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
