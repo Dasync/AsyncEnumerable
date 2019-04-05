@@ -10,7 +10,16 @@ namespace System.Collections.Async
     [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
     public static class ForEachAsyncExtensions
     {
-#if !NETCOREAPP3_0
+#if NETCOREAPP3_0
+        /// <summary>
+        /// Stops ForEachAsync iteration (similar to 'break' statement)
+        /// </summary>
+        /// <exception cref="ForEachAsyncBreakException">Always throws this exception to stop the ForEachAsync iteration</exception>
+        public static void Break<T>(this IAsyncEnumerable<T> enumerable)
+        {
+            throw new ForEachAsyncBreakException();
+        }
+#else
         /// <summary>
         /// Stops ForEachAsync iteration (similar to 'break' statement)
         /// </summary>
@@ -19,7 +28,9 @@ namespace System.Collections.Async
         {
             throw new ForEachAsyncBreakException();
         }
+#endif
 
+#if !NETCOREAPP3_0
         /// <summary>
         /// Enumerates over all elements in the collection asynchronously
         /// </summary>
@@ -36,6 +47,9 @@ namespace System.Collections.Async
                 {
                     action(enumerator.Current);
                 }
+            }
+            catch (ForEachAsyncBreakException)
+            {
             }
             finally
             {
@@ -57,6 +71,9 @@ namespace System.Collections.Async
                 {
                     action(enumerator.Current);
                 }
+            }
+            catch (ForEachAsyncBreakException)
+            {
             }
             finally
             {
@@ -84,6 +101,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncBreakException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -108,6 +128,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncBreakException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -131,6 +154,9 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
+            catch (ForEachAsyncBreakException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -151,6 +177,9 @@ namespace System.Collections.Async
                 {
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
+            }
+            catch (ForEachAsyncBreakException)
+            {
             }
             finally
             {
@@ -178,6 +207,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncBreakException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -201,6 +233,9 @@ namespace System.Collections.Async
                     await action(enumerator.Current, index).ConfigureAwait(false);
                     index++;
                 }
+            }
+            catch (ForEachAsyncBreakException)
+            {
             }
             finally
             {
@@ -227,6 +262,9 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
+            catch (ForEachAsyncBreakException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -248,6 +286,9 @@ namespace System.Collections.Async
                 {
                     action(enumerator.Current);
                 }
+            }
+            catch (ForEachAsyncBreakException)
+            {
             }
             finally
             {
@@ -276,6 +317,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncBreakException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -300,6 +344,9 @@ namespace System.Collections.Async
                     action(enumerator.Current, index);
                     index++;
                 }
+            }
+            catch (ForEachAsyncBreakException)
+            {
             }
             finally
             {
@@ -350,6 +397,9 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
+            catch (ForEachAsyncBreakException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -377,6 +427,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncBreakException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -401,6 +454,9 @@ namespace System.Collections.Async
                     await action(enumerator.Current, index).ConfigureAwait(false);
                     index++;
                 }
+            }
+            catch (ForEachAsyncBreakException)
+            {
             }
             finally
             {
