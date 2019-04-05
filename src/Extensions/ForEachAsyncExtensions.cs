@@ -12,6 +12,15 @@ namespace System.Collections.Async
     {
 #if !NETCOREAPP3_0
         /// <summary>
+        /// Stops ForEachAsync iteration (similar to 'break' statement)
+        /// </summary>
+        /// <exception cref="ForEachAsyncBreakException">Always throws this exception to stop the ForEachAsync iteration</exception>
+        public static void Break(this IAsyncEnumerable enumerable)
+        {
+            throw new ForEachAsyncBreakException();
+        }
+
+        /// <summary>
         /// Enumerates over all elements in the collection asynchronously
         /// </summary>
         /// <param name="enumerable">The collection of elements which can be enumerated asynchronously</param>
@@ -315,6 +324,9 @@ namespace System.Collections.Async
                 {
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
+            }
+            catch (ForEachAsyncBreakException)
+            {
             }
             finally
             {
