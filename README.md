@@ -55,7 +55,7 @@ Helps to (a) create an element provider, where producing an element can take a l
         count++;
         if (count >= 5)
         {
-          // You can break the ForEachAsync loop with the following call
+          // You can break the ForEachAsync loop with the following call:
           ForEachAsync.Break();
         }
       });
