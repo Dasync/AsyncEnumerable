@@ -47,7 +47,7 @@ namespace Tests
                 {
                     Assert.AreEqual(counter, number);
                     counter++;
-                    if (counter == 3) enumerable.Break();
+                    if (counter == 3) ForEachAsync.Break();
                 });
 
             Assert.AreEqual(3, counter);
@@ -69,7 +69,7 @@ namespace Tests
                 {
                     Assert.AreEqual(counter, number);
                     counter++;
-                    if (counter == 2) enumerable.Break();
+                    if (counter == 2) ForEachAsync.Break();
                 });
 
             Assert.AreEqual(2, counter);

@@ -49,8 +49,15 @@ Helps to (a) create an element provider, where producing an element can take a l
     static async Task ConsumeNumbersAsync()
     {
       var asyncEnumerableCollection = ProduceAsyncNumbers(start: 1, end: 10);
+      int count == 0;
       await asyncEnumerableCollection.ForEachAsync(async number => {
         await Console.Out.WriteLineAsync($"{number}");
+        count++;
+        if (count >= 5)
+        {
+          // You can break the ForEachAsync loop with the following call
+          ForEachAsync.Break();
+        }
       });
     }
 

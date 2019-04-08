@@ -80,6 +80,9 @@
     <Compile Include="..\..\src\Extensions\ParallelForEachExtensions.cs">
       <Link>Extensions\ParallelForEachExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\ForEachAsync.cs">
+      <Link>ForEachAsync.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\ForEachAsyncCanceledException.cs">
       <Link>ForEachAsyncCanceledException.cs</Link>
     </Compile>

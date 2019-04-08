@@ -10,26 +10,6 @@ namespace System.Collections.Async
     [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
     public static class ForEachAsyncExtensions
     {
-#if NETCOREAPP3_0
-        /// <summary>
-        /// Stops ForEachAsync iteration (similar to 'break' statement)
-        /// </summary>
-        /// <exception cref="ForEachAsyncCanceledException">Always throws this exception to stop the ForEachAsync iteration</exception>
-        public static void Break<T>(this IAsyncEnumerable<T> enumerable)
-        {
-            throw new ForEachAsyncCanceledException();
-        }
-#else
-        /// <summary>
-        /// Stops ForEachAsync iteration (similar to 'break' statement)
-        /// </summary>
-        /// <exception cref="ForEachAsyncCanceledException">Always throws this exception to stop the ForEachAsync iteration</exception>
-        public static void Break(this IAsyncEnumerable enumerable)
-        {
-            throw new ForEachAsyncCanceledException();
-        }
-#endif
-
 #if !NETCOREAPP3_0
         /// <summary>
         /// Enumerates over all elements in the collection asynchronously
