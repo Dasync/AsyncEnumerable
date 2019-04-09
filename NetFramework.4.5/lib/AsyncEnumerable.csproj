@@ -68,6 +68,12 @@
     <Compile Include="..\..\src\Extensions\ForEachAsyncExtensions.cs">
       <Link>Extensions\ForEachAsyncExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\Extensions\ForEachAsync.cs">
+      <Link>Extensions\ForEachAsync.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\Extensions\ForEachAsyncBreakException.cs">
+      <Link>Extensions\ForEachAsyncBreakException.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\Extensions\IAsyncEnumerableExtensions.cs">
       <Link>Extensions\IAsyncEnumerableExtensions.cs</Link>
     </Compile>
@@ -79,12 +85,6 @@
     </Compile>
     <Compile Include="..\..\src\Extensions\ParallelForEachExtensions.cs">
       <Link>Extensions\ParallelForEachExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\ForEachAsync.cs">
-      <Link>ForEachAsync.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\ForEachAsyncCanceledException.cs">
-      <Link>ForEachAsyncCanceledException.cs</Link>
     </Compile>
     <Compile Include="..\..\src\IAsyncDisposable.cs">
       <Link>IAsyncDisposable.cs</Link>
@@ -125,9 +125,6 @@
     <Compile Include="..\..\src\Internals\TaskEx.cs">
       <Link>Internals\TaskEx.cs</Link>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

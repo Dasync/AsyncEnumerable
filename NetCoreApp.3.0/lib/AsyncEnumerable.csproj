@@ -35,12 +35,12 @@
     <Compile Include="..\..\src\AsyncEnumerator.cs" Link="AsyncEnumerator.cs" />
     <Compile Include="..\..\src\Extensions\AdapterExtensions.cs" Link="Extensions\AdapterExtensions.cs" />
     <Compile Include="..\..\src\Extensions\ForEachAsyncExtensions.cs" Link="Extensions\ForEachAsyncExtensions.cs" />
+    <Compile Include="..\..\src\Extensions\ForEachAsync.cs" Link="Extensions\ForEachAsync.cs" />
+    <Compile Include="..\..\src\Extensions\ForEachAsyncBreakException.cs" Link="Extensions\ForEachAsyncBreakException.cs" />
     <Compile Include="..\..\src\Extensions\IAsyncEnumerableExtensions.cs" Link="Extensions\IAsyncEnumerableExtensions.cs" />
     <Compile Include="..\..\src\Extensions\IAsyncEnumeratorExtensions.cs" Link="Extensions\IAsyncEnumeratorExtensions.cs" />
     <Compile Include="..\..\src\Extensions\ParallelForEachException.cs" Link="Extensions\ParallelForEachException.cs" />
     <Compile Include="..\..\src\Extensions\ParallelForEachExtensions.cs" Link="Extensions\ParallelForEachExtensions.cs" />
-    <Compile Include="..\..\src\ForEachAsync.cs" Link="ForEachAsync.cs" />
-    <Compile Include="..\..\src\ForEachAsyncCanceledException.cs" Link="ForEachAsyncCanceledException.cs" />
     <Compile Include="..\..\src\IAsyncEnumerable.cs" Link="IAsyncEnumerable.cs" />
     <Compile Include="..\..\src\IAsyncEnumerator.cs" Link="IAsyncEnumerator.cs" />
     <Compile Include="..\..\src\Internals\AsyncEnumerableWrapper.cs" Link="Internals\AsyncEnumerableWrapper.cs" />

@@ -28,7 +28,7 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -52,7 +52,7 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -81,7 +81,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -108,7 +108,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -134,7 +134,7 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -158,7 +158,7 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -187,7 +187,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -214,7 +214,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -242,7 +242,7 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -267,7 +267,7 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -297,7 +297,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -325,7 +325,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -352,7 +352,7 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -377,7 +377,7 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -407,7 +407,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
@@ -435,7 +435,7 @@ namespace System.Collections.Async
                     index++;
                 }
             }
-            catch (ForEachAsyncCanceledException)
+            catch (ForEachAsyncBreakException)
             {
             }
             finally
