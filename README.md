@@ -146,7 +146,7 @@ foreach await (var item in asyncEnumerable)
 }
 ```
 
-This library will be upgraded to use .NET's integrated iterators and interfaces `IAsyncEnumerable`, `IAsyncEnumerator`, where all usefull extension methods (like `ParallelForEachAsync`) will survive.
+The version 3 of this library is already upgraded to use .NET's integrated iterators and interfaces (`IAsyncEnumerable`, `IAsyncEnumerator`), where all usefull extension methods (like `ParallelForEachAsync`) survived. The only reason why version 3 is marked with 'beta' flag is that .NET Core 3.0 is not released yet. There are no experimental features or unfinished code, and it's safe to use.
 
 
 ## REFERENCES
