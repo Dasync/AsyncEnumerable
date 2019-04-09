@@ -28,6 +28,9 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -48,6 +51,9 @@ namespace System.Collections.Async
                 {
                     action(enumerator.Current);
                 }
+            }
+            catch (ForEachAsyncCanceledException)
+            {
             }
             finally
             {
@@ -75,6 +81,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -99,6 +108,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -122,6 +134,9 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -142,6 +157,9 @@ namespace System.Collections.Async
                 {
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
+            }
+            catch (ForEachAsyncCanceledException)
+            {
             }
             finally
             {
@@ -169,6 +187,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -192,6 +213,9 @@ namespace System.Collections.Async
                     await action(enumerator.Current, index).ConfigureAwait(false);
                     index++;
                 }
+            }
+            catch (ForEachAsyncCanceledException)
+            {
             }
             finally
             {
@@ -218,6 +242,9 @@ namespace System.Collections.Async
                     action(enumerator.Current);
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -239,6 +266,9 @@ namespace System.Collections.Async
                 {
                     action(enumerator.Current);
                 }
+            }
+            catch (ForEachAsyncCanceledException)
+            {
             }
             finally
             {
@@ -267,6 +297,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -292,6 +325,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -316,6 +352,9 @@ namespace System.Collections.Async
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -337,6 +376,9 @@ namespace System.Collections.Async
                 {
                     await action(enumerator.Current).ConfigureAwait(false);
                 }
+            }
+            catch (ForEachAsyncCanceledException)
+            {
             }
             finally
             {
@@ -365,6 +407,9 @@ namespace System.Collections.Async
                     index++;
                 }
             }
+            catch (ForEachAsyncCanceledException)
+            {
+            }
             finally
             {
                 await enumerator.DisposeAsync().ConfigureAwait(false);
@@ -389,6 +434,9 @@ namespace System.Collections.Async
                     await action(enumerator.Current, index).ConfigureAwait(false);
                     index++;
                 }
+            }
+            catch (ForEachAsyncCanceledException)
+            {
             }
             finally
             {
