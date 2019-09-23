@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Async;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using NUnit.Framework;
 
 namespace Tests
@@ -33,15 +34,15 @@ namespace Tests
         public void CancelEnumeration()
         {
             var cts = new CancellationTokenSource();
+            cts.Cancel();
 
-            var enumerator = new AsyncEnumerator<int>(yield =>
+            var enumerable = new AsyncEnumerable<int>(async yield =>
             {
-                cts.Cancel();
+                await Task.Yield();
                 yield.CancellationToken.ThrowIfCancellationRequested();
-                return Task.FromResult(0);
             });
 
-            Assert.ThrowsAsync<OperationCanceledException>(() => enumerator.MoveNextAsync(cts.Token));
+            Assert.ThrowsAsync<TaskCanceledException>(() => enumerable.ToListAsync(cts.Token));
         }
 
         [Test]
@@ -77,23 +78,26 @@ namespace Tests
 
             var testDisposable = new TestDisposable();
 
-            var enumerator = new AsyncEnumerator<int>(async yield =>
+            void CreateEnumeratorAndMoveNext()
             {
-                using (testDisposable)
+                var enumerator = new AsyncEnumerator<int>(async yield =>
                 {
-                    await yield.ReturnAsync(1);
-                    await yield.ReturnAsync(2);
-                    await yield.ReturnAsync(3);
-                }
-            });
+                    using (testDisposable)
+                    {
+                        await yield.ReturnAsync(1);
+                        await yield.ReturnAsync(2);
+                        await yield.ReturnAsync(3);
+                    }
+                });
+
+                // Do partial enumeration.
+                enumerator.MoveNextAsync().GetAwaiter().GetResult();
+            }
 
             // ACT
-
-            // Do partial enumeration.
-            await enumerator.MoveNextAsync();
+            CreateEnumeratorAndMoveNext();
 
             // Instead of calling enumerator.Dispose(), do garbage collection.
-            enumerator = null;
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
 
             // Give some time to other thread that does the disposal of the enumerator.
@@ -134,21 +138,56 @@ namespace Tests
 
             var testDisposable = new TestDisposable();
 
-            var enumerator = new AsyncEnumerator<int>(async yield =>
+            void CreateEnumerator()
             {
-                await yield.ReturnAsync(1);
-            },
-            onDispose: () => testDisposable.Dispose());
+                var enumerator = new AsyncEnumerator<int>(async yield =>
+                {
+                    await yield.ReturnAsync(1);
+                },
+                onDispose: () => testDisposable.Dispose());
+            }
 
             // ACT
 
-            enumerator = null;
+            CreateEnumerator();
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
             Thread.Sleep(16);
 
             // ASSERT
 
             Assert.IsTrue(testDisposable.HasDisposed);
+        }
+
+        [Test]
+        public async Task DisposeWaitsForFinalization()
+        {
+            var tcs = new TaskCompletionSource<object>();
+            var isFinalized = false;
+
+            var enumerable = new AsyncEnumerable<int>(async yield =>
+            {
+                try
+                {
+                    await yield.ReturnAsync(1);
+                    await yield.ReturnAsync(2);
+                }
+                finally
+                {
+                    await tcs.Task;
+                    isFinalized = true;
+                }
+            });
+
+            var enumerator = enumerable.GetAsyncEnumerator();
+            await enumerator.MoveNextAsync();
+
+            var disposeTask = enumerator.DisposeAsync();
+            await Task.Yield();
+            Assert.IsFalse(disposeTask.IsCompleted);
+
+            tcs.SetResult(null);
+            await disposeTask;
+            Assert.IsTrue(isFinalized);
         }
 
         private class TestDisposable : IDisposable

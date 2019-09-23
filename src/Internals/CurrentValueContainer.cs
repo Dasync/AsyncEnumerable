@@ -1,4 +1,4 @@
-﻿namespace System.Collections.Async.Internals
+﻿namespace Dasync.Collections.Internals
 {
     /// <summary>
     /// Internal base type for <see cref="AsyncEnumerator{T}"/> and <see cref="AsyncEnumeratorWithState{TItem, TState}"/>

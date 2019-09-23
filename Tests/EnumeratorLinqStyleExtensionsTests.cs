@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using NUnit.Framework;
 
 namespace Tests

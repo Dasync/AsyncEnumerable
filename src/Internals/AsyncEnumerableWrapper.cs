@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
+using Dasync.Collections;
 
-namespace System.Collections.Async.Internals
+namespace Dasync.Collections.Internals
 {
-    internal sealed class AsyncEnumerableWrapper<T> : IAsyncEnumerable<T>
+    internal sealed class AsyncEnumerableWrapper<T> : IAsyncEnumerable, IAsyncEnumerable<T>
     {
-        private IEnumerable<T> _enumerable;
+        private readonly IEnumerable<T> _enumerable;
         private readonly bool _runSynchronously;
 
         public AsyncEnumerableWrapper(IEnumerable<T> enumerable, bool runSynchronously)
@@ -15,10 +15,12 @@ namespace System.Collections.Async.Internals
             _runSynchronously = runSynchronously;
         }
 
-        public Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken = default) => Task.FromResult(CreateAsyncEnumerator());
+        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
+            => new AsyncEnumeratorWrapper<T>(_enumerable.GetEnumerator(), _runSynchronously)
+                { MasterCancellationToken = cancellationToken };
 
-        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken) => Task.FromResult<IAsyncEnumerator>(CreateAsyncEnumerator());
-
-        private IAsyncEnumerator<T> CreateAsyncEnumerator() => new AsyncEnumeratorWrapper<T>(_enumerable.GetEnumerator(), _runSynchronously);
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            => new AsyncEnumeratorWrapper<T>(_enumerable.GetEnumerator(), _runSynchronously)
+                { MasterCancellationToken = cancellationToken };
     }
 }

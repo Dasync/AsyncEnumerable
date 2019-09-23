@@ -1,19 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28606.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncEnumerable", "NetFramework.4.5\lib\AsyncEnumerable.csproj", "{111536C3-DABF-48CF-B993-E504C0BC5CE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncEnumerable.NetFx45", "netfx45\lib\AsyncEnumerable.NetFx45.csproj", "{111536C3-DABF-48CF-B993-E504C0BC5CE7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Net Framework 4.5", ".Net Framework 4.5", "{6D19B0B6-35B3-4A6B-B060-60DD1E7F8CAB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET Framework 4.5", ".NET Framework 4.5", "{6D19B0B6-35B3-4A6B-B060-60DD1E7F8CAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.NetFramework.4.5", "NetFramework.4.5\tests\Tests.NetFramework.4.5.csproj", "{9557379C-26E0-448F-AB22-B197885B05E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncEnumerable.Tests.NetFx45", "netfx45\tests\AsyncEnumerable.Tests.NetFx45.csproj", "{9557379C-26E0-448F-AB22-B197885B05E2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Net Standard 1.4", ".Net Standard 1.4", "{FEFF0146-6799-40F0-A9CF-AB5AAB6584C9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET Standard", ".NET Standard", "{FEFF0146-6799-40F0-A9CF-AB5AAB6584C9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncEnumerable", "NetStandard.1.4\lib\AsyncEnumerable.csproj", "{2299336C-BC95-41DB-8697-5127E3754370}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.NetStandard.1.4", "NetStandard.1.4\tests\Tests.NetStandard.1.4.csproj", "{24E51531-A113-4149-A32D-8B503DE9074B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncEnumerable", "src\AsyncEnumerable.csproj", "{2299336C-BC95-41DB-8697-5127E3754370}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{6E8E24A4-11BF-46D5-B060-E993E070ED65}"
 	ProjectSection(SolutionItems) = preProject
@@ -21,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{6E8E24
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncEnumerable.Tests", "Tests\AsyncEnumerable.Tests.csproj", "{FFD079F6-2A1E-4D81-BE07-005DD274D336}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,18 +68,18 @@ Global
 		{2299336C-BC95-41DB-8697-5127E3754370}.Release|x64.Build.0 = Release|Any CPU
 		{2299336C-BC95-41DB-8697-5127E3754370}.Release|x86.ActiveCfg = Release|Any CPU
 		{2299336C-BC95-41DB-8697-5127E3754370}.Release|x86.Build.0 = Release|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Debug|x64.Build.0 = Debug|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Debug|x86.Build.0 = Debug|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Release|x64.ActiveCfg = Release|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Release|x64.Build.0 = Release|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Release|x86.ActiveCfg = Release|Any CPU
-		{24E51531-A113-4149-A32D-8B503DE9074B}.Release|x86.Build.0 = Release|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Debug|x64.Build.0 = Debug|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Debug|x86.Build.0 = Debug|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Release|x64.ActiveCfg = Release|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Release|x64.Build.0 = Release|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Release|x86.ActiveCfg = Release|Any CPU
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +88,9 @@ Global
 		{111536C3-DABF-48CF-B993-E504C0BC5CE7} = {6D19B0B6-35B3-4A6B-B060-60DD1E7F8CAB}
 		{9557379C-26E0-448F-AB22-B197885B05E2} = {6D19B0B6-35B3-4A6B-B060-60DD1E7F8CAB}
 		{2299336C-BC95-41DB-8697-5127E3754370} = {FEFF0146-6799-40F0-A9CF-AB5AAB6584C9}
-		{24E51531-A113-4149-A32D-8B503DE9074B} = {FEFF0146-6799-40F0-A9CF-AB5AAB6584C9}
+		{FFD079F6-2A1E-4D81-BE07-005DD274D336} = {FEFF0146-6799-40F0-A9CF-AB5AAB6584C9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {98CBAF14-E09D-4B95-ABA5-0028ADD420B1}
 	EndGlobalSection
 EndGlobal

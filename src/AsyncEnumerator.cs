@@ -1,8 +1,11 @@
-﻿using System.Collections.Async.Internals;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections.Internals;
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Base type for <see cref="AsyncEnumerator{T}"/> and <see cref="AsyncEnumeratorWithState{TItem, TState}"/>
@@ -21,7 +24,7 @@ namespace System.Collections.Async
     /// but allows to pass a user state object in the enumeration function,
     /// what can be used for performance optimization.
     /// </summary>
-    public class AsyncEnumeratorWithState<TItem, TState> : CurrentValueContainer<TItem>, IAsyncEnumerator<TItem>
+    public class AsyncEnumeratorWithState<TItem, TState> : CurrentValueContainer<TItem>, IAsyncEnumerator, IAsyncEnumerator<TItem>
     {
         private static readonly Action<Task, object> OnEnumerationCompleteAction = OnEnumerationComplete;
 
@@ -58,6 +61,8 @@ namespace System.Collections.Async
             Dispose(manualDispose: false);
         }
 
+        internal CancellationToken MasterCancellationToken;
+
         /// <summary>
         /// A user state that gets passed into the enumeration function.
         /// </summary>
@@ -86,17 +91,16 @@ namespace System.Collections.Async
         /// <summary>
         /// Advances the enumerator to the next element of the collection asynchronously
         /// </summary>
-        /// <param name="cancellationToken">A cancellation token to cancel the enumeration</param>
         /// <returns>Returns a Task that does transition to the next element. The result of the task is True if the enumerator was successfully advanced to the next element, or False if the enumerator has passed the end of the collection.</returns>
-        public virtual Task<bool> MoveNextAsync(CancellationToken cancellationToken = default)
+        public virtual ValueTask<bool> MoveNextAsync()
         {
             if (_enumerationFunction == null)
-                return TaskEx.False;
+                return new ValueTask<bool>(false);
 
             if (_yield == null)
-                _yield = new AsyncEnumerator<TItem>.Yield(this);
+                _yield = new AsyncEnumerator<TItem>.Yield(this, MasterCancellationToken);
 
-            var moveNextCompleteTask = _yield.OnMoveNext(cancellationToken);
+            var moveNextCompleteTask = _yield.OnMoveNext();
 
             if (_enumerationTask == null)
             {
@@ -117,7 +121,29 @@ namespace System.Collections.Async
         /// </summary>
         public void Dispose()
         {
+            DisposeAsync().GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources
+        /// </summary>
+        public async ValueTask DisposeAsync()
+        {
+            var enumTask = _enumerationTask;
+
             Dispose(manualDispose: true);
+
+            if (enumTask != null)
+            {
+                try
+                {
+                    await enumTask;
+                }
+                catch
+                {
+                }
+            }
+
             GC.SuppressFinalize(this);
         }
 
@@ -192,19 +218,19 @@ namespace System.Collections.Async
             private TaskCompletionSource<bool> _resumeEnumerationTcs; // Can be of any type - there is no non-generic version of the TaskCompletionSource
             private TaskCompletionSource<bool> _moveNextCompleteTcs;
             private CurrentValueContainer<T> _currentValueContainer;
-            private bool _isComplete;
 
-            internal Yield(CurrentValueContainer<T> currentValueContainer)
+            internal Yield(CurrentValueContainer<T> currentValueContainer, CancellationToken cancellationToken)
             {
                 _currentValueContainer = currentValueContainer;
+                CancellationToken = cancellationToken;
             }
 
             /// <summary>
-            /// Gets the cancellation token that was passed to the <see cref="IAsyncEnumerator.MoveNextAsync(CancellationToken)"/> method
+            /// Gets the cancellation token that was passed to the <see cref="IAsyncEnumerator.MoveNextAsync()"/> method
             /// </summary>
             public CancellationToken CancellationToken { get; private set; }
 
-            internal bool IsComplete => _isComplete;
+            internal bool IsComplete { get; private set; }
 
             /// <summary>
             /// Yields an item asynchronously (similar to 'yield return' statement)
@@ -233,13 +259,13 @@ namespace System.Collections.Async
 
             internal void SetComplete()
             {
-                _isComplete = true;
+                IsComplete = true;
                 _moveNextCompleteTcs.TrySetResult(false);
             }
 
             internal void SetCanceled()
             {
-                _isComplete = true;
+                IsComplete = true;
                 if (!CancellationToken.IsCancellationRequested)
                     CancellationToken = CancellationTokenEx.Canceled;
                 _resumeEnumerationTcs?.TrySetException(new AsyncEnumerationCanceledException());
@@ -248,20 +274,19 @@ namespace System.Collections.Async
 
             internal void SetFailed(Exception ex)
             {
-                _isComplete = true;
+                IsComplete = true;
                 _moveNextCompleteTcs?.TrySetException(ex.GetBaseException());
             }
 
-            internal Task<bool> OnMoveNext(CancellationToken cancellationToken)
+            internal ValueTask<bool> OnMoveNext()
             {
-                if (!_isComplete)
+                if (!IsComplete)
                 {
-                    CancellationToken = cancellationToken;
                     TaskCompletionSource.Reset(ref _moveNextCompleteTcs);
                     _resumeEnumerationTcs?.TrySetResult(true);
                 }
 
-                return _moveNextCompleteTcs.Task;
+                return new ValueTask<bool>(_moveNextCompleteTcs.Task);
             }
         }
 
@@ -285,7 +310,7 @@ namespace System.Collections.Async
         /// <summary>
         /// Internal implementation details
         /// </summary>
-        [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public struct NoStateAdapter
         {
             internal Func<Yield, Task> EnumerationFunction;
