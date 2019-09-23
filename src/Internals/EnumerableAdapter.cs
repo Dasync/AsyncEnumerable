@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Dasync.Collections;
 
-namespace System.Collections.Async.Internals
+namespace Dasync.Collections.Internals
 {
-#if !NETCOREAPP3_0
+#if !NETSTANDARD2_1
     internal sealed class EnumerableAdapter : IEnumerable
     {
         private readonly IAsyncEnumerable _asyncEnumerable;

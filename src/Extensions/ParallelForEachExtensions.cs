@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Extensions methods for IEnumerable and IAsyncEnumerable to do parallel for-each loop in async-await manner
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ParallelForEachExtensions
     {
         private class ParallelForEachContext

@@ -66,9 +66,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\AsyncEnumerable.csproj">
+    <ProjectReference Include="..\lib\AsyncEnumerable.NetFx45.csproj">
       <Project>{111536c3-dabf-48cf-b993-e504c0bc5ce7}</Project>
-      <Name>AsyncEnumerable</Name>
+      <Name>AsyncEnumerable.NetFx45</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace System.Collections.Async
+﻿namespace Dasync.Collections
 {
     /// <summary>
     /// Class to provide access to static <see cref="Break"/> method.

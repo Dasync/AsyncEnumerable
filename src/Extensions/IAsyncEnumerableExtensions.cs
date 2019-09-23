@@ -1,15 +1,18 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Extension methods for <see cref="IAsyncEnumerable{T}"/> interface
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class IAsyncEnumerableExtensions
     {
         #region Single / SingleOrDefault
@@ -1332,7 +1335,6 @@ namespace System.Collections.Async
 
 #region Cast
 
-#if !NETCOREAPP3_0
         /// <summary>
         /// Casts the elements of an <see cref="IAsyncEnumerable"/> to the specified type.
         /// </summary>
@@ -1369,13 +1371,11 @@ namespace System.Collections.Async
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, CastContext<TResult>, Task> Enumerate = _enumerate;
         }
-#endif
 
 #endregion
 
 #region OfType
 
-#if !NETCOREAPP3_0
         /// <summary>
         /// Filters the elements of an <see cref="IAsyncEnumerable"/> based on a specified type.
         /// </summary>
@@ -1412,7 +1412,6 @@ namespace System.Collections.Async
 
             public static readonly Func<AsyncEnumerator<TResult>.Yield, OfTypeContext<TResult>, Task> Enumerate = _enumerate;
         }
-#endif
 
 #endregion
 

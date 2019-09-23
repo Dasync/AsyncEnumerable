@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using NUnit.Framework;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously

@@ -1,16 +1,11 @@
 ﻿using System.Threading;
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Exposes an asynchronous enumerator, which supports a simple iteration over a non-generic collection
     /// </summary>
-#if NETCOREAPP3_0
-    internal
-#else
-    public
-#endif
-    interface IAsyncEnumerable
+    public interface IAsyncEnumerable
     {
         /// <summary>
         /// Creates an enumerator that iterates through a collection asynchronously
@@ -20,7 +15,7 @@ namespace System.Collections.Async
         IAsyncEnumerator GetAsyncEnumerator(CancellationToken cancellationToken = default);
     }
 
-#if !NETCOREAPP3_0
+#if !NETSTANDARD2_1
     /// <summary>
     /// Exposes the asynchronous enumerator, which supports a simple iteration over a collection of typed items
     /// </summary>

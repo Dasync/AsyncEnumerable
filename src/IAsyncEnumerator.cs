@@ -1,16 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Supports a simple asynchronous iteration over a non-generic collection
     /// </summary>
-#if NETCOREAPP3_0
-    internal
-#else
-    public
-#endif
-    interface IAsyncEnumerator : IDisposable, IAsyncDisposable
+    public interface IAsyncEnumerator : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// Gets the current element in the collection.
@@ -24,7 +20,7 @@ namespace System.Collections.Async
         ValueTask<bool> MoveNextAsync();
     }
 
-#if !NETCOREAPP3_0
+#if !NETSTANDARD2_1
     /// <summary>
     /// Supports a simple asynchronous iteration over a collection of typed items
     /// </summary>

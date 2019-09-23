@@ -1,17 +1,19 @@
-﻿using System.Collections.Async;
-using System.Collections.Async.Internals;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using Dasync.Collections.Internals;
 
-namespace System.Collections
+namespace Dasync.Collections
 {
-#if !NETCOREAPP3_0
+#if !NETSTANDARD2_1
     /// <summary>
     /// Converts generic IEnumerable to IAsyncEnumerable
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
-    public static class IEnumerableExtensions
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class EnumerableExtensions
     {
         /// <summary>
         /// Creates <see cref="IAsyncEnumerable"/> adapter for <see cref="IEnumerable"/>
@@ -29,13 +31,13 @@ namespace System.Collections
 #endif
 }
 
-namespace System.Collections.Generic
+namespace Dasync.Collections
 {
     /// <summary>
     /// Converts generic IEnumerable to IAsyncEnumerable
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
-    public static class IEnumerableExtensions
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class GenericEnumerableExtensions
     {
         /// <summary>
         /// Creates <see cref="IAsyncEnumerable{T}"/> adapter for <see cref="IEnumerable{T}"/>
@@ -88,16 +90,16 @@ namespace System.Collections.Generic
     }
 }
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Extension methods for <see cref="IAsyncEnumerable{T}"/> for backward compatibility with version 1 of this libraray.
     /// Not recommended to use.
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class AsyncEnumerableAdapterExtensions
     {
-#if !NETCOREAPP3_0
+#if !NETSTANDARD2_1
         /// <summary>
         /// Converts <see cref="IAsyncEnumerable"/> to <see cref="IEnumerable"/>.
         /// This method is marked as [Obsolete] to discourage you from doing such conversion,

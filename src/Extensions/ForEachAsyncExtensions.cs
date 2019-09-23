@@ -1,16 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Enables asynchronous 'foreach' enumeration over an IAsyncEnumerable
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ForEachAsyncExtensions
     {
-#if !NETCOREAPP3_0
+#if !NETSTANDARD2_1
         /// <summary>
         /// Enumerates over all elements in the collection asynchronously
         /// </summary>

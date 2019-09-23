@@ -1,9 +1,11 @@
-﻿using System.Collections.Async.Internals;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections.Internals;
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Base type for <see cref="AsyncEnumerator{T}"/> and <see cref="AsyncEnumeratorWithState{TItem, TState}"/>
@@ -308,7 +310,7 @@ namespace System.Collections.Async
         /// <summary>
         /// Internal implementation details
         /// </summary>
-        [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public struct NoStateAdapter
         {
             internal Func<Yield, Task> EnumerationFunction;

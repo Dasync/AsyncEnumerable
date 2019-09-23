@@ -1,9 +1,10 @@
-﻿using System.Collections.Async.Internals;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections.Internals;
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Base abstract class that implements <see cref="IAsyncEnumerable"/>.

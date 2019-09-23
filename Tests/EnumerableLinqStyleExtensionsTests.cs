@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using System.Linq;
+using Dasync.Collections;
 
 namespace Tests
 {
@@ -306,7 +306,7 @@ namespace Tests
             Assert.AreEqual(expectedResult, actualResult);
         }
 
-#if !NETCOREAPP3_0
+#if !NETSTANDARD2_1
         [Test]
         public async Task OfType()
         {
