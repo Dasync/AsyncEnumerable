@@ -10,6 +10,26 @@ Makes asynchronous enumeration as easy as the synchronous counterpart. Such feat
 Helps to (a) create an element provider, where producing an element can take a lot of time due to dependency on other asynchronous events (e.g. wait handles, network streams), and (b) a consumer that processes those element as soon as they are ready without blocking the thread (the processing is scheduled on a worker thread instead). [Bassam Alugili made a great explanation on Async Streams in an InfoQ article](https://www.infoq.com/articles/Async-Streams).
 
 
+## INSTALLATION
+
+Visual Studio's [Package Manager Console](https://docs.microsoft.com/en-us/nuget/consume-packages/install-use-packages-powershell):
+```powershell
+Install-Package AsyncEnumerator -ProjectName MyProject
+```
+
+[NET Core CLI](https://docs.microsoft.com/en-us/dotnet/core/tools/?tabs=netcore2x):
+```shell
+dotnet add package AsyncEnumerator
+```
+
+Edit .csproj file:
+```xml
+<ItemGroup>
+  <PackageReference Include="AsyncEnumerator" Version="3.1.0" />
+</ItemGroup>
+```
+
+
 ## EXAMPLE 1 (demonstrates usage only)
 
 ```csharp
