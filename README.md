@@ -341,7 +341,7 @@ The `ForEachAsync` allows you to go through a collection and perform an action o
 3.1.0: Add support for NET Standard 2.1.
        Consolidate interface with Microsoft's implementation.
 
-2.2.2: Bug-fix: IAsyncEnumerator.MoveNext must return FAlse on Yield.Break instead of throwing OperationCanceledException.
+2.2.2: Bug-fix: IAsyncEnumerator.MoveNext must return False on Yield.Break instead of throwing OperationCanceledException.
 
 2.2.0: New LINQ-style extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
 
