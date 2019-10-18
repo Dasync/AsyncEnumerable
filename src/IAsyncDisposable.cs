@@ -1,4 +1,4 @@
-#if !NETSTANDARD2_1
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0
 using System.Threading.Tasks;
 
 namespace Dasync.Collections

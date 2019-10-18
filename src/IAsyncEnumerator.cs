@@ -20,7 +20,7 @@ namespace Dasync.Collections
         ValueTask<bool> MoveNextAsync();
     }
 
-#if !NETSTANDARD2_1
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0
     /// <summary>
     /// Supports a simple asynchronous iteration over a collection of typed items
     /// </summary>

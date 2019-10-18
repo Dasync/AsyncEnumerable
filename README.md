@@ -338,6 +338,8 @@ The `ForEachAsync` allows you to go through a collection and perform an action o
 
 ## RELEASE NOTES
 
+4.0.0: Use interfaces from Microsoft.Bcl.AsyncInterfaces package in NET Standard 2.0. No functional changes.
+
 3.1.0: Add support for NET Standard 2.1.
        Consolidate interface with Microsoft's implementation.
 

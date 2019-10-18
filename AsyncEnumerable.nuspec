@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>3.1.0</version>
+        <version>4.0.0</version>
         <authors>sergiis,dasync</authors>
         <license type="expression">MIT</license>
         <projectUrl>https://github.com/Dasync/AsyncEnumerable</projectUrl>
@@ -73,6 +73,7 @@ static void ConsumeNumbers()
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
         <releaseNotes>
+4.0.0: Use interfaces from Microsoft.Bcl.AsyncInterfaces package in NET Standard 2.0.
 3.1.0: Add support for NET Standard 2.1, consolidate interface with Microsoft's implementation.
 2.2.0: New extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
 2.1.0: New extension methods: Batch, UnionAll, Single, SingleOrDefault, DefaultIfEmpty, Cast.
@@ -94,6 +95,8 @@ static void ConsumeNumbers()
                 <dependency id="System.Threading.Tasks.Extensions" version="4.5.0" exclude="Build,Analyzers" />
             </group>
             <group targetFramework=".NETStandard2.0">
+                <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" exclude="Build,Analyzers" />
+                <dependency id="System.Threading.Tasks.Extensions" version="4.5.2" exclude="Build,Analyzers" />
             </group>
             <group targetFramework=".NETStandard2.1">
             </group>

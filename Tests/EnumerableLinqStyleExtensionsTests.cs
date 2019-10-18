@@ -306,7 +306,7 @@ namespace Tests
             Assert.AreEqual(expectedResult, actualResult);
         }
 
-#if !NETSTANDARD2_1
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0
         [Test]
         public async Task OfType()
         {
