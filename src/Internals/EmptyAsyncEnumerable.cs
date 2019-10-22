@@ -9,7 +9,7 @@ namespace Dasync.Collections.Internals
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => AsyncEnumerator<T>.Empty;
 
-#if !NETSTANDARD2_1 && !NETSTANDARD2_0
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
         IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
             => AsyncEnumerator<T>.Empty;
 #endif

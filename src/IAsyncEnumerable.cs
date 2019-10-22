@@ -15,7 +15,7 @@ namespace Dasync.Collections
         IAsyncEnumerator GetAsyncEnumerator(CancellationToken cancellationToken = default);
     }
 
-#if !NETSTANDARD2_1 && !NETSTANDARD2_0
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
     /// <summary>
     /// Exposes the asynchronous enumerator, which supports a simple iteration over a collection of typed items
     /// </summary>

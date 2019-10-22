@@ -8,7 +8,7 @@ using Dasync.Collections.Internals;
 
 namespace Dasync.Collections
 {
-#if !NETSTANDARD2_1 && !NETSTANDARD2_0
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
     /// <summary>
     /// Converts generic IEnumerable to IAsyncEnumerable
     /// </summary>
@@ -99,7 +99,7 @@ namespace Dasync.Collections
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class AsyncEnumerableAdapterExtensions
     {
-#if !NETSTANDARD2_1 && !NETSTANDARD2_0
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
         /// <summary>
         /// Converts <see cref="IAsyncEnumerable"/> to <see cref="IEnumerable"/>.
         /// This method is marked as [Obsolete] to discourage you from doing such conversion,

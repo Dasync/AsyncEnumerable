@@ -12,7 +12,7 @@ namespace Dasync.Collections
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ForEachAsyncExtensions
     {
-#if !NETSTANDARD2_1 && !NETSTANDARD2_0
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
         /// <summary>
         /// Enumerates over all elements in the collection asynchronously
         /// </summary>

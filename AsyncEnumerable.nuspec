@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>4.0.0</version>
+        <version>4.0.1</version>
         <authors>sergiis,dasync</authors>
         <license type="expression">MIT</license>
         <projectUrl>https://github.com/Dasync/AsyncEnumerable</projectUrl>
@@ -94,6 +94,10 @@ static void ConsumeNumbers()
             <group targetFramework=".NETStandard1.4">
                 <dependency id="System.Threading.Tasks.Extensions" version="4.5.0" exclude="Build,Analyzers" />
             </group>
+            <group targetFramework=".NETFramework4.6.1">
+                <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" exclude="Build,Analyzers" />
+                <dependency id="System.Threading.Tasks.Extensions" version="4.5.2" exclude="Build,Analyzers" />
+            </group>
             <group targetFramework=".NETStandard2.0">
                 <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" exclude="Build,Analyzers" />
                 <dependency id="System.Threading.Tasks.Extensions" version="4.5.2" exclude="Build,Analyzers" />
@@ -107,6 +111,8 @@ static void ConsumeNumbers()
         <file src="netfx45\lib\bin\Release\AsyncEnumerable.xml" target="lib\net45\AsyncEnumerable.xml" />
         <file src="src\bin\Release\netstandard1.4\AsyncEnumerable.dll" target="lib\netstandard1.4\AsyncEnumerable.dll" />
         <file src="src\bin\Release\netstandard1.4\AsyncEnumerable.xml" target="lib\netstandard1.4\AsyncEnumerable.xml" />
+        <file src="src\bin\Release\net461\AsyncEnumerable.dll" target="lib\net461\AsyncEnumerable.dll" />
+        <file src="src\bin\Release\net461\AsyncEnumerable.xml" target="lib\net461\AsyncEnumerable.xml" />
         <file src="src\bin\Release\netstandard2.0\AsyncEnumerable.dll" target="lib\netstandard2.0\AsyncEnumerable.dll" />
         <file src="src\bin\Release\netstandard2.0\AsyncEnumerable.xml" target="lib\netstandard2.0\AsyncEnumerable.xml" />
         <file src="src\bin\Release\netstandard2.1\AsyncEnumerable.dll" target="lib\netstandard2.1\AsyncEnumerable.dll" />
