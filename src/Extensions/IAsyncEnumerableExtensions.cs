@@ -2197,11 +2197,13 @@ namespace Dasync.Collections
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
 
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            var enumerator = source.GetAsyncEnumerator(cancellationToken);
+
+            try
             {
                 while (true)
                 {
-                    if (!await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                    if (!await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         break;
                     }
@@ -2211,6 +2213,10 @@ namespace Dasync.Collections
                         return false;
                     }
                 }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
 
             return true;
@@ -2234,12 +2240,14 @@ namespace Dasync.Collections
                 throw new ArgumentNullException(nameof(source));
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
-            
-            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+
+            var enumerator = source.GetAsyncEnumerator(cancellationToken);
+
+            try
             {
                 while (true)
                 {
-                    if (!await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                    if (!await enumerator.MoveNextAsync().ConfigureAwait(false))
                     {
                         break;
                     }
@@ -2249,6 +2257,10 @@ namespace Dasync.Collections
                         return true;
                     }
                 }
+            }
+            finally
+            {
+                await enumerator.DisposeAsync().ConfigureAwait(false);
             }
 
             return false;
