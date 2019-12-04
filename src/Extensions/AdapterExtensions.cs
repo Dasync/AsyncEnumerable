@@ -1,16 +1,19 @@
-﻿using System.Collections.Async;
-using System.Collections.Async.Internals;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using Dasync.Collections.Internals;
 
-namespace System.Collections
+namespace Dasync.Collections
 {
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
     /// <summary>
     /// Converts generic IEnumerable to IAsyncEnumerable
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
-    public static class IEnumerableExtensions
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class EnumerableExtensions
     {
         /// <summary>
         /// Creates <see cref="IAsyncEnumerable"/> adapter for <see cref="IEnumerable"/>
@@ -25,15 +28,16 @@ namespace System.Collections
             return enumerable as IAsyncEnumerable ?? new AsyncEnumerableWrapper<object>(enumerable.Cast<object>(), runSynchronously);
         }
     }
+#endif
 }
 
-namespace System.Collections.Generic
+namespace Dasync.Collections
 {
     /// <summary>
     /// Converts generic IEnumerable to IAsyncEnumerable
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
-    public static class IEnumerableExtensions
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class GenericEnumerableExtensions
     {
         /// <summary>
         /// Creates <see cref="IAsyncEnumerable{T}"/> adapter for <see cref="IEnumerable{T}"/>
@@ -64,7 +68,7 @@ namespace System.Collections.Generic
                 throw new ArgumentNullException(nameof(enumerable));
 
             if (enumerable is IAsyncEnumerable<T> asyncEnumerable)
-                return asyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken.None).GetAwaiter().GetResult();
+                return asyncEnumerable.GetAsyncEnumerator();
 
             var enumerator = enumerable.GetEnumerator();
             return new AsyncEnumeratorWrapper<T>(enumerator, runSynchronously);
@@ -86,15 +90,16 @@ namespace System.Collections.Generic
     }
 }
 
-namespace System.Collections.Async
+namespace Dasync.Collections
 {
     /// <summary>
     /// Extension methods for <see cref="IAsyncEnumerable{T}"/> for backward compatibility with version 1 of this libraray.
     /// Not recommended to use.
     /// </summary>
-    [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class AsyncEnumerableAdapterExtensions
     {
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
         /// <summary>
         /// Converts <see cref="IAsyncEnumerable"/> to <see cref="IEnumerable"/>.
         /// This method is marked as [Obsolete] to discourage you from doing such conversion,
@@ -112,22 +117,6 @@ namespace System.Collections.Async
         }
 
         /// <summary>
-        /// Converts <see cref="IAsyncEnumerable{T}"/> to <see cref="IEnumerable{T}"/>.
-        /// This method is marked as [Obsolete] to discourage you from doing such conversion,
-        /// which defeats the whole purpose of having a non-blocking async enumeration,
-        /// and what might lead to dead-locks in ASP.NET or WPF applications.
-        /// </summary>
-        [Obsolete]
-        public static IEnumerable<T> ToEnumerable<T>(this IAsyncEnumerable<T> asyncEnumerable)
-        {
-            if (asyncEnumerable == null)
-                throw new ArgumentNullException(nameof(asyncEnumerable));
-            if (asyncEnumerable is IEnumerable<T> enumerable)
-                return enumerable;
-            return new EnumerableAdapter<T>(asyncEnumerable);
-        }
-
-        /// <summary>
         /// Converts <see cref="IAsyncEnumerator"/> to <see cref="IEnumerator"/>.
         /// This method is marked as [Obsolete] to discourage you from doing such conversion,
         /// which defeats the whole purpose of having a non-blocking async enumeration,
@@ -141,6 +130,51 @@ namespace System.Collections.Async
             if (asyncEnumerator is IEnumerator enumerator)
                 return enumerator;
             return new EnumeratorAdapter(asyncEnumerator);
+        }
+
+        /// <summary>
+        /// Creates an enumerator that iterates through a collection synchronously.
+        /// This method is marked as [Obsolete] to discourage you from using this synchronous version of
+        /// the method instead of <see cref="IAsyncEnumerable.GetAsyncEnumerator(CancellationToken)"/>,
+        /// what might lead to dead-locks in ASP.NET or WPF applications.
+        /// </summary>
+        [Obsolete]
+        public static IEnumerator GetEnumerator(this IAsyncEnumerable asyncEnumerable)
+        {
+            if (asyncEnumerable == null)
+                throw new ArgumentNullException(nameof(asyncEnumerable));
+            return asyncEnumerable.GetAsyncEnumerator().ToEnumerator();
+        }
+
+        /// <summary>
+        /// Advances the enumerator to the next element of the collection synchronously.
+        /// This method is marked as [Obsolete] to discourage you from using this synchronous version of
+        /// the method instead of <see cref="IAsyncEnumerator.MoveNextAsync()"/>,
+        /// what might lead to dead-locks in ASP.NET or WPF applications.
+        /// </summary>
+        [Obsolete]
+        public static bool MoveNext(this IAsyncEnumerator asyncEnumerator)
+        {
+            if (asyncEnumerator == null)
+                throw new ArgumentNullException(nameof(asyncEnumerator));
+            return asyncEnumerator.MoveNextAsync().GetAwaiter().GetResult();
+        }
+#endif
+
+        /// <summary>
+        /// Converts <see cref="IAsyncEnumerable{T}"/> to <see cref="IEnumerable{T}"/>.
+        /// This method is marked as [Obsolete] to discourage you from doing such conversion,
+        /// which defeats the whole purpose of having a non-blocking async enumeration,
+        /// and what might lead to dead-locks in ASP.NET or WPF applications.
+        /// </summary>
+        [Obsolete]
+        public static IEnumerable<T> ToEnumerable<T>(this IAsyncEnumerable<T> asyncEnumerable)
+        {
+            if (asyncEnumerable == null)
+                throw new ArgumentNullException(nameof(asyncEnumerable));
+            if (asyncEnumerable is IEnumerable<T> enumerable)
+                return enumerable;
+            return new EnumerableAdapter<T>(asyncEnumerable);
         }
 
         /// <summary>
@@ -162,21 +196,7 @@ namespace System.Collections.Async
         /// <summary>
         /// Creates an enumerator that iterates through a collection synchronously.
         /// This method is marked as [Obsolete] to discourage you from using this synchronous version of
-        /// the method instead of <see cref="IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken)"/>,
-        /// what might lead to dead-locks in ASP.NET or WPF applications.
-        /// </summary>
-        [Obsolete]
-        public static IEnumerator GetEnumerator(this IAsyncEnumerable asyncEnumerable)
-        {
-            if (asyncEnumerable == null)
-                throw new ArgumentNullException(nameof(asyncEnumerable));
-            return asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult().ToEnumerator();
-        }
-
-        /// <summary>
-        /// Creates an enumerator that iterates through a collection synchronously.
-        /// This method is marked as [Obsolete] to discourage you from using this synchronous version of
-        /// the method instead of <see cref="IAsyncEnumerable{T}.GetAsyncEnumeratorAsync(CancellationToken)"/>,
+        /// the method instead of <see cref="IAsyncEnumerable{T}.GetAsyncEnumerator(CancellationToken)"/>,
         /// what might lead to dead-locks in ASP.NET or WPF applications.
         /// </summary>
         [Obsolete]
@@ -184,21 +204,7 @@ namespace System.Collections.Async
         {
             if (asyncEnumerable == null)
                 throw new ArgumentNullException(nameof(asyncEnumerable));
-            return asyncEnumerable.GetAsyncEnumeratorAsync().GetAwaiter().GetResult().ToEnumerator();
-        }
-
-        /// <summary>
-        /// Advances the enumerator to the next element of the collection synchronously.
-        /// This method is marked as [Obsolete] to discourage you from using this synchronous version of
-        /// the method instead of <see cref="IAsyncEnumerator.MoveNextAsync(CancellationToken)"/>,
-        /// what might lead to dead-locks in ASP.NET or WPF applications.
-        /// </summary>
-        [Obsolete]
-        public static bool MoveNext(this IAsyncEnumerator asyncEnumerator)
-        {
-            if (asyncEnumerator == null)
-                throw new ArgumentNullException(nameof(asyncEnumerator));
-            return asyncEnumerator.MoveNextAsync().GetAwaiter().GetResult();
+            return asyncEnumerable.GetAsyncEnumerator().ToEnumerator();
         }
     }
 }

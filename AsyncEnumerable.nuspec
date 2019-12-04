@@ -2,9 +2,9 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>AsyncEnumerator</id>
-        <version>2.2.2</version>
-        <authors>sergiis,Dasync</authors>
-        <licenseUrl>https://raw.githubusercontent.com/Dasync/AsyncEnumerable/master/LICENSE</licenseUrl>
+        <version>4.0.1</version>
+        <authors>sergiis,dasync</authors>
+        <license type="expression">MIT</license>
         <projectUrl>https://github.com/Dasync/AsyncEnumerable</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <iconUrl>https://raw.githubusercontent.com/Dasync/AsyncEnumerable/master/icon.png</iconUrl>
@@ -22,7 +22,7 @@ the thread (the processing is scheduled on a worker thread instead).
 
 EXAMPLE
 
-using System.Collections.Async;
+using Dasync.Collections;
 
 static IAsyncEnumerable&lt;int&gt; ProduceAsyncNumbers(int start, int end)
 {
@@ -73,6 +73,8 @@ static void ConsumeNumbers()
 }</description>
         <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
         <releaseNotes>
+4.0.0: Use interfaces from Microsoft.Bcl.AsyncInterfaces package in NET Standard 2.0.
+3.1.0: Add support for NET Standard 2.1, consolidate interface with Microsoft's implementation.
 2.2.0: New extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
 2.1.0: New extension methods: Batch, UnionAll, Single, SingleOrDefault, DefaultIfEmpty, Cast.
 2.0.0: Revise design of the library: same features, but slight paradigm shift and interface breaking changes.
@@ -85,11 +87,35 @@ static void ConsumeNumbers()
 1.1.0: Add ParallelForEachAsync extension methods for IEnumerable&lt;T&gt; and IAsyncEnumerable&lt;T&gt; in System.Collections.Async namespace.
         </releaseNotes>
         <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync ParallelForEachAsync async await foreach parallel async-streams linq charp .net</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="System.Threading.Tasks.Extensions" version="4.5.0" exclude="Build,Analyzers" />
+            </group>
+            <group targetFramework=".NETStandard1.4">
+                <dependency id="System.Threading.Tasks.Extensions" version="4.5.0" exclude="Build,Analyzers" />
+            </group>
+            <group targetFramework=".NETFramework4.6.1">
+                <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" exclude="Build,Analyzers" />
+                <dependency id="System.Threading.Tasks.Extensions" version="4.5.2" exclude="Build,Analyzers" />
+            </group>
+            <group targetFramework=".NETStandard2.0">
+                <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" exclude="Build,Analyzers" />
+                <dependency id="System.Threading.Tasks.Extensions" version="4.5.2" exclude="Build,Analyzers" />
+            </group>
+            <group targetFramework=".NETStandard2.1">
+            </group>
+        </dependencies>
     </metadata>
     <files>
-        <file src="NetFramework.4.5\lib\bin\Release\AsyncEnumerable.dll" target="lib\net45\AsyncEnumerable.dll" />
-        <file src="NetFramework.4.5\lib\bin\Release\AsyncEnumerable.xml" target="lib\net45\AsyncEnumerable.xml" />
-        <file src="NetStandard.1.4\lib\bin\Release\netstandard1.4\AsyncEnumerable.dll" target="lib\netstandard1.4\AsyncEnumerable.dll" />
-        <file src="NetStandard.1.4\lib\bin\Release\netstandard1.4\AsyncEnumerable.xml" target="lib\netstandard1.4\AsyncEnumerable.xml" />
+        <file src="netfx45\lib\bin\Release\AsyncEnumerable.dll" target="lib\net45\AsyncEnumerable.dll" />
+        <file src="netfx45\lib\bin\Release\AsyncEnumerable.xml" target="lib\net45\AsyncEnumerable.xml" />
+        <file src="src\bin\Release\netstandard1.4\AsyncEnumerable.dll" target="lib\netstandard1.4\AsyncEnumerable.dll" />
+        <file src="src\bin\Release\netstandard1.4\AsyncEnumerable.xml" target="lib\netstandard1.4\AsyncEnumerable.xml" />
+        <file src="src\bin\Release\net461\AsyncEnumerable.dll" target="lib\net461\AsyncEnumerable.dll" />
+        <file src="src\bin\Release\net461\AsyncEnumerable.xml" target="lib\net461\AsyncEnumerable.xml" />
+        <file src="src\bin\Release\netstandard2.0\AsyncEnumerable.dll" target="lib\netstandard2.0\AsyncEnumerable.dll" />
+        <file src="src\bin\Release\netstandard2.0\AsyncEnumerable.xml" target="lib\netstandard2.0\AsyncEnumerable.xml" />
+        <file src="src\bin\Release\netstandard2.1\AsyncEnumerable.dll" target="lib\netstandard2.1\AsyncEnumerable.dll" />
+        <file src="src\bin\Release\netstandard2.1\AsyncEnumerable.xml" target="lib\netstandard2.1\AsyncEnumerable.xml" />
     </files>
 </package>

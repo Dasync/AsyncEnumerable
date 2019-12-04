@@ -1,6 +1,6 @@
 using System.Threading;
 
-namespace System.Collections.Async.Internals
+namespace Dasync.Collections.Internals
 {
     internal static class CancellationTokenEx
     {

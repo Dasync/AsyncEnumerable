@@ -1,20 +1,17 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading;
+using Dasync.Collections;
 
-namespace System.Collections.Async.Internals
+namespace Dasync.Collections.Internals
 {
     internal sealed class EmptyAsyncEnumerable<T> : IAsyncEnumerable<T>
     {
-        private static readonly Task<IAsyncEnumerator<T>> CompletedGetAsyncEnumeratorAsyncTask
-            = Task.FromResult(AsyncEnumerator<T>.Empty);
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            => AsyncEnumerator<T>.Empty;
 
-        private static readonly Task<IAsyncEnumerator> CompletedGetAsyncEnumeratorAsyncNonGenericTask
-            = Task.FromResult((IAsyncEnumerator)AsyncEnumerator<T>.Empty);
-
-        public Task<IAsyncEnumerator<T>> GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
-            => CompletedGetAsyncEnumeratorAsyncTask;
-
-        Task<IAsyncEnumerator> IAsyncEnumerable.GetAsyncEnumeratorAsync(CancellationToken cancellationToken)
-            => CompletedGetAsyncEnumeratorAsyncNonGenericTask;
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
+        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator(CancellationToken cancellationToken)
+            => AsyncEnumerator<T>.Empty;
+#endif
     }
 }

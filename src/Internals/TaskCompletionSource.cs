@@ -1,9 +1,10 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace System.Collections.Async.Internals
+namespace Dasync.Collections.Internals
 {
     /// <summary>
     /// Utility methods for <see cref="TaskCompletionSource{TResult}"/>

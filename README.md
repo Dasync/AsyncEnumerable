@@ -10,10 +10,30 @@ Makes asynchronous enumeration as easy as the synchronous counterpart. Such feat
 Helps to (a) create an element provider, where producing an element can take a lot of time due to dependency on other asynchronous events (e.g. wait handles, network streams), and (b) a consumer that processes those element as soon as they are ready without blocking the thread (the processing is scheduled on a worker thread instead). [Bassam Alugili made a great explanation on Async Streams in an InfoQ article](https://www.infoq.com/articles/Async-Streams).
 
 
+## INSTALLATION
+
+Visual Studio's [Package Manager Console](https://docs.microsoft.com/en-us/nuget/consume-packages/install-use-packages-powershell):
+```powershell
+Install-Package AsyncEnumerator -ProjectName MyProject
+```
+
+[NET Core CLI](https://docs.microsoft.com/en-us/dotnet/core/tools/?tabs=netcore2x):
+```shell
+dotnet add package AsyncEnumerator
+```
+
+Edit .csproj file:
+```xml
+<ItemGroup>
+  <PackageReference Include="AsyncEnumerator" Version="4.0.1" />
+</ItemGroup>
+```
+
+
 ## EXAMPLE 1 (demonstrates usage only)
 
 ```csharp
-    using System.Collections.Async;
+    using Dasync.Collections;
 
     static IAsyncEnumerable<int> ProduceAsyncNumbers(int start, int end)
     {
@@ -49,8 +69,15 @@ Helps to (a) create an element provider, where producing an element can take a l
     static async Task ConsumeNumbersAsync()
     {
       var asyncEnumerableCollection = ProduceAsyncNumbers(start: 1, end: 10);
+      int count == 0;
       await asyncEnumerableCollection.ForEachAsync(async number => {
         await Console.Out.WriteLineAsync($"{number}");
+        count++;
+        if (count >= 5)
+        {
+          // You can break the ForEachAsync loop with the following call:
+          ForEachAsync.Break();
+        }
       });
     }
 
@@ -68,7 +95,7 @@ Helps to (a) create an element provider, where producing an element can take a l
 ## EXAMPLE 2 (LINQ-style extension methods)
 
 ```csharp
-    using System.Collections.Async;
+    using Dasync.Collections;
     
     IAsyncEnumerable<Bar> ConvertGoodFoosToBars(IAsyncEnumerable<Foo> items)
     {
@@ -82,7 +109,7 @@ Helps to (a) create an element provider, where producing an element can take a l
 ## EXAMPLE 3 (async parallel for-each)
 
 ```csharp
-    using System.Collections.Async;
+    using Dasync.Collections;
     
     async Task<IReadOnlyCollection<string>> GetStringsAsync(IEnumerable<T> uris, HttpClient httpClient, CancellationToken cancellationToken)
     {
@@ -94,7 +121,7 @@ Helps to (a) create an element provider, where producing an element can take a l
                 var str = await httpClient.GetStringAsync(uri, cancellationToken);
                 result.Add(str);
             },
-            maxDegreeOfParalellism: 5,
+            maxDegreeOfParallelism: 5,
             cancellationToken: cancellationToken);
         
         return result;
@@ -113,11 +140,12 @@ Helps to (a) create an element provider, where producing an element can take a l
 No and Yes. Just making everything `async` makes your app tiny little bit slower because it adds overhead in form of state machines and tasks. However, this will help you to better utilize worker threads in the app because you don't need to block them anymore by waiting on the next element to be produced - i.e. this will make your app better in general when it has such multiple enumerations running in parallel. The best fit for `IAsyncEnumerable` is a case when you read elements from a network stream, like HTTP + XML (as shown above; SOAP), or a database client implementation where result of a query is a set or rows.
 
 
-## WHAT HAPPENS WHEN C# 8.0 IS RELEASED
-C# 8.0 should have a feature of [Async Streams](https://github.com/dotnet/csharplang/blob/master/proposals/async-streams.md). When the version of the language is finally realeased, it should be a straight-forward upgrade path for your application.
+## DIFFERENCES BETWEEN C# 8.0 AND EARLIER VERSIONS
+C# 8.0 and .NET Standard 2.1 introduce the native support for [Async Streams](https://docs.microsoft.com/en-us/dotnet/csharp/tutorials/generate-consume-asynchronous-stream). However, if you still use an older version of C# and wish to upgrade, the changes should be straight-forward.
 
-The iterator will change from this:
+Change an iterator from this:
 ```csharp
+using Dasync.Collections;
 IAsyncEnumerable<int> AsyncIterator() => new AsyncEnumerable(async yield =>
 {
   await yield.ReturnAsync(123);
@@ -125,14 +153,16 @@ IAsyncEnumerable<int> AsyncIterator() => new AsyncEnumerable(async yield =>
 ```
 to this:
 ```csharp
+using System.Collections.Generic;
 async IAsyncEnumerable<int> AsyncIterator()
 {
   yield return 123;
 }
 ```
 
-The consumer part will change from this:
+Change a consumer from this:
 ```csharp
+using Dasync.Collections;
 await asyncEnumerable.ForEachAsync(item => 
 {
   ...
@@ -140,13 +170,12 @@ await asyncEnumerable.ForEachAsync(item =>
 ```
 to this:
 ```csharp
-foreach await (var item in asyncEnumerable)
+using System.Collections.Generic;
+await foreach (var item in asyncEnumerable)
 {
   ...
 }
 ```
-
-The version 3 of this library is already upgraded to use .NET's integrated iterators and interfaces (`IAsyncEnumerable`, `IAsyncEnumerator`), where all usefull extension methods (like `ParallelForEachAsync`) survived. The only reason why version 3 is marked with 'beta' flag is that .NET Core 3.0 is not released yet. There are no experimental features or unfinished code, and it's safe to use.
 
 
 ## REFERENCES
@@ -166,27 +195,12 @@ See examples above. The core code is in `System.Collections.Async` namespace. Yo
 
 
 __2: Using CancellationToken__
-   * Do not pass a CancellationToken to a method that returns IAsyncEnumerable, because it is not async, but just a factory
-   * Use `yield.CancellationToken` in your enumeration lambda function, which is the same token which gets passed to `IAsyncEnumerator.MoveNextAsync()`
 
 ```csharp
     IAsyncEnumerable<int> ProduceNumbers()
     {
       return new AsyncEnumerable<int>(async yield => {
 
-        // This cancellation token is the same token which
-        // is passed to very first call of MoveNextAsync().
-        var cancellationToken1 = yield.CancellationToken;
-        await yield.ReturnAsync(start);
-
-        // This cancellation token can be different, because
-        // we are inside second MoveNextAsync() call.
-        var cancellationToken2 = yield.CancellationToken;
-        await yield.ReturnAsync(start);
-
-        // As a rule of thumb, always use yield.CancellationToken
-        // when calling underlying async methods to be able to
-        // cancel the MoveNextAsync() method.
         await FooAsync(yield.CancellationToken);
       });
     }
@@ -319,12 +333,19 @@ You can use extension methods like `IAsyncEnumerable.ToEnumerable()` to use buil
 
 __9: What's the difference between ForEachAsync and ParallelForEachAsync?__
 
-The `ForEachAsync` allows you to go through a collection and perform an action on every single item in sequential manner. On the other hand, `ParallelForEachAsync` allows you to run the action on multiple items at the same time where the sequential order of completion is not guaranteed. For the latter, the degree of the parallelism is controlled by the `maxDegreeOfParalellism` argument, however it does not guarantee to spin up the exact amount of threads, because it depends on the [thread pool size](https://msdn.microsoft.com/en-us/library/system.threading.threadpool.setmaxthreads(v=vs.110).aspx) and its occupancy at a moment of time. Such parallel approach is much better than trying to create a task for an action for every single item on the collection and then awaiting on all of them with `Task.WhenAll`, because it adds less overhead to the runtime, better with memory usage, and helps with throttling-sensitive scenarios.
+The `ForEachAsync` allows you to go through a collection and perform an action on every single item in sequential manner. On the other hand, `ParallelForEachAsync` allows you to run the action on multiple items at the same time where the sequential order of completion is not guaranteed. For the latter, the degree of the parallelism is controlled by the `maxDegreeOfParallelism` argument, however it does not guarantee to spin up the exact amount of threads, because it depends on the [thread pool size](https://msdn.microsoft.com/en-us/library/system.threading.threadpool.setmaxthreads(v=vs.110).aspx) and its occupancy at a moment of time. Such parallel approach is much better than trying to create a task for an action for every single item on the collection and then awaiting on all of them with `Task.WhenAll`, because it adds less overhead to the runtime, better with memory usage, and helps with throttling-sensitive scenarios.
 
 
 ## RELEASE NOTES
 
-2.2.2: Bug-fix: IAsyncEnumerator.MoveNext must return FAlse on Yield.Break instead of throwing OperationCanceledException.
+4.0.1: Explicitly add the DLL for .NET Framework 4.6.1 to be compatible with NET Standard 2.0. No functional changes.
+
+4.0.0: Use interfaces from Microsoft.Bcl.AsyncInterfaces package in NET Standard 2.0. No functional changes.
+
+3.1.0: Add support for NET Standard 2.1.
+       Consolidate interface with Microsoft's implementation.
+
+2.2.2: Bug-fix: IAsyncEnumerator.MoveNext must return False on Yield.Break instead of throwing OperationCanceledException.
 
 2.2.0: New LINQ-style extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
 

@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Async;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using NUnit.Framework;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -13,7 +14,7 @@ namespace Tests
         [Test]
         public void SimpleSyncForEach()
         {
-            var enumerable = new AsyncEnumerable<int>(
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
                 async yield =>
                 {
                     for (int i = 0; i < 5; i++)
@@ -31,9 +32,53 @@ namespace Tests
         }
 
         [Test]
+        public async Task SimpleAsyncForEachWithSyncBreak()
+        {
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
+                async yield =>
+                {
+                    for (int i = 0; i < 5; i++)
+                        await yield.ReturnAsync(i);
+                });
+
+            int counter = 0;
+            await enumerable.ForEachAsync(
+                number =>
+                {
+                    Assert.AreEqual(counter, number);
+                    counter++;
+                    if (counter == 3) ForEachAsync.Break();
+                });
+
+            Assert.AreEqual(3, counter);
+        }
+
+        [Test]
+        public async Task SimpleAsyncForEachWithAsyncBreak()
+        {
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
+                async yield =>
+                {
+                    for (int i = 0; i < 5; i++)
+                        await yield.ReturnAsync(i);
+                });
+
+            int counter = 0;
+            await enumerable.ForEachAsync(
+                async number =>
+                {
+                    Assert.AreEqual(counter, number);
+                    counter++;
+                    if (counter == 2) ForEachAsync.Break();
+                });
+
+            Assert.AreEqual(2, counter);
+        }
+
+        [Test]
         public async Task SimpleAsyncForEach()
         {
-            var enumerable = new AsyncEnumerable<int>(
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
                 async yield =>
                 {
                     for (int i = 0; i < 5; i++)
@@ -47,12 +92,14 @@ namespace Tests
                     Assert.AreEqual(counter, number);
                     counter++;
                 });
+
+            Assert.AreEqual(5, counter);
         }
 
         [Test]
         public async Task RethrowProducerException()
         {
-            var enumerable = new AsyncEnumerable<int>(
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
                 async yield =>
                 {
                     throw new ArgumentException("test");
@@ -77,7 +124,7 @@ namespace Tests
         [Test]
         public async Task RethrowConsumerException()
         {
-            var enumerable = new AsyncEnumerable<int>(
+            IAsyncEnumerable<int> enumerable = new AsyncEnumerable<int>(
                 async yield =>
                 {
                     await yield.ReturnAsync(123);

@@ -1,4 +1,6 @@
-﻿namespace System.Collections.Async
+﻿using System;
+
+namespace Dasync.Collections
 {
     /// <summary>
     /// This exception is thrown when you call <see cref="AsyncEnumerator{T}.Yield.Break"/>

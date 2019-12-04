@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using System.Linq;
+using Dasync.Collections;
 
 namespace Tests
 {
@@ -112,7 +112,7 @@ namespace Tests
         public async Task Take_More()
         {
             var collection = new int[] { 1, 2, 3 }.ToAsyncEnumerable();
-            var actualResult = await collection.Take(1000).ToArrayAsync();
+            var actualResult = await collection.Take(int.MaxValue).ToArrayAsync();
             var expectedResult = new int[] { 1, 2, 3 };
             Assert.AreEqual(expectedResult, actualResult);
         }
@@ -306,11 +306,12 @@ namespace Tests
             Assert.AreEqual(expectedResult, actualResult);
         }
 
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
         [Test]
         public async Task OfType()
         {
             var collection = new object[] { "a", 1, "b", Guid.NewGuid() };
-            var asyncCollection = collection.ToAsyncEnumerable();
+            var asyncCollection = (IAsyncEnumerable)collection.ToAsyncEnumerable();
 
             var filteredStringCollection = asyncCollection.OfType<string>();
             var actualStringResult = await filteredStringCollection.ToArrayAsync();
@@ -332,6 +333,7 @@ namespace Tests
             var expectedObjectResult = collection;
             Assert.AreEqual(expectedObjectResult, actualObjectResult);
         }
+#endif
 
         [Test]
         public async Task Concat()

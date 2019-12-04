@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Dasync.Collections;
 
-namespace System.Collections.Async.Internals
+namespace Dasync.Collections.Internals
 {
+#if !NETSTANDARD2_1 && !NETSTANDARD2_0 && !NET461
     internal sealed class EnumeratorAdapter : IEnumerator
     {
         private readonly IAsyncEnumerator _asyncEnumerator;
@@ -19,6 +23,7 @@ namespace System.Collections.Async.Internals
 
         public void Dispose() => _asyncEnumerator.Dispose();
     }
+#endif
 
     internal sealed class EnumeratorAdapter<T> : IEnumerator, IEnumerator<T>
     {
@@ -37,6 +42,7 @@ namespace System.Collections.Async.Internals
 
         public void Reset() => throw new NotSupportedException("The IEnumerator.Reset() method is obsolete. Create a new enumerator instead.");
 
-        public void Dispose() => _asyncEnumerator.Dispose();
+        public void Dispose() =>
+            _asyncEnumerator.DisposeAsync().GetAwaiter().GetResult();
     }
 }
