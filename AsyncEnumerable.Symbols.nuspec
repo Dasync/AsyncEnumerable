@@ -3,109 +3,13 @@
     <metadata>
         <id>AsyncEnumerator</id>
         <version>4.0.2</version>
-        <authors>sergiis,dasync</authors>
-        <license type="expression">MIT</license>
-        <projectUrl>https://github.com/Dasync/AsyncEnumerable</projectUrl>
         <repository type="git" url="https://github.com/Dasync/AsyncEnumerable.git" commit="" />
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <iconUrl>https://raw.githubusercontent.com/Dasync/AsyncEnumerable/master/icon.png</iconUrl>
-        <title>C# Async Streams features</title>
-        <description>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()
-GitHub: https://github.com/Dasync/AsyncEnumerable
-
-PROBLEM SPACE
-
-Helps to (a) create an element provider, where producing an element can take a lot of time
-due to dependency on other asynchronous events (e.g. wait handles, network streams), and
-(b) a consumer that processes those element as soon as they are ready without blocking
-the thread (the processing is scheduled on a worker thread instead).
-
-
-EXAMPLE
-
-using Dasync.Collections;
-
-static IAsyncEnumerable&lt;int&gt; ProduceAsyncNumbers(int start, int end)
-{
-  return new AsyncEnumerable&lt;int&gt;(async yield =&gt; {
-
-    // Just to show that ReturnAsync can be used multiple times
-    await yield.ReturnAsync(start);
-
-    for (int number = start + 1; number &lt;= end; number++)
-      await yield.ReturnAsync(number);
-
-    // You can break the enumeration loop with the following call:
-    yield.Break();
-
-    // This won't be executed due to the loop break above
-    await yield.ReturnAsync(12345);
-  });
-}
-
-// Just to compare with synchronous version of enumerator
-static IEnumerable&lt;int&gt; ProduceNumbers(int start, int end)
-{
-  yield return start;
-
-  for (int number = start + 1; number &lt;= end; number++)
-    yield return number;
-
-  yield break;
-
-  yield return 12345;
-}
-
-static async Task ConsumeNumbersAsync()
-{
-  var asyncEnumerableCollection = ProduceAsyncNumbers(start: 1, end: 10);
-  await asyncEnumerableCollection.ForEachAsync(async number =&gt; {
-    await Console.Out.WriteLineAsync($"{number}");
-  });
-}
-
-// Just to compare with synchronous version of enumeration
-static void ConsumeNumbers()
-{
-  var enumerableCollection = ProduceNumbers(start: 1, end: 10);
-  foreach (var number in enumerableCollection) {
-    Console.Out.WriteLine($"{number}");
-  }
-}</description>
-        <summary>Introduces IAsyncEnumerable, IAsyncEnumerator, ForEachAsync(), and ParallelForEachAsync()</summary>
-        <releaseNotes>
-4.0.0: Use interfaces from Microsoft.Bcl.AsyncInterfaces package in NET Standard 2.0.
-3.1.0: Add support for NET Standard 2.1, consolidate interface with Microsoft's implementation.
-2.2.0: New extension methods: SelectMany, Append, Prepend, OfType, Concat, Distinct, ToDictionaryAsync, ToLookupAsync, AggregateAsync.
-2.1.0: New extension methods: Batch, UnionAll, Single, SingleOrDefault, DefaultIfEmpty, Cast.
-2.0.0: Revise design of the library: same features, but slight paradigm shift and interface breaking changes.
-1.5.0: Add support for .NET Standard, minor improvements.
-1.4.2: Add finalizer to AsyncEnumerator and call Dispose in ForEachAsync and ParallelForEachAsync extension methods.
-1.4.0: Add new generic type AsyncEnumeratorWithState for performance optimization.
-       Now IAsyncEnumerator&lt;T&gt; is covariant.
-       Add ForEachAsync, ParallelForeachAsync, and LINQ-style extension methods for IAsyncEnumerator.
-1.2.1: New Linq-style extension methods in System.Collections.Async namespace.
-1.1.0: Add ParallelForEachAsync extension methods for IEnumerable&lt;T&gt; and IAsyncEnumerable&lt;T&gt; in System.Collections.Async namespace.
-        </releaseNotes>
-        <tags>IAsyncEnumerable IAsyncEnumerator ForEachAsync ParallelForEachAsync async await foreach parallel async-streams linq charp .net</tags>
-        <dependencies>
-            <group targetFramework=".NETFramework4.5">
-                <dependency id="System.Threading.Tasks.Extensions" version="4.5.0" exclude="Build,Analyzers" />
-            </group>
-            <group targetFramework=".NETStandard1.4">
-                <dependency id="System.Threading.Tasks.Extensions" version="4.5.0" exclude="Build,Analyzers" />
-            </group>
-            <group targetFramework=".NETFramework4.6.1">
-                <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" exclude="Build,Analyzers" />
-                <dependency id="System.Threading.Tasks.Extensions" version="4.5.2" exclude="Build,Analyzers" />
-            </group>
-            <group targetFramework=".NETStandard2.0">
-                <dependency id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" exclude="Build,Analyzers" />
-                <dependency id="System.Threading.Tasks.Extensions" version="4.5.2" exclude="Build,Analyzers" />
-            </group>
-            <group targetFramework=".NETStandard2.1">
-            </group>
-        </dependencies>
+        <title>AsyncEnumerator symbols</title>
+        <description>AsyncEnumerator symbols</description>
+        <summary>AsyncEnumerator symbols</summary>
+        <packageTypes>
+          <packageType name="SymbolsPackage" />
+        </packageTypes>
     </metadata>
     <files>
         <file src="netfx45\lib\bin\Release\AsyncEnumerable.pdb" target="lib\net45\AsyncEnumerable.pdb" />
