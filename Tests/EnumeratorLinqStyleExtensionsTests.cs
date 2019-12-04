@@ -111,7 +111,7 @@ namespace Tests
         public async Task Take_More()
         {
             var collection = new int[] { 1, 2, 3 }.GetAsyncEnumerator();
-            var actualResult = await collection.Take(1000).ToArrayAsync();
+            var actualResult = await collection.Take(int.MaxValue).ToArrayAsync();
             var expectedResult = new int[] { 1, 2, 3 };
             Assert.AreEqual(expectedResult, actualResult);
         }
