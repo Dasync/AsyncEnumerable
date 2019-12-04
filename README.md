@@ -338,6 +338,10 @@ The `ForEachAsync` allows you to go through a collection and perform an action o
 
 ## RELEASE NOTES
 
+4.0.2: Bug-fix: Slow `Take` extension method.
+       Add `AllAsync` and `AnyAsync` extension methods.
+       Add support for SourceLink.
+
 4.0.1: Explicitly add the DLL for .NET Framework 4.6.1 to be compatible with NET Standard 2.0. No functional changes.
 
 4.0.0: Use interfaces from Microsoft.Bcl.AsyncInterfaces package in NET Standard 2.0. No functional changes.
