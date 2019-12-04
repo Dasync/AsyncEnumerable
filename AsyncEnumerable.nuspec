@@ -6,6 +6,7 @@
         <authors>sergiis,dasync</authors>
         <license type="expression">MIT</license>
         <projectUrl>https://github.com/Dasync/AsyncEnumerable</projectUrl>
+        <repository type="git" url="https://github.com/Dasync/AsyncEnumerable.git" commit="" />
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <iconUrl>https://raw.githubusercontent.com/Dasync/AsyncEnumerable/master/icon.png</iconUrl>
         <title>C# Async Streams features</title>
