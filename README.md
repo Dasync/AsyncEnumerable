@@ -25,7 +25,7 @@ dotnet add package AsyncEnumerator
 Edit .csproj file:
 ```xml
 <ItemGroup>
-  <PackageReference Include="AsyncEnumerator" Version="4.0.1" />
+  <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
 </ItemGroup>
 ```
 
