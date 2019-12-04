@@ -460,5 +460,53 @@ namespace Tests
             Assert.AreEqual(new[] { 1, 3 }, actualLookup["A"]);
             Assert.AreEqual(new[] { 2 }, actualLookup["b"]);
         }
+
+        [Test]
+        public async Task All_NoElements()
+        {
+            var collection = new bool[0].ToAsyncEnumerable();
+            var actualResult = await collection.AllAsync(x => x);
+            Assert.IsTrue(actualResult);
+        }
+
+        [Test]
+        public async Task All_False()
+        {
+            var collection = new[] {1, 2, 3}.ToAsyncEnumerable();
+            var actualResult = await collection.AllAsync(x => x > 2);
+            Assert.IsFalse(actualResult);
+        }
+
+        [Test]
+        public async Task All_True()
+        {
+            var collection = new[] {1, 2, 3}.ToAsyncEnumerable();
+            var actualResult = await collection.AllAsync(x => x > 0);
+            Assert.IsTrue(actualResult);
+        }
+
+        [Test]
+        public async Task Any_NoElements()
+        {
+            var collection = new bool[0].ToAsyncEnumerable();
+            var actualResult = await collection.AnyAsync(x => x);
+            Assert.IsFalse(actualResult);
+        }
+
+        [Test]
+        public async Task Any_True()
+        {
+            var collection = new[] {1, 2, 3}.ToAsyncEnumerable();
+            var actualResult = await collection.AnyAsync(x => x > 2);
+            Assert.IsTrue(actualResult);
+        }
+
+        [Test]
+        public async Task Any_False()
+        {
+            var collection = new[] {1, 2, 3}.ToAsyncEnumerable();
+            var actualResult = await collection.AnyAsync(x => x > 4);
+            Assert.IsFalse(actualResult);
+        }
     }
 }

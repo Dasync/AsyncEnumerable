@@ -2175,6 +2175,86 @@ namespace Dasync.Collections
         }
 
 #endregion
+        
+#region All / Any
+
+        /// <summary>
+        /// Determines whether all elements of a sequence satisfy a condition.
+        /// </summary>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> that contains the elements to apply the predicate to.</param>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <returns>true if every element of the source sequence passes the test in the specified predicate, or if the sequence is empty; otherwise, false.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="predicate"/> is null.</exception>
+        public static async Task<bool> AllAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, bool> predicate,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (true)
+                {
+                    if (!await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                    {
+                        break;
+                    }
+
+                    if (!predicate(enumerator.Current))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+        
+        /// <summary>
+        /// Determines whether any element of a sequence exists or satisfies a condition.
+        /// </summary>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> that contains the elements to apply the predicate to.</param>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <returns>true if any elements in the source sequence pass the test in the specified predicate; otherwise, false.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="predicate"/> is null.</exception>
+        public static async Task<bool> AnyAsync<TSource>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, bool> predicate,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+            
+            using (var enumerator = await source.GetAsyncEnumeratorAsync(cancellationToken).ConfigureAwait(false))
+            {
+                while (true)
+                {
+                    if (!await enumerator.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                    {
+                        break;
+                    }
+
+                    if (predicate(enumerator.Current))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        
+#endregion
 
 #region Shared Helpers
 
