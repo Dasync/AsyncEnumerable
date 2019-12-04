@@ -441,6 +441,8 @@ namespace Dasync.Collections
                     {
                         if (await context.Source.MoveNextAsync().ConfigureAwait(false))
                             await yield.ReturnAsync(context.Source.Current).ConfigureAwait(false);
+                        else
+                            break;
                     }
                 }
                 finally

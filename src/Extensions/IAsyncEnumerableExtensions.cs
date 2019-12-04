@@ -611,6 +611,8 @@ namespace Dasync.Collections
                     {
                         if (await enumerator.MoveNextAsync().ConfigureAwait(false))
                             await yield.ReturnAsync(enumerator.Current).ConfigureAwait(false);
+                        else
+                            break;
                     }
                 }
                 finally
